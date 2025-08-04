@@ -1,0 +1,158 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## Core Design Pattern Guidelines
+
+- **Pattern Identification and Documentation:**
+  - Clearly identify the design pattern being used with explicit class or file naming.
+  - Document all patterns with standard UML diagrams showing relationships between components.
+  - Always include a rationale for why a specific pattern was chosen over alternatives.
+
+  ```python
+  # ✅ DO: Document pattern purpose
+  class UserBuilder:  # Builder Pattern
+      """Builder pattern implementation for User objects.
+      Selected to handle complex user creation with optional attributes.
+      """
+      
+  # ❌ DON'T: Use patterns without documentation
+  class UserBuilder:
+      # No documentation of pattern or purpose
+  ```
+
+- **SOLID Principles Integration:**
+  - Ensure all pattern implementations adhere to relevant SOLID principles:
+    - **S**: Each pattern component has a single responsibility
+    - **O**: Patterns should be extensible without modification
+    - **L**: Subtypes must be substitutable for their base types
+    - **I**: Pattern interfaces should be focused and minimal
+    - **D**: Components should depend on abstractions, not implementations
+
+  ```python
+  # ✅ DO: Follow SOLID principles
+  from abc import ABC, abstractmethod
+  
+  class NotificationStrategy(ABC):  # Strategy Pattern + Interface Segregation
+      @abstractmethod
+      def send(self, message: str) -> bool:
+          pass
+          
+  # ❌ DON'T: Create monolithic pattern implementations
+  class Notifier:  # Violates SRP and ISP
+      def send_email(self): pass
+      def send_sms(self): pass
+      def send_push(self): pass
+      def log_notification(self): pass
+  ```
+
+- **Consistent Pattern Structure:**
+  - Maintain consistent component naming across all pattern implementations:
+    - **Creational**: Builder, Factory, Singleton, Prototype, etc.
+    - **Structural**: Adapter, Bridge, Composite, Decorator, etc.
+    - **Behavioral**: Observer, Strategy, Command, etc.
+  - Follow standard pattern structure as defined in canonical design pattern literature.
+
+- **Builder Pattern Implementation:**
+  - Implement with clear separation between Director, Builder interface, Concrete Builders, and Product.
+  - Use method chaining for fluent interfaces when appropriate.
+  - Consider Builder Facets for complex objects with logically grouped properties.
+  - Always include a reset method to allow builder reuse.
+
+  ```python
+  # ✅ DO: Implement Builder with proper components
+  class ComputerBuilder:
+      def reset(self):
+          self._computer = Computer()
+          return self
+          
+      def with_cpu(self, cpu):
+          self._computer.cpu = cpu
+          return self
+          
+      def build(self):
+          computer = self._computer
+          self.reset()
+          return computer
+          
+  # ❌ DON'T: Mix pattern responsibilities or skip reset
+  class BadBuilder:
+      def build_with_cpu(self, cpu):  # Mixes Director and Builder roles
+          computer = Computer()
+          computer.cpu = cpu
+          return computer  # No reset, builder not reusable
+  ```
+
+- **Testing Patterns:**
+  - Create specific tests for each pattern verifying:
+    - Pattern structure correctness
+    - Expected behavior in various scenarios
+    - Proper component interaction
+  - Test pattern extensibility by adding new concrete implementations.
+
+- **Pattern Documentation:**
+  - Document all patterns with:
+    - UML class diagrams showing relationships
+    - Sequence diagrams for complex behavior
+    - Usage examples with clear context
+    - Alternatives considered and reasons for rejection
+
+  ```markdown
+  # ✅ DO: Complete pattern documentation
+  ## Observer Pattern
+  
+  ![Observer UML](mdc:diagrams/observer_pattern.png)
+  
+  ### Components:
+  - Subject: Maintains subscribers, sends notifications
+  - Observer: Interface for update notifications
+  - ConcreteObservers: Specific implementations that react to updates
+  
+  ### When to use:
+  - When changes to one object require automatic updates to others
+  - When the number of observers is unknown or can change dynamically
+  
+  ### Example usage:
+  ```python
+  subject = NewsPublisher()
+  subject.attach(EmailSubscriber())
+  subject.attach(SMSSubscriber())
+  subject.notify("Breaking news!")
+  ```
+  ```
+
+- **Pattern Selection Criteria:**
+  - Document the decision process for selecting patterns with:
+    - Problem statement the pattern addresses
+    - Alternative patterns considered
+    - Trade-offs evaluated (complexity, performance, flexibility)
+    - Final justification for the chosen pattern
+
+- **Anti-Patterns Avoidance:**
+  - Avoid common anti-patterns:
+    - "Golden Hammer": Using one familiar pattern for everything
+    - Over-engineering: Implementing patterns without clear need
+    - Pattern mixing: Combining multiple patterns without clear boundaries
+    - Ignoring context: Using patterns inappropriate for the problem domain
+
+## Specific Pattern Guidelines
+
+- **Creational Patterns:**
+  - Use Factory Method for creating objects without specifying exact class
+  - Apply Abstract Factory for families of related objects
+  - Implement Builder for complex object construction
+  - Use Singleton sparingly and with thread-safety consideration
+
+- **Structural Patterns:**
+  - Apply Adapter to make incompatible interfaces work together
+  - Use Composite for tree structures and part-whole hierarchies
+  - Implement Decorator to add responsibilities dynamically
+  - Apply Facade to provide simplified interface to complex subsystems
+
+- **Behavioral Patterns:**
+  - Use Observer for maintaining consistency between related objects
+  - Apply Strategy to define family of interchangeable algorithms
+  - Implement Command to encapsulate requests as objects
+
+  - Use Template Method for defining algorithm skeleton with customizable steps

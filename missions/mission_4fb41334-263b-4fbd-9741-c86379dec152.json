@@ -1,0 +1,83 @@
+{
+  "mission_name": "Patrulla Base Militar Ejemplo",
+  "description": "Patrullar el per\u00edmetro del \u00e1rea de la base militar, manteniendo una altitud de 100 metros y un radio de 50m2.",
+  "estimated_duration": 60,
+  "waypoints": [
+    {
+      "latitude": 40.416475,
+      "longitude": -3.702963,
+      "altitude": 100,
+      "action": "takeoff",
+      "duration": 2,
+      "description": "Despegue desde el centro de la base militar"
+    },
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 100,
+      "action": "navigate",
+      "duration": 5,
+      "description": "Navegar hacia el l\u00edmite noroeste del \u00e1rea"
+    },
+    {
+      "latitude": 40.4178,
+      "longitude": -3.7025,
+      "altitude": 100,
+      "action": "patrol",
+      "duration": 15,
+      "description": "Patrullar el l\u00edmite norte del \u00e1rea"
+    },
+    {
+      "latitude": 40.4165,
+      "longitude": -3.7012,
+      "altitude": 100,
+      "action": "patrol",
+      "duration": 15,
+      "description": "Patrullar el l\u00edmite este del \u00e1rea"
+    },
+    {
+      "latitude": 40.4152,
+      "longitude": -3.702,
+      "altitude": 100,
+      "action": "patrol",
+      "duration": 15,
+      "description": "Patrullar el l\u00edmite sur del \u00e1rea"
+    },
+    {
+      "latitude": 40.4158,
+      "longitude": -3.7045,
+      "altitude": 100,
+      "action": "patrol",
+      "duration": 15,
+      "description": "Patrullar el l\u00edmite oeste del \u00e1rea"
+    },
+    {
+      "latitude": 40.416475,
+      "longitude": -3.702963,
+      "altitude": 100,
+      "action": "land",
+      "duration": 2,
+      "description": "Aterrizaje en el centro de la base militar"
+    }
+  ],
+  "safety_considerations": [
+    "Mantener una altitud segura de 100 metros para evitar colisiones con estructuras terrestres",
+    "Evitar volar directamente sobre personal o equipos en tierra",
+    "Mantener el dron dentro del per\u00edmetro de la base militar para evitar intrusiones en el espacio a\u00e9reo civil"
+  ],
+  "success_criteria": [
+    "El dron completa la patrulla del per\u00edmetro sin incidentes",
+    "El dron mantiene una altitud constante de 100 metros",
+    "El dron aterriza con \u00e9xito en el centro de la base militar"
+  ],
+  "area_used": "base_militar_ejemplo",
+  "id": "4fb41334-263b-4fbd-9741-c86379dec152",
+  "created_at": "2025-05-28T23:47:54.252741",
+  "status": "planned",
+  "area_name": "base_militar_ejemplo",
+  "original_command": "Patrulla entorno al archivo geojson un perimetro area ampliada de 50m2 a unos 100 metros de altura",
+  "area_center": {
+    "latitude": 40.416475,
+    "longitude": -3.7029633333333334
+  }
+}

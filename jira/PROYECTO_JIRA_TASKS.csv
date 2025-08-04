@@ -1,0 +1,56 @@
+Issue Key,Summary,Description,Date,User,Time Spent,Story Points,Status,Priority,Component,Epic Link
+PROJ-001,Arquitectura inicial del proyecto,"Diseño de la arquitectura base del sistema Drone Geo Analysis con estructura modular MVC",2024-03-15,developer,4h,8,Done,High,Architecture,EPIC-001
+PROJ-002,Configuración del entorno Docker,"Setup inicial de Docker Compose y Dockerfile para contenarización del proyecto",2024-03-18,devops,2h,3,Done,Medium,Infrastructure,EPIC-001
+PROJ-003,Implementación base_drone.py,"Creación de la clase abstracta BaseDrone usando patrón Abstract Factory",2024-03-22,developer,3h,5,Done,High,Drones,EPIC-002
+PROJ-004,Desarrollo dji_controller.py,"Implementación específica para control de drones DJI con simulación y telemetría",2024-03-25,developer,6h,13,Done,High,Drones,EPIC-002
+PROJ-005,Configuración Flask main.py,"Implementación del punto de entrada principal con patrón Factory",2024-03-28,developer,3h,5,Done,High,Core,EPIC-001
+PROJ-006,Sistema de logging y configuración,"Implementación de config.py con logging profesional y gestión de entorno",2024-04-02,developer,2h30m,3,Done,Medium,Utils,EPIC-001
+PROJ-007,Helpers y utilidades básicas,"Desarrollo de helpers.py con funciones auxiliares para gestión de archivos",2024-04-05,developer,2h,3,Done,Medium,Utils,EPIC-001
+PROJ-008,Modelo GeoAnalyzer con GPT-4,"Implementación del analizador geográfico principal usando GPT-4 Vision",2024-04-10,ai-specialist,8h,21,Done,Critical,Models,EPIC-003
+PROJ-009,Controlador de análisis HTTP,"Desarrollo de analysis_controller.py para endpoints de análisis de imágenes",2024-04-12,developer,3h,5,Done,High,Controllers,EPIC-003
+PROJ-010,Servicio empresarial de análisis,"Implementación de analysis_service.py con lógica de negocio para análisis",2024-04-15,developer,4h,8,Done,High,Services,EPIC-003
+PROJ-011,Procesador de video en tiempo real,"Desarrollo de video_processor.py para streaming y análisis de frames",2024-04-18,developer,5h,8,Done,High,Processors,EPIC-002
+PROJ-012,Controlador de drones HTTP,"Implementación de drone_controller.py para control web de drones",2024-04-22,developer,3h30m,5,Done,High,Controllers,EPIC-002
+PROJ-013,Servicio empresarial de drones,"Desarrollo de drone_service.py con orquestación de operaciones de vuelo",2024-04-25,developer,4h,8,Done,High,Services,EPIC-002
+PROJ-014,Sistema de triangulación geográfica,"Implementación de geo_triangulation.py para localización precisa",2024-04-28,geo-specialist,6h,13,Done,High,Geo,EPIC-004
+PROJ-015,Correlador geográfico satelital,"Desarrollo de geo_correlator.py para validación con imágenes satelitales",2024-05-02,geo-specialist,5h,8,Done,Medium,Geo,EPIC-004
+PROJ-016,Controlador geográfico HTTP,"Implementación de geo_controller.py para endpoints de geolocalización",2024-05-05,developer,3h,5,Done,High,Controllers,EPIC-004
+PROJ-017,Servicio empresarial geográfico,"Desarrollo de geo_service.py con lógica de triangulación empresarial",2024-05-08,developer,5h,8,Done,High,Services,EPIC-004
+PROJ-018,Detector de cambios OpenCV,"Implementación de change_detector.py para análisis temporal de imágenes",2024-05-12,cv-specialist,4h,8,Done,Medium,Processors,EPIC-004
+PROJ-019,Gestor de estado geográfico,"Desarrollo de geo_manager.py para gestión de referencias y cache",2024-05-15,developer,2h30m,3,Done,Medium,Models,EPIC-004
+PROJ-020,Planificador de misiones LLM,"Implementación de mission_planner.py para generación de misiones con IA",2024-05-20,ai-specialist,8h,21,Done,Critical,Models,EPIC-005
+PROJ-021,Modelos de datos de misiones,"Desarrollo de mission_models.py con estructuras Waypoint y MissionArea",2024-05-22,developer,2h,3,Done,Medium,Models,EPIC-005
+PROJ-022,Parser robusto de misiones,"Implementación de mission_parser.py para parsing de respuestas JSON LLM",2024-05-25,developer,3h,5,Done,High,Models,EPIC-005
+PROJ-023,Validador de seguridad de misiones,"Desarrollo de mission_validator.py para validación de restricciones aéreas",2024-05-28,safety-specialist,4h,8,Done,High,Models,EPIC-005
+PROJ-024,Utilidades matemáticas de misiones,"Implementación de mission_utils.py con cálculos geográficos",2024-06-02,developer,3h,5,Done,Medium,Models,EPIC-005
+PROJ-025,Controlador de misiones HTTP,"Desarrollo de mission_controller.py para endpoints LLM y planificación",2024-06-05,developer,4h,8,Done,High,Controllers,EPIC-005
+PROJ-026,Servicio empresarial de misiones,"Implementación de mission_service.py con orquestación de misiones IA",2024-06-08,developer,5h,8,Done,High,Services,EPIC-005
+PROJ-027,Interface principal HTML,"Desarrollo de index.html como página principal del sistema",2024-06-12,frontend-dev,6h,8,Done,High,Frontend,EPIC-006
+PROJ-028,Panel de control de drones,"Implementación de drone_control.html con mapa interactivo Leaflet.js",2024-06-18,frontend-dev,12h,21,Done,Critical,Frontend,EPIC-006
+PROJ-029,Interface de análisis optimizada,"Desarrollo de web_index.html para análisis rápido de imágenes",2024-06-22,frontend-dev,4h,5,Done,Medium,Frontend,EPIC-006
+PROJ-030,Documentación de misiones LLM,"Creación de mission_instructions.html con guía de comandos",2024-06-25,technical-writer,3h,3,Done,Medium,Frontend,EPIC-006
+PROJ-031,Sistema de testing de controllers,"Implementación completa de tests para el directorio controllers/",2024-07-02,qa-engineer,8h,13,Done,High,Testing,EPIC-007
+PROJ-032,Sistema de testing de drones,"Desarrollo de tests comprehensivos para el módulo drones/",2024-07-08,qa-engineer,6h,8,Done,High,Testing,EPIC-007
+PROJ-033,Sistema de testing de geo,"Implementación de tests para módulos de análisis geográfico",2024-07-15,qa-engineer,8h,13,Done,High,Testing,EPIC-007
+PROJ-034,Sistema de testing de models,"Desarrollo de tests para modelos de IA y estructuras de datos",2024-07-22,qa-engineer,10h,13,Done,High,Testing,EPIC-007
+PROJ-035,Sistema de testing de processors,"Implementación de tests para procesamiento multimedia",2024-07-28,qa-engineer,6h,8,Done,High,Testing,EPIC-007
+PROJ-036,Sistema de testing de services,"Desarrollo de 107 tests empresariales para lógica de negocio con 95.3% éxito",2024-08-05,qa-engineer,12h,21,Done,Critical,Testing,EPIC-007
+PROJ-037,Optimización de rendimiento,"Mejoras de performance y threading en video_processor y drone_service",2024-08-12,performance-engineer,6h,8,Done,Medium,Performance,EPIC-008
+PROJ-038,Refactorización de arquitectura,"Migración completa a arquitectura empresarial con inyección de dependencias",2024-08-20,architect,16h,34,Done,Critical,Architecture,EPIC-008
+PROJ-039,Integración multi-provider LLM,"Implementación de soporte para OpenAI y Docker Models con fallback",2024-08-25,ai-specialist,5h,8,Done,High,Integration,EPIC-008
+PROJ-040,Sistema de cache inteligente,"Implementación de cache para imágenes satelitales y referencias geográficas",2024-09-02,developer,4h,5,Done,Medium,Performance,EPIC-008
+PROJ-041,Documentación técnica completa,"Creación de documentación exhaustiva de todos los módulos del proyecto",2024-09-10,technical-writer,8h,8,Done,Medium,Documentation,EPIC-009
+PROJ-042,Corrección de tipos en geo_correlator,"Fix de anotaciones de tipo Optional[str] en parámetros api_key y satellite_api_url",2024-09-15,developer,30m,1,Done,Low,Bugfix,EPIC-008
+PROJ-043,Validación empresarial de testing,"Validación final del sistema de testing con 95.3% de éxito en 107 tests",2024-09-20,qa-lead,4h,5,Done,High,Testing,EPIC-007
+PROJ-044,Deployment y estabilización,"Configuración final de producción y estabilización del sistema completo",2024-09-25,devops,6h,8,Done,High,Infrastructure,EPIC-008
+PROJ-045,Documentación de scripts principal,"Creación de SCRIPTS_GUIDE.md con guía completa de todos los scripts",2024-12-18,technical-writer,2h,3,Done,Medium,Documentation,EPIC-010
+PROJ-046,Análisis de relaciones entre módulos,"Desarrollo de SCRIPTS_RELATIONSHIPS.md con mapa de dependencias detallado",2024-12-18,technical-writer,2h30m,5,Done,Medium,Documentation,EPIC-010
+PROJ-047,Overview de arquitectura de scripts,"Creación de SCRIPTS_OVERVIEW.md con resumen conciso de la estructura",2024-12-18,technical-writer,1h30m,3,Done,Medium,Documentation,EPIC-010
+PROJ-048,Análisis técnico de scripts,"Implementación de SCRIPTS_ANALYSIS.md con análisis detallado de funcionalidad",2024-12-18,technical-writer,3h,5,Done,Medium,Documentation,EPIC-010
+PROJ-049,Documentación comprehensiva final,"Desarrollo de SCRIPTS_DOCUMENTATION.md con documentación exhaustiva completa",2024-12-18,technical-writer,4h,8,Done,High,Documentation,EPIC-010
+PROJ-050,CSV de tareas Jira del proyecto,"Creación de reporte CSV completo con todas las tareas desde marzo hasta diciembre",2024-12-18,project-manager,2h,3,Done,Medium,Documentation,EPIC-010
+PROJ-051,Refactorización modular de mission_planner.py,"Aplicación de principios SOLID y Single Responsibility a mission_planner.py, creando clases auxiliares LLMClient, CartographyManager, MissionDataProcessor y PromptGenerator",2024-12-23,developer,4h30m,13,Done,High,Architecture,EPIC-011
+PROJ-052,Creación de LLMClient,"Extracción de lógica de comunicación con LLM a clase independiente LLMClient con soporte para múltiples providers",2024-12-23,developer,1h,3,Done,Medium,Models,EPIC-011
+PROJ-053,Creación de CartographyManager,"Extracción de lógica de cartografía a clase independiente CartographyManager para carga y procesamiento de GeoJSON",2024-12-23,developer,1h30m,5,Done,Medium,Models,EPIC-011
+PROJ-054,Creación de MissionDataProcessor,"Extracción de procesamiento de datos de misión a clase independiente MissionDataProcessor",2024-12-23,developer,1h30m,5,Done,Medium,Models,EPIC-011
+PROJ-055,Creación de PromptGenerator,"Extracción de generación de prompts a clase independiente PromptGenerator",2024-12-23,developer,30m,2,Done,Low,Models,EPIC-011

@@ -1,0 +1,14 @@
+services:
+  drone-geo-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: drone-geo-analysis
+    volumes:
+      - ./:/app
+    env_file:
+      - .env
+    ports:
+      - "4001:5000"
+    restart: unless-stopped
+    command: python src/main.py 

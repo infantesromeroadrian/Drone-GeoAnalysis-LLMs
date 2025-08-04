@@ -1,0 +1,106 @@
+{
+  "mission_name": "Rastreo Base Militar Ejemplo",
+  "description": "Rastreo de puntos de inter\u00e9s en la base militar utilizando un dron a 75 metros de altura.",
+  "estimated_duration": 60,
+  "waypoints": [
+    {
+      "latitude": 40.416475,
+      "longitude": -3.702963,
+      "altitude": 75,
+      "action": "takeoff",
+      "duration": 2,
+      "description": "Despegue desde el centro de la base"
+    },
+    {
+      "latitude": 40.4165,
+      "longitude": -3.703,
+      "altitude": 75,
+      "action": "navigate",
+      "duration": 5,
+      "description": "Navegaci\u00f3n hacia la Torre de Comunicaciones"
+    },
+    {
+      "latitude": 40.4165,
+      "longitude": -3.703,
+      "altitude": 75,
+      "action": "scan",
+      "duration": 10,
+      "description": "Escaneo de la Torre de Comunicaciones"
+    },
+    {
+      "latitude": 40.4162,
+      "longitude": -3.7035,
+      "altitude": 75,
+      "action": "navigate",
+      "duration": 5,
+      "description": "Navegaci\u00f3n hacia el Hangar Principal"
+    },
+    {
+      "latitude": 40.4162,
+      "longitude": -3.7035,
+      "altitude": 75,
+      "action": "scan",
+      "duration": 10,
+      "description": "Escaneo del Hangar Principal"
+    },
+    {
+      "latitude": 40.417,
+      "longitude": -3.7028,
+      "altitude": 75,
+      "action": "navigate",
+      "duration": 5,
+      "description": "Navegaci\u00f3n hacia la Pista de Aterrizaje"
+    },
+    {
+      "latitude": 40.417,
+      "longitude": -3.7028,
+      "altitude": 75,
+      "action": "scan",
+      "duration": 10,
+      "description": "Escaneo de la Pista de Aterrizaje"
+    },
+    {
+      "latitude": 40.4168,
+      "longitude": -3.7032,
+      "altitude": 75,
+      "action": "navigate",
+      "duration": 5,
+      "description": "Navegaci\u00f3n hacia el Centro de Control"
+    },
+    {
+      "latitude": 40.4168,
+      "longitude": -3.7032,
+      "altitude": 75,
+      "action": "scan",
+      "duration": 10,
+      "description": "Escaneo del Centro de Control"
+    },
+    {
+      "latitude": 40.416475,
+      "longitude": -3.702963,
+      "altitude": 0,
+      "action": "land",
+      "duration": 2,
+      "description": "Aterrizaje en el centro de la base"
+    }
+  ],
+  "safety_considerations": [
+    "Mantener una distancia segura de los edificios y estructuras",
+    "Evitar sobrevolar personal o veh\u00edculos",
+    "Mantener una altitud constante de 75 metros para evitar obst\u00e1culos"
+  ],
+  "success_criteria": [
+    "Todos los puntos de inter\u00e9s han sido escaneados",
+    "El dron ha regresado y aterrizado con \u00e9xito"
+  ],
+  "area_used": "base_militar_ejemplo",
+  "id": "b6d9117f-7b19-404c-a1b6-9833afa48431",
+  "created_at": "2025-06-22T17:57:38.392509",
+  "status": "planned",
+  "area_name": "base_militar_ejemplo",
+  "original_command": "ejecuta el rastreo en los puntos marcados en el geojson a 75 metros de altura",
+  "area_center": {
+    "latitude": 40.416475,
+    "longitude": -3.7029633333333334
+  }
+}

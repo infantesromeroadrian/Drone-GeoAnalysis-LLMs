@@ -1,0 +1,91 @@
+{
+  "mission_name": "Patrulla de Vigilancia Aérea",
+  "description": "Realizar una patrulla de vigilancia aérea en el área militar para detectar posibles amenazas",
+  "estimated_duration": 30,
+  "waypoints": [
+    {
+      "latitude": 40.416475,
+      "longitude": -3.702963,
+      "altitude": 3,
+      "action": "navigate",
+      "duration": 5,
+      "description": "Despegue del base militar"
+    },
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 3,
+      "action": "hover",
+      "duration": 10,
+      "description": "Realizar escaneo del área"
+    },
+    {
+      "latitude": 40.4178,
+      "longitude": -3.7025,
+      "altitude": 3,
+      "action": "scan",
+      "duration": 10,
+      "description": "Realizar escaneo de la pista de aterrizaje"
+    },
+    {
+      "latitude": 40.4165,
+      "longitude": -3.703,
+      "altitude": 3,
+      "action": "photograph",
+      "duration": 5,
+      "description": "Realizar fotografía de la torre de comunicaciones"
+    },
+    {
+      "latitude": 40.4162,
+      "longitude": -3.7035,
+      "altitude": 3,
+      "action": "hover",
+      "duration": 10,
+      "description": "Realizar escaneo del hangar principal"
+    },
+    {
+      "latitude": 40.417,
+      "longitude": -3.7028,
+      "altitude": 3,
+      "action": "scan",
+      "duration": 10,
+      "description": "Realizar escaneo de la pista de aterrizaje"
+    },
+    {
+      "latitude": 40.4168,
+      "longitude": -3.7032,
+      "altitude": 3,
+      "action": "photograph",
+      "duration": 5,
+      "description": "Realizar fotografía del centro de control"
+    },
+    {
+      "latitude": 40.416475,
+      "longitude": -3.702963,
+      "altitude": 3,
+      "action": "navigate",
+      "duration": 5,
+      "description": "Regresar al base militar"
+    }
+  ],
+  "safety_considerations": [
+    "Evitar colisiones con estructuras y objetos en el área",
+    "Realizar escaneos regulares para detectar posibles amenazas"
+  ],
+  "success_criteria": [
+    "Completa la patrulla de vigilancia aérea sin incidentes",
+    "Detener posibles amenazas en el área"
+  ],
+  "area_used": "base_militar_ejemplo",
+  "id": "47e46bd6-3215-4b4b-8226-fc2d5a8d9377",
+  "created_at": "2025-07-09T10:52:34.778003",
+  "status": "planned",
+  "area_name": "base_militar_ejemplo",
+  "original_command": "Haz todos los waypoints en orden a una altura de 3 metros",
+  "llm_provider": "docker",
+  "llm_model": "ai/llama3.2:latest",
+  "area_center": {
+    "latitude": 40.416475,
+    "longitude": -3.7029633333333334
+  }
+}

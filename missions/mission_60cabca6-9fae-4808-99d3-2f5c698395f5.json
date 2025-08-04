@@ -1,0 +1,169 @@
+{
+  "mission_name": "New York Operations Patrol",
+  "description": "Patrulla el área de operaciones de New York a 3 metros de altura",
+  "estimated_duration": 120,
+  "waypoints": [
+    {
+      "latitude": 40.6496,
+      "longitude": -73.7907,
+      "altitude": 3,
+      "action": "navigate",
+      "duration": 10,
+      "description": "Despegue desde el punto de partida"
+    },
+    {
+      "latitude": 40.6496,
+      "longitude": -73.7907,
+      "altitude": 3,
+      "action": "hover",
+      "duration": 5,
+      "description": "Establecer posición inicial"
+    },
+    {
+      "latitude": 40.6496,
+      "longitude": -73.7907,
+      "altitude": 3,
+      "action": "scan",
+      "duration": 30,
+      "description": "Escaneo inicial del área"
+    },
+    {
+      "latitude": 40.6296,
+      "longitude": -73.8107,
+      "altitude": 3,
+      "action": "navigate",
+      "duration": 20,
+      "description": "Dirigirse hacia el norte"
+    },
+    {
+      "latitude": 40.6296,
+      "longitude": -73.8107,
+      "altitude": 3,
+      "action": "hover",
+      "duration": 10,
+      "description": "Establecer posición en el punto de interés 1"
+    },
+    {
+      "latitude": 40.6296,
+      "longitude": -73.8107,
+      "altitude": 3,
+      "action": "photograph",
+      "duration": 15,
+      "description": "Tomar fotografías en el punto de interés 1"
+    },
+    {
+      "latitude": 40.6296,
+      "longitude": -73.8107,
+      "altitude": 3,
+      "action": "navigate",
+      "duration": 20,
+      "description": "Dirigirse hacia el oeste"
+    },
+    {
+      "latitude": 40.6296,
+      "longitude": -73.8107,
+      "altitude": 3,
+      "action": "hover",
+      "duration": 10,
+      "description": "Establecer posición en el punto de interés 2"
+    },
+    {
+      "latitude": 40.6296,
+      "longitude": -73.8107,
+      "altitude": 3,
+      "action": "scan",
+      "duration": 30,
+      "description": "Escaneo en el punto de interés 2"
+    },
+    {
+      "latitude": 40.6796,
+      "longitude": -73.7607,
+      "altitude": 3,
+      "action": "navigate",
+      "duration": 20,
+      "description": "Dirigirse hacia el sur"
+    },
+    {
+      "latitude": 40.6796,
+      "longitude": -73.7607,
+      "altitude": 3,
+      "action": "hover",
+      "duration": 10,
+      "description": "Establecer posición en el punto de interés 3"
+    },
+    {
+      "latitude": 40.6796,
+      "longitude": -73.7607,
+      "altitude": 3,
+      "action": "photograph",
+      "duration": 15,
+      "description": "Tomar fotografías en el punto de interés 3"
+    },
+    {
+      "latitude": 40.6796,
+      "longitude": -73.7607,
+      "altitude": 3,
+      "action": "navigate",
+      "duration": 20,
+      "description": "Dirigirse hacia el este"
+    },
+    {
+      "latitude": 40.6796,
+      "longitude": -73.7607,
+      "altitude": 3,
+      "action": "hover",
+      "duration": 10,
+      "description": "Establecer posición en el punto de interés 4"
+    },
+    {
+      "latitude": 40.6796,
+      "longitude": -73.7607,
+      "altitude": 3,
+      "action": "scan",
+      "duration": 30,
+      "description": "Escaneo en el punto de interés 4"
+    },
+    {
+      "latitude": 40.6296,
+      "longitude": -73.8107,
+      "altitude": 3,
+      "action": "navigate",
+      "duration": 20,
+      "description": "Dirigirse hacia el norte"
+    },
+    {
+      "latitude": 40.6296,
+      "longitude": -73.8107,
+      "altitude": 3,
+      "action": "hover",
+      "duration": 10,
+      "description": "Establecer posición en el punto de partida"
+    },
+    {
+      "latitude": 40.6496,
+      "longitude": -73.7907,
+      "altitude": 3,
+      "action": "land",
+      "duration": 10,
+      "description": "Aterrizar en el punto de partida"
+    }
+  ],
+  "safety_considerations": [
+    "Evitar obstáculos y estructuras"
+  ],
+  "success_criteria": [
+    "Completa el recorrido sin incidentes"
+  ],
+  "area_used": "newyork_operations",
+  "id": "60cabca6-9fae-4808-99d3-2f5c698395f5",
+  "created_at": "2025-07-09T09:39:30.303341",
+  "status": "planned",
+  "area_name": "newyork_operations",
+  "original_command": "Recorre el permitió completo a 3 metros de altura",
+  "llm_provider": "docker",
+  "llm_model": "ai/llama3.2:latest",
+  "area_center": {
+    "latitude": 40.64960000000001,
+    "longitude": -73.79069999999999
+  }
+}

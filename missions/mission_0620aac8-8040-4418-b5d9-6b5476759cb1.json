@@ -1,0 +1,83 @@
+{
+  "mission_name": "Perimeter Drone Search",
+  "description": "A mission to patrol the perimeter of the specified geo json area, searching for other drones at an altitude of 75 meters.",
+  "estimated_duration": 60,
+  "waypoints": [
+    {
+      "latitude": 40.6496,
+      "longitude": -73.7907,
+      "altitude": 75,
+      "action": "takeoff",
+      "duration": 2,
+      "description": "Take off from the central point"
+    },
+    {
+      "latitude": 40.6296,
+      "longitude": -73.8107,
+      "altitude": 75,
+      "action": "navigate",
+      "duration": 10,
+      "description": "Navigate to the southwest corner of the area"
+    },
+    {
+      "latitude": 40.6296,
+      "longitude": -73.7607,
+      "altitude": 75,
+      "action": "patrol",
+      "duration": 15,
+      "description": "Patrol the southern boundary of the area"
+    },
+    {
+      "latitude": 40.6796,
+      "longitude": -73.7607,
+      "altitude": 75,
+      "action": "patrol",
+      "duration": 15,
+      "description": "Patrol the eastern boundary of the area"
+    },
+    {
+      "latitude": 40.6796,
+      "longitude": -73.8107,
+      "altitude": 75,
+      "action": "patrol",
+      "duration": 15,
+      "description": "Patrol the northern boundary of the area"
+    },
+    {
+      "latitude": 40.6296,
+      "longitude": -73.8107,
+      "altitude": 75,
+      "action": "patrol",
+      "duration": 15,
+      "description": "Patrol the western boundary of the area"
+    },
+    {
+      "latitude": 40.6496,
+      "longitude": -73.7907,
+      "altitude": 75,
+      "action": "land",
+      "duration": 2,
+      "description": "Land back at the central point"
+    }
+  ],
+  "safety_considerations": [
+    "Avoid flying over densely populated areas",
+    "Maintain a safe distance from other drones",
+    "Be aware of any changes in weather conditions"
+  ],
+  "success_criteria": [
+    "Successfully patrol the entire perimeter of the area",
+    "Identify any other drones in the area",
+    "Return to the central point without any damage"
+  ],
+  "area_used": "newyork_operations",
+  "id": "0620aac8-8040-4418-b5d9-6b5476759cb1",
+  "created_at": "2025-05-29T00:18:30.399142",
+  "status": "planned",
+  "area_name": "newyork_operations",
+  "original_command": "haz un recorrido del area perimetro del geo json buscando drones a una altura de 75 metros",
+  "area_center": {
+    "latitude": 40.64960000000001,
+    "longitude": -73.79069999999999
+  }
+}

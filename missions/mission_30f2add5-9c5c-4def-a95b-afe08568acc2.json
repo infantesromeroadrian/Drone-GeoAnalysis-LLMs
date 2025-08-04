@@ -1,0 +1,97 @@
+{
+  "mission_name": "Perimetro Base Militar",
+  "description": "Realizar un vuelo a 3 metros de altura alrededor del perímetro de la base militar",
+  "estimated_duration": 10,
+  "waypoints": [
+    {
+      "latitude": 40.416475,
+      "longitude": -3.702963,
+      "altitude": 3,
+      "action": "navigate",
+      "duration": 0,
+      "description": "Iniciar vuelo desde el centro de la base"
+    },
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 3,
+      "action": "hover",
+      "duration": 2,
+      "description": "Detenerse en la primera esquina del perímetro"
+    },
+    {
+      "latitude": 40.4178,
+      "longitude": -3.7025,
+      "altitude": 3,
+      "action": "navigate",
+      "duration": 2,
+      "description": "Dirigirse hacia la segunda esquina del perímetro"
+    },
+    {
+      "latitude": 40.4165,
+      "longitude": -3.7012,
+      "altitude": 3,
+      "action": "hover",
+      "duration": 2,
+      "description": "Detenerse en la tercera esquina del perímetro"
+    },
+    {
+      "latitude": 40.4152,
+      "longitude": -3.702,
+      "altitude": 3,
+      "action": "navigate",
+      "duration": 2,
+      "description": "Dirigirse hacia la cuarta esquina del perímetro"
+    },
+    {
+      "latitude": 40.4158,
+      "longitude": -3.7045,
+      "altitude": 3,
+      "action": "navigate",
+      "duration": 2,
+      "description": "Dirigirse hacia la quinta esquina del perímetro"
+    },
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 3,
+      "action": "hover",
+      "duration": 2,
+      "description": "Detenerse en la primera esquina del perímetro (de nuevo)"
+    },
+    {
+      "latitude": 40.416475,
+      "longitude": -3.702963,
+      "altitude": 3,
+      "action": "navigate",
+      "duration": 2,
+      "description": "Dirigirse hacia el centro de la base"
+    },
+    {
+      "latitude": 40.416475,
+      "longitude": -3.702963,
+      "altitude": 3,
+      "action": "land",
+      "duration": 0,
+      "description": "Aterrizar en el centro de la base"
+    }
+  ],
+  "safety_considerations": [
+    "Evitar obstáculos y estructuras en el perímetro de la base"
+  ],
+  "success_criteria": [
+    "Completa el vuelo alrededor del perímetro de la base sin obstáculos"
+  ],
+  "area_used": "base_militar_ejemplo",
+  "id": "30f2add5-9c5c-4def-a95b-afe08568acc2",
+  "created_at": "2025-07-02T17:01:55.646465",
+  "status": "planned",
+  "area_name": "base_militar_ejemplo",
+  "original_command": "Haz el perimetro 2 veces seguidas a 3 metros de altura",
+  "llm_provider": "docker",
+  "llm_model": "ai/llama3.2:latest",
+  "area_center": {
+    "latitude": 40.416475,
+    "longitude": -3.7029633333333334
+  }
+}

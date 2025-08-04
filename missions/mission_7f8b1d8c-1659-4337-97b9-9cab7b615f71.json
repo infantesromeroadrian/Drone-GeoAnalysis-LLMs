@@ -1,0 +1,91 @@
+{
+  "mission_name": "Repetición de Recorrido Completo",
+  "description": "Repetir el recorrido completo de waypoints a 5 metros de altura",
+  "estimated_duration": 1200,
+  "waypoints": [
+    {
+      "latitude": 40.416475,
+      "longitude": -3.702963,
+      "altitude": 5,
+      "action": "navigate",
+      "duration": 10,
+      "description": "Iniciar recorrido"
+    },
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 5,
+      "action": "hover",
+      "duration": 10,
+      "description": "Detenerse en punto 1"
+    },
+    {
+      "latitude": 40.4178,
+      "longitude": -3.7025,
+      "altitude": 5,
+      "action": "navigate",
+      "duration": 10,
+      "description": "Continuar recorrido"
+    },
+    {
+      "latitude": 40.4165,
+      "longitude": -3.7012,
+      "altitude": 5,
+      "action": "hover",
+      "duration": 10,
+      "description": "Detenerse en punto 2"
+    },
+    {
+      "latitude": 40.4152,
+      "longitude": -3.702,
+      "altitude": 5,
+      "action": "navigate",
+      "duration": 10,
+      "description": "Continuar recorrido"
+    },
+    {
+      "latitude": 40.4158,
+      "longitude": -3.7045,
+      "altitude": 5,
+      "action": "hover",
+      "duration": 10,
+      "description": "Detenerse en punto 3"
+    },
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 5,
+      "action": "navigate",
+      "duration": 10,
+      "description": "Continuar recorrido"
+    },
+    {
+      "latitude": 40.416475,
+      "longitude": -3.702963,
+      "altitude": 5,
+      "action": "hover",
+      "duration": 10,
+      "description": "Finalizar recorrido"
+    }
+  ],
+  "safety_considerations": [
+    "Mantenimiento de la distancia mínima con el suelo",
+    "Evitar obstáculos y estructuras"
+  ],
+  "success_criteria": [
+    "Completa el recorrido completo sin incidentes",
+    "Mantener una altura constante de 5 metros"
+  ],
+  "area_used": "base_militar_ejemplo",
+  "id": "7f8b1d8c-1659-4337-97b9-9cab7b615f71",
+  "created_at": "2025-07-02T21:52:32.974509",
+  "status": "planned",
+  "area_name": "base_militar_ejemplo",
+  "original_command": "haz dos veces el recorrido completo de los waypoints a 5 metros de altura",
+  "llm_provider": "docker",
+  "llm_model": "ai/llama3.2:latest",
+  "area_center": {
+    "latitude": 40.416475,
+    "longitude": -3.7029633333333334
+  }
+}

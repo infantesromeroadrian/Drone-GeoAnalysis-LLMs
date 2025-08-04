@@ -1,0 +1,73 @@
+{
+  "mission_name": "Patrulla base militar sur",
+  "description": "Realizar patrulla en el \u00e1rea sur de la base militar para detectar intrusos",
+  "estimated_duration": 30,
+  "waypoints": [
+    {
+      "latitude": 40.416475,
+      "longitude": -3.702963,
+      "altitude": 75,
+      "action": "navigate",
+      "duration": 5,
+      "description": "Arranco desde el centro de la base"
+    },
+    {
+      "latitude": 40.4165,
+      "longitude": -3.703,
+      "altitude": 75,
+      "action": "hover",
+      "duration": 2,
+      "description": "Cruzo sobre la Torre de Comunicaciones"
+    },
+    {
+      "latitude": 40.4162,
+      "longitude": -3.7035,
+      "altitude": 75,
+      "action": "scan",
+      "duration": 5,
+      "description": "Realizo escaneo en el Hangar Principal"
+    },
+    {
+      "latitude": 40.417,
+      "longitude": -3.7028,
+      "altitude": 75,
+      "action": "hover",
+      "duration": 2,
+      "description": "Cruzo sobre la Pista de Aterrizaje"
+    },
+    {
+      "latitude": 40.4168,
+      "longitude": -3.7032,
+      "altitude": 75,
+      "action": "scan",
+      "duration": 5,
+      "description": "Realizo escaneo en el Centro de Control"
+    },
+    {
+      "latitude": 40.416475,
+      "longitude": -3.702963,
+      "altitude": 75,
+      "action": "navigate",
+      "duration": 5,
+      "description": "Regreso al punto de partida"
+    }
+  ],
+  "safety_considerations": [
+    "Evitar colisiones con estructuras de la base"
+  ],
+  "success_criteria": [
+    "Detectar al menos un intruso en el \u00e1rea"
+  ],
+  "area_used": "base_militar_ejemplo",
+  "id": "5a3bf3c9-aa8c-49a3-9eeb-424209ad6877",
+  "created_at": "2025-07-01T20:49:54.397066",
+  "status": "planned",
+  "area_name": "base_militar_ejemplo",
+  "original_command": "Patrulla el area sur de la base a 75 metros buscando intrusos",
+  "llm_provider": "docker",
+  "llm_model": "ai/llama3.2:latest",
+  "area_center": {
+    "latitude": 40.416475,
+    "longitude": -3.7029633333333334
+  }
+}

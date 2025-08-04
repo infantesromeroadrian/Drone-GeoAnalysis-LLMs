@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instrucciones: Misiones LLM - Drone Geo Analysis</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0F172A;
+            --secondary: #1E293B;
+            --accent: #3B82F6;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --text-primary: #F8FAFC;
+            --text-secondary: #CBD5E1;
+            --text-muted: #94A3B8;
+            --border: #334155;
+            --bg-card: #1E293B;
+            --bg-input: #0F172A;
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: var(--gradient-primary);
+            border-radius: 12px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .instruction-section {
+            background: var(--bg-card);
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border: 1px solid var(--border);
+        }
+
+        .instruction-section h2 {
+            color: var(--accent);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+        }
+
+        .step {
+            background: var(--bg-input);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .step-number {
+            background: var(--accent);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+
+        .step h3 {
+            color: var(--accent);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .code-block {
+            background: #000;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            border: 1px solid var(--border);
+        }
+
+        .warning-box {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid var(--warning);
+            color: var(--warning);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .success-box {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--success);
+            color: var(--success);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .button {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            margin: 5px;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .navigation {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            background: var(--bg-card);
+            border-radius: 12px;
+        }
+
+        ul {
+            margin-left: 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-rocket"></i> Misiones LLM con IA</h1>
+            <p>Guía completa para crear y ejecutar misiones de drones usando inteligencia artificial</p>
+        </div>
+
+        <div class="instruction-section">
+            <h2><i class="fas fa-bug"></i> Problema Resuelto: "Iniciar Misión" No Funcionaba</h2>
+            
+            <div class="warning-box">
+                <strong>⚠️ Problema Anterior:</strong> El botón "Iniciar Misión" no hacía nada cuando se seleccionaba una misión LLM generada.
+            </div>
+
+            <div class="success-box">
+                <strong>✅ Solución Implementada:</strong> Se ha creado un sistema unificado que detecta automáticamente si es una misión LLM o tradicional y ejecuta la lógica correcta.
+            </div>
+
+            <h3>🔧 ¿Qué se corrigió?</h3>
+            <ul>
+                <li><strong>Detección automática:</strong> El sistema ahora identifica misiones LLM por su ID</li>
+                <li><strong>Almacenamiento de datos:</strong> Las misiones LLM guardan todos sus waypoints y configuración</li>
+                <li><strong>Simulación visual:</strong> Las misiones LLM se ejecutan con animación en el mapa</li>
+                <li><strong>Feedback del usuario:</strong> Mensajes claros sobre el estado de la misión</li>
+            </ul>
+        </div>
+
+        <div class="instruction-section">
+            <h2><i class="fas fa-play-circle"></i> Cómo Usar el Sistema Paso a Paso</h2>
+
+            <div class="step">
+                <h3><span class="step-number">1</span> Cargar Cartografía (Opcional)</h3>
+                <p>Si tienes un archivo GeoJSON con mapas específicos:</p>
+                <ul>
+                    <li>Ve a la sección "Cartografía"</li>
+                    <li>Haz clic en "Seleccionar Archivo"</li>
+                    <li>Carga tu archivo .geojson</li>
+                    <li>Ponle un nombre al área</li>
+                </ul>
+            </div>
+
+            <div class="step">
+                <h3><span class="step-number">2</span> Crear Misión con IA</h3>
+                <p>Escribe un comando en lenguaje natural:</p>
+                <div class="code-block">
+                    Ejemplos de comandos:
+                    • "Patrulla el perímetro norte a 50 metros de altura"
+                    • "Inspecciona la torre de comunicaciones tomando fotos"
+                    • "Explora el área este en patrón zigzag"
+                </div>
+            </div>
+
+            <div class="step">
+                <h3><span class="step-number">3</span> Generar y Revisar Misión</h3>
+                <p>Haz clic en "Crear Misión con IA" y:</p>
+                <ul>
+                    <li>Revisa los waypoints generados</li>
+                    <li>Lee las advertencias de seguridad</li>
+                    <li>Verifica la duración estimada</li>
+                    <li>Haz clic en "Aceptar Misión"</li>
+                </ul>
+            </div>
+
+            <div class="step">
+                <h3><span class="step-number">4</span> Ejecutar la Misión</h3>
+                <p>Una vez aceptada la misión:</p>
+                <ul>
+                    <li>La verás en la lista como "LLM: [nombre de la misión]"</li>
+                    <li><strong>Haz clic en la misión</strong> para seleccionarla</li>
+                    <li><strong>Haz clic en "Iniciar Misión"</strong></li>
+                    <li>¡La simulación comenzará automáticamente!</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="instruction-section">
+            <h2><i class="fas fa-eye"></i> ¿Qué Verás Durante la Ejecución?</h2>
+
+            <h3><i class="fas fa-map-marked-alt"></i> En el Mapa:</h3>
+            <ul>
+                <li><strong>Ruta naranja:</strong> Camino que seguirá el dron</li>
+                <li><strong>Puntos naranjas:</strong> Waypoints de la misión LLM</li>
+                <li><strong>Dron animado:</strong> Se mueve siguiendo la ruta generada</li>
+                <li><strong>Tooltips:</strong> Información de cada waypoint al pasar el mouse</li>
+            </ul>
+
+            <h3><i class="fas fa-tachometer-alt"></i> En la Simulación:</h3>
+            <ul>
+                <li><strong>Estado:</strong> "Misión LLM en progreso"</li>
+                <li><strong>Progreso:</strong> Porcentaje completado</li>
+                <li><strong>Altitud:</strong> Altura actual del dron</li>
+                <li><strong>Velocidad:</strong> Velocidad de desplazamiento</li>
+            </ul>
+        </div>
+
+        <div class="instruction-section">
+            <h2><i class="fas fa-tools"></i> Funciones de Debug (Para Desarrolladores)</h2>
+
+            <p>Abre la consola del navegador (F12) y usa estas funciones:</p>
+
+            <div class="code-block">
+                debugLLMMissions()     // Ver misiones almacenadas
+                listAllMissions()      // Listar todas las misiones
+                testStartLLMMission()  // Probar inicio de misión LLM
+            </div>
+        </div>
+
+        <div class="instruction-section">
+            <h2><i class="fas fa-question-circle"></i> Solución de Problemas</h2>
+
+            <h3>🔴 Si el botón "Iniciar Misión" sigue sin funcionar:</h3>
+            <ol>
+                <li>Asegúrate de <strong>seleccionar la misión</strong> haciendo clic en ella</li>
+                <li>Verifica que diga "LLM:" al inicio del nombre</li>
+                <li>Abre la consola (F12) y revisa si hay errores</li>
+                <li>Usa <code>debugLLMMissions()</code> para verificar los datos</li>
+            </ol>
+
+            <h3>🟡 Si la misión no se genera correctamente:</h3>
+            <ol>
+                <li>Verifica tu conexión a internet (usa GPT-4)</li>
+                <li>Intenta con comandos más específicos</li>
+                <li>Revisa si hay errores en la consola</li>
+            </ol>
+        </div>
+
+        <div class="navigation">
+            <h3>🚀 ¡Listo para Probar!</h3>
+            <p>Ahora puedes crear y ejecutar misiones LLM sin problemas</p>
+            
+            <a href="/drone_control.html" class="button">
+                <i class="fas fa-gamepad"></i> Ir al Panel de Control
+            </a>
+        </div>
+    </div>
+</body>
+</html> 

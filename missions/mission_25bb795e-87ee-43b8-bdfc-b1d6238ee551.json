@@ -1,0 +1,61 @@
+{
+  "mission_name": "Patrulla Perimetro Norte",
+  "description": "Patrullar el perimetro norte de la base a 500 metros de altura",
+  "estimated_duration": 60,
+  "waypoints": [
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 500,
+      "action": "takeoff",
+      "duration": 5,
+      "description": "Despegue desde la base"
+    },
+    {
+      "latitude": 40.4178,
+      "longitude": -3.7025,
+      "altitude": 500,
+      "action": "navigate",
+      "duration": 15,
+      "description": "Navegaci\u00f3n hacia el punto norte del perimetro"
+    },
+    {
+      "latitude": 40.4165,
+      "longitude": -3.7012,
+      "altitude": 500,
+      "action": "patrol",
+      "duration": 30,
+      "description": "Patrullaje del perimetro norte"
+    },
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 500,
+      "action": "navigate",
+      "duration": 10,
+      "description": "Regreso a la base"
+    },
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 0,
+      "action": "land",
+      "duration": 5,
+      "description": "Aterrizaje en la base"
+    }
+  ],
+  "safety_considerations": [
+    "Mantener una distancia segura de la torre de comunicaciones",
+    "Evitar sobrevolar el hangar principal",
+    "Mantener una altitud constante de 500 metros"
+  ],
+  "success_criteria": [
+    "Patrullaje completo del perimetro norte",
+    "Regreso seguro a la base",
+    "Mantenimiento de la altitud requerida"
+  ],
+  "id": "25bb795e-87ee-43b8-bdfc-b1d6238ee551",
+  "created_at": "2025-05-28T20:37:36.640637",
+  "status": "planned",
+  "area_name": "base_militar_ejemplo"
+}

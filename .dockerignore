@@ -1,0 +1,57 @@
+# Directorios de datos
+logs/
+results/
+
+# Archivos de entorno
+.env
+
+# Archivos de git
+.git/
+.gitignore
+
+# Archivos de caché de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Entornos virtuales de Python
+venv/
+env/
+ENV/
+
+# Archivos específicos de IDEs
+.idea/
+.vscode/
+.cursor/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# OneDrive specific files and directories that can cause issues
+desktop.ini
+.thumbnails/
+.tmp/
+~*
+
+# Windows specific files
+*~
+*.tmp
+*.bak 

@@ -1,0 +1,77 @@
+{
+  "mission_name": "Recorrido en altura",
+  "description": "Recorrer desde el waypoint 1 al 3 a 2 metros de altura",
+  "estimated_duration": 10,
+  "waypoints": [
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 2,
+      "action": "navigate",
+      "duration": 2,
+      "description": "Llegada al punto de partida"
+    },
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 2,
+      "action": "hover",
+      "duration": 1,
+      "description": "Establecimiento de altura"
+    },
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 2,
+      "action": "navigate",
+      "duration": 4,
+      "description": "Recorrido hasta el waypoint 2"
+    },
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 2,
+      "action": "hover",
+      "duration": 1,
+      "description": "Establecimiento de altura en el waypoint 2"
+    },
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 2,
+      "action": "navigate",
+      "duration": 3,
+      "description": "Recorrido hasta el waypoint 3"
+    },
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 2,
+      "action": "hover",
+      "duration": 1,
+      "description": "Establecimiento de altura en el waypoint 3"
+    },
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 2,
+      "action": "navigate",
+      "duration": 1,
+      "description": "Llegada al punto de llegada"
+    }
+  ],
+  "safety_considerations": [
+    "Evitar obst\u00e1culos y estructuras altas"
+  ],
+  "success_criteria": [
+    "Llegada al waypoint 3 sin incidentes"
+  ],
+  "area_used": "\u00c1rea gen\u00e9rica en Madrid",
+  "id": "2731a65f-9dff-4348-bcaf-7b22f70c0dcd",
+  "created_at": "2025-07-01T20:59:11.705144",
+  "status": "planned",
+  "area_name": "",
+  "original_command": "Vas a recorrer desde el waypoint 1 al 3 solo a 2 metros de altura",
+  "llm_provider": "docker",
+  "llm_model": "ai/llama3.2:latest"
+}

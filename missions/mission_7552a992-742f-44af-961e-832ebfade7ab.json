@@ -1,0 +1,45 @@
+{
+  "mission_name": "Misi\u00f3n de Vuelo Directo",
+  "description": "Vuelo directo desde el waypoint 1 hasta el \u00faltimo punto con un alto de 3 metros",
+  "estimated_duration": 10,
+  "waypoints": [
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 10,
+      "action": "takeoff",
+      "duration": 2,
+      "description": "Lanzamiento desde el punto de partida"
+    },
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 3,
+      "action": "navigate",
+      "duration": 5,
+      "description": "Vuelo directo al objetivo"
+    },
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 3,
+      "action": "land",
+      "duration": 3,
+      "description": "Aterrizaje en el punto de destino"
+    }
+  ],
+  "safety_considerations": [
+    "Altura m\u00ednima de 3 metros para evitar obst\u00e1culos"
+  ],
+  "success_criteria": [
+    "Llegada exitosa al objetivo"
+  ],
+  "area_used": "\u00c1rea de Madrid",
+  "id": "7552a992-742f-44af-961e-832ebfade7ab",
+  "created_at": "2025-07-01T20:46:52.104692",
+  "status": "planned",
+  "area_name": "",
+  "original_command": "ve del waypoint 1 al utlimo directamente a 3 metros de altura",
+  "llm_provider": "docker",
+  "llm_model": "ai/llama3.2:latest"
+}

@@ -1,0 +1,89 @@
+{
+  "mission_name": "Patrulla Perímetro Completo",
+  "description": "Patrulla el perímetro completo de la base militar con un radio de 2km desde el centro",
+  "estimated_duration": 1200,
+  "waypoints": [
+    {
+      "latitude": 40.416475,
+      "longitude": -3.702963,
+      "altitude": 3,
+      "action": "takeoff",
+      "duration": 30,
+      "description": "Llegada al aeropuerto"
+    },
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 3,
+      "action": "navigate",
+      "duration": 180,
+      "description": "Recorriendo la frontera norte"
+    },
+    {
+      "latitude": 40.4178,
+      "longitude": -3.7025,
+      "altitude": 3,
+      "action": "navigate",
+      "duration": 180,
+      "description": "Recorriendo la frontera este"
+    },
+    {
+      "latitude": 40.4165,
+      "longitude": -3.7012,
+      "altitude": 3,
+      "action": "navigate",
+      "duration": 180,
+      "description": "Recorriendo la frontera sur"
+    },
+    {
+      "latitude": 40.4152,
+      "longitude": -3.702,
+      "altitude": 3,
+      "action": "navigate",
+      "duration": 180,
+      "description": "Recorriendo la frontera oeste"
+    },
+    {
+      "latitude": 40.4158,
+      "longitude": -3.7045,
+      "altitude": 3,
+      "action": "navigate",
+      "duration": 180,
+      "description": "Recorriendo la frontera norte"
+    },
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 3,
+      "action": "navigate",
+      "duration": 180,
+      "description": "Regresando al aeropuerto"
+    },
+    {
+      "latitude": 40.416475,
+      "longitude": -3.702963,
+      "altitude": 3,
+      "action": "land",
+      "duration": 30,
+      "description": "Aterrizaje"
+    }
+  ],
+  "safety_considerations": [
+    "Evitar obstáculos y estructuras"
+  ],
+  "success_criteria": [
+    "Completa la patrulla sin incidentes"
+  ],
+  "area_used": "base_militar_ejemplo",
+  "id": "743aa837-5654-4af4-80d0-16b0b2159d4f",
+  "created_at": "2025-07-09T09:22:01.433190",
+  "status": "planned",
+  "area_name": "base_militar_ejemplo",
+  "original_command": "Patrulla perímetro completo a 3 m de altura",
+  "llm_provider": "docker",
+  "llm_model": "ai/llama3.2:latest",
+  "area_center": {
+    "latitude": 40.416475,
+    "longitude": -3.7029633333333334
+  }
+}

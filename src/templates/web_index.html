@@ -1,0 +1,1692 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drone Geo Analysis - Quick Analysis</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0F172A;
+            --secondary: #1E293B;
+            --accent: #3B82F6;
+            --accent-light: #60A5FA;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --text-primary: #F8FAFC;
+            --text-secondary: #CBD5E1;
+            --text-muted: #94A3B8;
+            --border: #334155;
+            --bg-card: #1E293B;
+            --bg-input: #0F172A;
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            --shadow-xl: 0 35px 60px -12px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .header .container {
+            position: relative;
+            z-index: 2;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Navigation */
+        .header-nav {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 0.875rem;
+            border: 1px solid transparent;
+        }
+
+        .nav-link:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .nav-link.active {
+            color: white;
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .nav-link i {
+            font-size: 1rem;
+        }
+
+        .header-content h1 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .header-content h1 i {
+            animation: pulse 2s infinite;
+        }
+
+        .header-content p {
+            font-size: 1.125rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin: 0;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+            min-height: calc(100vh - 200px);
+        }
+
+        /* Left Panel */
+        .left-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            height: fit-content;
+            position: sticky;
+            top: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .control-group {
+            margin-bottom: 2rem;
+        }
+
+        .control-group label {
+            display: block;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: block;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .file-input-button {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            background: var(--bg-input);
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-secondary);
+        }
+
+        .file-input-button:hover {
+            border-color: var(--accent);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .file-input-button i {
+            font-size: 2rem;
+            color: var(--accent);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .image-preview {
+            width: 100%;
+            max-height: 300px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .image-preview img {
+            max-width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+        }
+
+        .image-preview.empty {
+            min-height: 200px;
+            color: var(--text-muted);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.875rem 1.5rem;
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            justify-content: center;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn:disabled {
+            background: var(--border);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        /* Info Section */
+        .info-section {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .info-grid {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .info-label {
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .info-value {
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        /* Right Panel */
+        .right-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .result-container {
+            flex: 1;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            overflow-y: auto;
+            max-height: 70vh;
+        }
+
+        .result-container.empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        .result-item {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .result-item h3 {
+            color: var(--accent);
+            font-size: 1.125rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .location-grid {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .location-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+        }
+
+        .location-label {
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .location-value {
+            color: var(--text-primary);
+            text-align: right;
+        }
+
+        .confidence-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.75rem;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .evidence-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .evidence-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            padding: 0.75rem;
+            background: rgba(59, 130, 246, 0.05);
+            border-left: 3px solid var(--accent);
+            border-radius: 0 8px 8px 0;
+        }
+
+        .evidence-list li i {
+            color: var(--accent);
+            margin-top: 0.125rem;
+        }
+
+        /* Loading Animation */
+        .loader {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--secondary);
+            border-top: 1px solid var(--border);
+            padding: 2rem;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .footer p {
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent-light);
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .left-panel {
+                position: static;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header {
+                padding: 1.5rem 1rem;
+            }
+
+            .left-panel,
+            .right-panel {
+                padding: 1.5rem;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
+        /* Animations */
+        .fade-in {
+            opacity: 0;
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .slide-up {
+            transform: translateY(20px);
+            opacity: 0;
+            animation: slideUp 0.6s ease-out forwards;
+        }
+
+        @keyframes slideUp {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Chat Section Styles */
+        .chat-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            margin-top: 2rem;
+            padding: 0;
+            overflow: hidden;
+            display: none; /* Hidden by default */
+        }
+
+        .chat-header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chat-header h3 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .chat-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            background: #10B981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .chat-container {
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            background: var(--bg-input);
+            min-height: 0;
+        }
+
+        .chat-message {
+            margin-bottom: 1rem;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .chat-message.user {
+            text-align: right;
+        }
+
+        .chat-message.assistant {
+            text-align: left;
+        }
+
+        .message-bubble {
+            display: inline-block;
+            max-width: 80%;
+            padding: 0.75rem 1rem;
+            border-radius: 16px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .message-bubble.user {
+            background: var(--accent);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-bubble.assistant {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-time {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .chat-input-area {
+            padding: 0.75rem 1rem;
+            background: var(--bg-card);
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .suggested-questions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-bottom: 0.75rem;
+            max-height: 80px;
+            overflow-y: auto;
+        }
+
+        .suggested-question {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--accent);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            padding: 0.4rem 0.6rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .suggested-question:hover {
+            background: rgba(59, 130, 246, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .chat-input-form {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 25px;
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .chat-send-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .chat-send-btn:hover {
+            background: var(--accent-light);
+            transform: scale(1.05);
+        }
+
+        .chat-send-btn:disabled {
+            background: var(--border);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .chat-controls {
+            display: flex;
+            gap: 0.4rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .chat-control-btn {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.8rem;
+        }
+
+        .chat-control-btn:hover {
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .chat-welcome {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+
+        .chat-welcome i {
+            font-size: 2rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .chat-loading {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+        }
+
+        .chat-loading .spinner {
+            width: 16px;
+            height: 16px;
+            border-width: 2px;
+        }
+
+        /* Enhanced result container */
+        .analysis-enhancement {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .analysis-enhancement h4 {
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .yolo-context-summary {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .context-badge {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .object-tag {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--accent);
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            display: inline-block;
+        }
+
+        .confidence-high { background: rgba(16, 185, 129, 0.1); color: #10B981; }
+        .confidence-medium { background: rgba(245, 158, 11, 0.1); color: #F59E0B; }
+        .confidence-low { background: rgba(239, 68, 68, 0.1); color: #EF4444; }
+
+        /* Scroll personalizado para preguntas sugeridas */
+        .suggested-questions::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .suggested-questions::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .suggested-questions::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 2px;
+        }
+
+        .suggested-questions::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+
+        /* Mejorar el scroll en mensajes de chat */
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: var(--bg-input);
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <nav class="header-nav">
+                <a href="/" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+                <a href="/web_index.html" class="nav-link active">
+                    <i class="fas fa-search"></i>
+                    <span>Análisis Rápido</span>
+                </a>
+                <a href="/drone_control.html" class="nav-link">
+                    <i class="fas fa-gamepad"></i>
+                    <span>Control Panel</span>
+                </a>
+            </nav>
+            
+            <div class="header-content">
+                <h1><i class="fas fa-microscope"></i> Análisis Geográfico Rápido</h1>
+                <p>Análisis OSINT instantáneo con inteligencia artificial</p>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="left-panel">
+            <h2 class="section-title">
+                <i class="fas fa-upload"></i>
+                Image Analysis
+            </h2>
+            
+            <div class="control-group">
+                <label for="image-input">Upload Image for Analysis:</label>
+                <div class="file-input-wrapper">
+                    <input type="file" id="image-input" accept="image/*">
+                    <div class="file-input-button" id="file-button">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <div>Click to select or drag image here</div>
+                        <small>JPG, PNG, GIF, BMP supported</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="image-preview empty" id="preview-container">
+                <p><i class="fas fa-image"></i> Image preview will appear here</p>
+            </div>
+
+            <div class="control-group">
+                <button class="btn btn-full" id="analyze-btn" disabled>
+                    <i class="fas fa-brain"></i>
+                    Analyze Location with AI
+                </button>
+            </div>
+
+            <div class="control-group">
+                <button class="btn btn-full" id="analyze-yolo-btn" disabled style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                    <i class="fas fa-eye"></i>
+                    Detect Objects with YOLO 11
+                </button>
+            </div>
+
+            <div class="loader" id="loader">
+                <div class="spinner"></div>
+                <p>Analyzing image with GPT-4 Vision...</p>
+            </div>
+
+            <div class="info-section">
+                <h3 class="section-title">
+                    <i class="fas fa-info-circle"></i>
+                    Image Information
+                </h3>
+                <div class="info-grid" id="image-info">
+                    <div class="info-item">
+                        <span class="info-label">Name:</span>
+                        <span class="info-value" id="image-name">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Size:</span>
+                        <span class="info-value" id="image-size">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Dimensions:</span>
+                        <span class="info-value" id="image-dimensions">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <h2 class="section-title">
+                <i class="fas fa-chart-line"></i>
+                Analysis Results
+            </h2>
+            
+            <div class="result-container empty" id="result-container">
+                <div>
+                    <i class="fas fa-search" style="font-size: 3rem; color: var(--border); margin-bottom: 1rem;"></i>
+                    <p>Upload an image and click "Analyze with AI" to begin geospatial analysis.</p>
+                    <p style="margin-top: 1rem;">
+                        <a href="/" style="color: var(--accent); text-decoration: none;">
+                            <i class="fas fa-home"></i> Go to main page
+                        </a> | 
+                        <a href="/drone_control.html" style="color: var(--accent); text-decoration: none;">
+                            <i class="fas fa-gamepad"></i> Control Panel
+                        </a>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Chat Contextual -->
+            <div class="chat-section" id="chat-section">
+                <div class="chat-header">
+                    <h3>
+                        <i class="fas fa-comments"></i>
+                        Chat Contextual
+                    </h3>
+                    <div class="chat-status">
+                        <div class="status-indicator"></div>
+                        Conectado
+                    </div>
+                </div>
+                
+                <div class="chat-container">
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="chat-welcome">
+                            <i class="fas fa-robot"></i>
+                            <p><strong>¡Hola!</strong> Ya analicé tu imagen.</p>
+                            <p>Puedo responder preguntas sobre lo que vi usando YOLO + GPT-4 Vision.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-input-area">
+                        <div class="chat-controls">
+                            <button class="chat-control-btn" id="suggested-btn" title="Preguntas sugeridas">
+                                <i class="fas fa-lightbulb"></i>
+                            </button>
+                            <button class="chat-control-btn" id="clear-chat-btn" title="Limpiar chat">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <button class="chat-control-btn" id="history-btn" title="Ver historial">
+                                <i class="fas fa-history"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="suggested-questions" id="suggested-questions">
+                            <!-- Las preguntas sugeridas se cargarán aquí -->
+                        </div>
+                        
+                        <form class="chat-input-form" id="chat-form">
+                            <input 
+                                type="text" 
+                                class="chat-input" 
+                                id="chat-input" 
+                                placeholder="Pregunta sobre lo que viste en la imagen..."
+                                disabled
+                            >
+                            <button type="submit" class="chat-send-btn" id="chat-send-btn" disabled>
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p><strong>Drone Geo Analysis Platform</strong> - Professional OSINT Intelligence Suite</p>
+        <p>Advanced geospatial analysis for military and intelligence operations</p>
+        <div class="footer-links">
+            <a href="/">Home</a>
+            <a href="/drone_control.html">Control Panel</a>
+            <a href="#about">Documentation</a>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const imageInput = document.getElementById('image-input');
+            const fileButton = document.getElementById('file-button');
+            const previewContainer = document.getElementById('preview-container');
+            const analyzeBtn = document.getElementById('analyze-btn');
+            const analyzeYoloBtn = document.getElementById('analyze-yolo-btn');
+            const resultContainer = document.getElementById('result-container');
+            const loader = document.getElementById('loader');
+            const imageName = document.getElementById('image-name');
+            const imageSize = document.getElementById('image-size');
+            const imageDimensions = document.getElementById('image-dimensions');
+
+            // Chat elements
+            const chatSection = document.getElementById('chat-section');
+            const chatMessages = document.getElementById('chat-messages');
+            const chatInput = document.getElementById('chat-input');
+            const chatSendBtn = document.getElementById('chat-send-btn');
+            const chatForm = document.getElementById('chat-form');
+            const suggestedQuestions = document.getElementById('suggested-questions');
+            const suggestedBtn = document.getElementById('suggested-btn');
+            const clearChatBtn = document.getElementById('clear-chat-btn');
+            
+            // Chat state
+            let currentSessionId = null;
+            let chatHistory = [];
+
+            // File input handling
+            fileButton.addEventListener('click', () => imageInput.click());
+            
+            fileButton.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                fileButton.style.borderColor = 'var(--accent)';
+                fileButton.style.background = 'rgba(59, 130, 246, 0.1)';
+            });
+
+            fileButton.addEventListener('dragleave', () => {
+                fileButton.style.borderColor = 'var(--border)';
+                fileButton.style.background = 'var(--bg-input)';
+            });
+
+            fileButton.addEventListener('drop', (e) => {
+                e.preventDefault();
+                fileButton.style.borderColor = 'var(--border)';
+                fileButton.style.background = 'var(--bg-input)';
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    imageInput.files = files;
+                    handleFileSelect(files[0]);
+                }
+            });
+
+            imageInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    handleFileSelect(file);
+                }
+            });
+
+            function handleFileSelect(file) {
+                // Update file info
+                imageName.textContent = file.name;
+                imageSize.textContent = formatFileSize(file.size);
+
+                // Create preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewContainer.classList.remove('empty');
+                    previewContainer.innerHTML = '';
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.onload = function() {
+                        imageDimensions.textContent = `${img.naturalWidth} × ${img.naturalHeight}`;
+                    };
+                    previewContainer.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+
+                // Enable analyze buttons
+                analyzeBtn.disabled = false;
+                analyzeYoloBtn.disabled = false;
+            }
+
+            // Analysis handling
+            analyzeBtn.addEventListener('click', function() {
+                const file = imageInput.files[0];
+                if (!file) return;
+
+                // Show loader
+                loader.style.display = 'block';
+                resultContainer.classList.add('empty');
+                resultContainer.innerHTML = '<p>Analyzing image...</p>';
+                
+                // Prepare form data
+                const formData = new FormData();
+                formData.append('image', file);
+
+                // Send request
+                fetch('/analyze', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    loader.style.display = 'none';
+                    
+                    if (data.error) {
+                        showError(data.error);
+                        return;
+                    }
+                    
+                    displayLocationResults(data);
+                    
+                    // Inicializar chat si hay session_id
+                    if (data.session_id) {
+                        initializeChat(data.session_id);
+                    }
+                })
+                .catch(error => {
+                    loader.style.display = 'none';
+                    showError(`Connection error: ${error.message}`);
+                });
+            });
+
+            // YOLO Analysis handling
+            analyzeYoloBtn.addEventListener('click', function() {
+                const file = imageInput.files[0];
+                if (!file) return;
+
+                // Show loader with YOLO message
+                loader.style.display = 'block';
+                loader.innerHTML = `
+                    <div class="spinner"></div>
+                    <p>Detecting objects with YOLO 11...</p>
+                `;
+                resultContainer.classList.add('empty');
+                resultContainer.innerHTML = '<p>Processing image with YOLO 11...</p>';
+                
+                // Prepare form data with YOLO parameters
+                const formData = new FormData();
+                formData.append('image', file);
+                formData.append('yolo_confidence', '0.5');
+                formData.append('nms_threshold', '0.4');
+
+                // Send request to YOLO endpoint
+                fetch('/analyze_yolo', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    loader.style.display = 'none';
+                    // Reset loader content
+                    loader.innerHTML = `
+                        <div class="spinner"></div>
+                        <p>Analyzing image with GPT-4 Vision...</p>
+                    `;
+                    
+                    if (data.error) {
+                        // Special handling for YOLO installation errors
+                        if (data.results && data.results.installation_required) {
+                            showYoloInstallationError(data.results);
+                        } else {
+                            showError(data.error);
+                        }
+                        return;
+                    }
+                    
+                    displayYoloResults(data.results);
+                })
+                .catch(error => {
+                    loader.style.display = 'none';
+                    // Reset loader content
+                    loader.innerHTML = `
+                        <div class="spinner"></div>
+                        <p>Analyzing image with GPT-4 Vision...</p>
+                    `;
+                    showError(`Connection error: ${error.message}`);
+                });
+            });
+
+            function displayLocationResults(result) {
+                const resultsContainer = document.getElementById('result-container');
+                const results = result.results;
+                
+                // Verificar si es análisis híbrido (con YOLO)
+                const isHybridAnalysis = results.analysis_type === 'hybrid_geographic_with_object_detection';
+                const yoloContext = results.yolo_detected_objects || {};
+                
+                resultsContainer.innerHTML = `
+                    <div class="results-container">
+                        <h3>🌍 Geographic Analysis Results ${isHybridAnalysis ? '(Enhanced with YOLO)' : ''}</h3>
+                        
+                        ${isHybridAnalysis ? `
+                        <div class="analysis-enhancement">
+                            <h4>🤖 AI Enhancement</h4>
+                            <p><strong>This analysis is enhanced with YOLO object detection for improved accuracy!</strong></p>
+                            <div class="yolo-context-summary">
+                                <span class="context-badge">
+                                    📊 ${yoloContext.total_objects || 0} objects detected
+                                </span>
+                                ${Object.keys(yoloContext.object_summary || {}).length > 0 ? `
+                                <span class="context-badge">
+                                    🏷️ ${Object.keys(yoloContext.object_summary).length} categories
+                                </span>
+                                ` : ''}
+                            </div>
+                        </div>
+                        ` : ''}
+                        
+                        <div class="location-details">
+                            <div class="location-item">
+                                <strong>🏴 Country:</strong> <span class="location-value">${results.country || 'Not determined'}</span>
+                            </div>
+                            <div class="location-item">
+                                <strong>🏙️ City:</strong> <span class="location-value">${results.city || 'Not determined'}</span>
+                            </div>
+                            <div class="location-item">
+                                <strong>🗺️ District:</strong> <span class="location-value">${results.district || 'Not determined'}</span>
+                            </div>
+                            <div class="location-item">
+                                <strong>🏘️ Neighborhood:</strong> <span class="location-value">${results.neighborhood || 'Not determined'}</span>
+                            </div>
+                            <div class="location-item">
+                                <strong>🛣️ Street:</strong> <span class="location-value">${results.street || 'Not determined'}</span>
+                            </div>
+                            ${results.coordinates ? `
+                            <div class="location-item">
+                                <strong>📍 Coordinates:</strong> 
+                                <span class="location-value">
+                                    ${results.coordinates.latitude?.toFixed(6) || 'N/A'}, 
+                                    ${results.coordinates.longitude?.toFixed(6) || 'N/A'}
+                                </span>
+                            </div>
+                            ` : ''}
+                            <div class="location-item">
+                                <strong>🎯 Confidence:</strong> 
+                                <span class="confidence-badge confidence-${getConfidenceLevel(results.confidence || 0)}">
+                                    ${results.confidence || 0}%
+                                </span>
+                            </div>
+                        </div>
+                        
+                        ${results.supporting_evidence && results.supporting_evidence.length > 0 ? `
+                        <div class="evidence-section">
+                            <h4>🔍 Supporting Evidence</h4>
+                            <ul class="evidence-list">
+                                ${results.supporting_evidence.map(evidence => `<li>${evidence}</li>`).join('')}
+                            </ul>
+                        </div>
+                        ` : ''}
+                        
+                        ${isHybridAnalysis && yoloContext.object_summary ? `
+                        <div class="yolo-details">
+                            <h4>🎯 Objects Detected (YOLO Context)</h4>
+                            <div class="object-summary">
+                                ${Object.entries(yoloContext.object_summary).map(([obj, count]) => `
+                                    <span class="object-tag">${obj}: ${count}</span>
+                                `).join('')}
+                            </div>
+                        </div>
+                        ` : ''}
+                        
+                        ${results.possible_alternatives && results.possible_alternatives.length > 0 ? `
+                        <div class="alternatives-section">
+                            <h4>🤔 Alternative Possibilities</h4>
+                            <div class="alternatives-list">
+                                ${results.possible_alternatives.map(alt => `
+                                    <div class="alternative-item">
+                                        <span class="alt-location">${alt.country}${alt.city ? ', ' + alt.city : ''}</span>
+                                        <span class="alt-confidence">${alt.confidence || 0}%</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        ` : ''}
+                        
+                        ${results.error ? `
+                        <div class="error-section">
+                            <h4>⚠️ Error</h4>
+                            <p class="error-message">${results.error}</p>
+                        </div>
+                        ` : ''}
+                        
+                        <div class="analysis-info">
+                            <p><strong>Analysis Type:</strong> ${isHybridAnalysis ? 'Hybrid (GPT-4 Vision + YOLO 11)' : 'GPT-4 Vision Only'}</p>
+                            <p><strong>File saved:</strong> ${result.saved_path || 'Not saved'}</p>
+                        </div>
+                    </div>
+                `;
+                
+                resultsContainer.style.display = 'block';
+                resultsContainer.scrollIntoView({ behavior: 'smooth' });
+            }
+
+            function displayYoloResults(results) {
+                resultContainer.classList.remove('empty');
+                
+                let html = `
+                    <div class="result-item fade-in">
+                        <h3><i class="fas fa-eye"></i> YOLO 11 Object Detection</h3>
+                        <div class="location-grid">
+                            <div class="location-item">
+                                <span class="location-label">Objects Detected:</span>
+                                <span class="location-value">${results.total_objects || 0}</span>
+                            </div>
+                            <div class="location-item">
+                                <span class="location-label">Model Version:</span>
+                                <span class="location-value">${results.model_version || 'YOLO 11n'}</span>
+                            </div>
+                            <div class="location-item">
+                                <span class="location-label">Confidence Threshold:</span>
+                                <span class="location-value">${Math.round((results.confidence_threshold || 0.5) * 100)}%</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Show annotated image if available
+                if (results.annotated_image) {
+                    html += `
+                        <div class="result-item slide-up">
+                            <h3><i class="fas fa-image"></i> Annotated Image</h3>
+                            <div style="text-align: center; margin: 1rem 0;">
+                                <img src="data:image/jpeg;base64,${results.annotated_image}" 
+                                     style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" 
+                                     alt="Annotated image with detected objects">
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // Show detections list if available
+                if (results.detections && results.detections.length > 0) {
+                    html += `
+                        <div class="result-item slide-up">
+                            <h3><i class="fas fa-list"></i> Detected Objects</h3>
+                            <ul class="evidence-list">
+                    `;
+                    
+                    results.detections.forEach((detection, index) => {
+                        const confidence = Math.round(detection.confidence * 100);
+                        html += `
+                            <li>
+                                <i class="fas fa-search"></i>
+                                <div>
+                                    <strong>${detection.class_name}</strong> (${confidence}% confidence)
+                                    <br>
+                                    <small style="color: var(--text-muted);">
+                                        Area: ${detection.area_percentage}% of image | 
+                                        Position: (${detection.bbox.center_x}, ${detection.bbox.center_y})
+                                    </small>
+                                </div>
+                            </li>
+                        `;
+                    });
+                    
+                    html += `</ul></div>`;
+                }
+
+                // Show summary statistics
+                if (results.detections && results.detections.length > 0) {
+                    const classCounts = {};
+                    results.detections.forEach(det => {
+                        classCounts[det.class_name] = (classCounts[det.class_name] || 0) + 1;
+                    });
+
+                    html += `
+                        <div class="result-item slide-up">
+                            <h3><i class="fas fa-chart-pie"></i> Object Summary</h3>
+                            <div class="location-grid">
+                    `;
+                    
+                    Object.entries(classCounts).forEach(([className, count]) => {
+                        html += `
+                            <div class="location-item">
+                                <span class="location-label">${className}:</span>
+                                <span class="location-value">${count} detected</span>
+                            </div>
+                        `;
+                    });
+                    
+                    html += `</div></div>`;
+                }
+
+                html += `
+                    <div style="text-align: center; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border);">
+                        <a href="/drone_control.html" class="btn">
+                            <i class="fas fa-external-link-alt"></i>
+                            Open in Control Panel
+                        </a>
+                    </div>
+                `;
+
+                resultContainer.innerHTML = html;
+            }
+
+            function showYoloInstallationError(results) {
+                resultContainer.classList.remove('empty');
+                resultContainer.innerHTML = `
+                    <div class="result-item" style="text-align: center; color: var(--warning);">
+                        <i class="fas fa-download" style="font-size: 2rem; margin-bottom: 1rem; color: #f59e0b;"></i>
+                        <h3>YOLO 11 No Disponible</h3>
+                        <p>${results.error}</p>
+                        <div style="background: rgba(245, 158, 11, 0.1); padding: 1rem; border-radius: 8px; margin: 1rem 0; border-left: 4px solid #f59e0b;">
+                            <h4><i class="fas fa-terminal"></i> Comando de Instalación</h4>
+                            <code style="background: rgba(0,0,0,0.1); padding: 0.5rem; border-radius: 4px; display: block; margin: 0.5rem 0; font-family: monospace;">
+                                ${results.install_command}
+                            </code>
+                            <p style="font-size: 0.9rem; margin-top: 0.5rem;">
+                                Ejecuta este comando en el contenedor Docker para instalar YOLO 11.
+                            </p>
+                        </div>
+                        <div style="margin-top: 1rem;">
+                            <button class="btn" onclick="location.reload()" style="margin-right: 1rem;">
+                                <i class="fas fa-refresh"></i>
+                                Reintentar
+                            </button>
+                            <button class="btn" onclick="switchToLocationAnalysis()" style="background: var(--accent);">
+                                <i class="fas fa-brain"></i>
+                                Usar Análisis de Ubicación
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function switchToLocationAnalysis() {
+                // Clear results and click location analysis button
+                resultContainer.classList.add('empty');
+                resultContainer.innerHTML = '<p>Analyzing image with GPT-4 Vision...</p>';
+                analyzeBtn.click();
+            }
+
+            function showError(message) {
+                resultContainer.classList.remove('empty');
+                resultContainer.innerHTML = `
+                    <div class="result-item" style="text-align: center; color: var(--danger);">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                        <h3>Analysis Error</h3>
+                        <p>${message}</p>
+                        <div style="margin-top: 1rem;">
+                            <button class="btn" onclick="location.reload()">
+                                <i class="fas fa-refresh"></i>
+                                Try Again
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            function getConfidenceLevel(confidence) {
+                if (confidence >= 90) return 'high';
+                if (confidence >= 70) return 'medium';
+                return 'low';
+            }
+
+            // === FUNCIONES DE CHAT CONTEXTUAL ===
+
+            function initializeChat(sessionId) {
+                currentSessionId = sessionId;
+                chatSection.style.display = 'block';
+                
+                // Habilitar inputs
+                chatInput.disabled = false;
+                chatSendBtn.disabled = false;
+                
+                // Limpiar welcome y mostrar estado listo
+                chatMessages.innerHTML = `
+                    <div class="chat-message assistant">
+                        <div class="message-bubble assistant">
+                            🤖 ¡Perfecto! Ya analicé tu imagen. Puedo responder preguntas específicas sobre:
+                            <br>• Los objetos que detectó YOLO
+                            <br>• El análisis geográfico realizado
+                            <br>• Detalles técnicos del análisis
+                            <br>• Comparaciones y explicaciones
+                        </div>
+                        <div class="message-time">${new Date().toLocaleTimeString()}</div>
+                    </div>
+                `;
+                
+                // Cargar preguntas sugeridas
+                loadSuggestedQuestions();
+                
+                // Configurar eventos del chat
+                setupChatEvents();
+                
+                // Scroll al chat
+                setTimeout(() => {
+                    chatSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 500);
+            }
+
+            function setupChatEvents() {
+                // Envío de mensajes
+                chatForm.addEventListener('submit', handleChatSubmit);
+                
+                // Preguntas sugeridas
+                suggestedBtn.addEventListener('click', loadSuggestedQuestions);
+                
+                // Limpiar chat
+                clearChatBtn.addEventListener('click', clearChat);
+                
+                // Enter para enviar
+                chatInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        chatForm.dispatchEvent(new Event('submit'));
+                    }
+                });
+            }
+
+            async function handleChatSubmit(e) {
+                e.preventDefault();
+                
+                const question = chatInput.value.trim();
+                if (!question || !currentSessionId) return;
+                
+                // Mostrar pregunta del usuario
+                addChatMessage(question, 'user');
+                
+                // Limpiar input y deshabilitar temporalmente
+                chatInput.value = '';
+                chatInput.disabled = true;
+                chatSendBtn.disabled = true;
+                
+                // Mostrar indicador de carga
+                showChatLoading();
+                
+                try {
+                    const response = await fetch('/chat/question', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            session_id: currentSessionId,
+                            question: question
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    // Remover indicador de carga
+                    removeChatLoading();
+                    
+                    if (data.error) {
+                        addChatMessage(`❌ Error: ${data.error}`, 'assistant');
+                    } else {
+                        addChatMessage(data.response, 'assistant');
+                        // Recargar preguntas sugeridas
+                        loadSuggestedQuestions();
+                    }
+                    
+                } catch (error) {
+                    removeChatLoading();
+                    addChatMessage(`❌ Error de conexión: ${error.message}`, 'assistant');
+                }
+                
+                // Reactivar input
+                chatInput.disabled = false;
+                chatSendBtn.disabled = false;
+                chatInput.focus();
+            }
+
+            function addChatMessage(content, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `chat-message ${sender}`;
+                
+                const time = new Date().toLocaleTimeString();
+                
+                messageDiv.innerHTML = `
+                    <div class="message-bubble ${sender}">
+                        ${content}
+                    </div>
+                    <div class="message-time">${time}</div>
+                `;
+                
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+                // Agregar al historial
+                chatHistory.push({ content, sender, time });
+            }
+
+            function showChatLoading() {
+                const loadingDiv = document.createElement('div');
+                loadingDiv.className = 'chat-message assistant';
+                loadingDiv.id = 'chat-loading-message';
+                
+                loadingDiv.innerHTML = `
+                    <div class="message-bubble assistant">
+                        <div class="chat-loading">
+                            <div class="spinner"></div>
+                            Analizando tu pregunta...
+                        </div>
+                    </div>
+                `;
+                
+                chatMessages.appendChild(loadingDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            function removeChatLoading() {
+                const loadingMessage = document.getElementById('chat-loading-message');
+                if (loadingMessage) {
+                    loadingMessage.remove();
+                }
+            }
+
+            async function loadSuggestedQuestions() {
+                if (!currentSessionId) return;
+                
+                try {
+                    const response = await fetch(`/chat/suggested_questions?session_id=${currentSessionId}`);
+                    const data = await response.json();
+                    
+                    if (data.suggested_questions && data.suggested_questions.length > 0) {
+                        displaySuggestedQuestions(data.suggested_questions);
+                    }
+                } catch (error) {
+                    console.error('Error loading suggested questions:', error);
+                }
+            }
+
+            function displaySuggestedQuestions(questions) {
+                suggestedQuestions.innerHTML = '';
+                
+                questions.forEach(question => {
+                    const questionBtn = document.createElement('button');
+                    questionBtn.className = 'suggested-question';
+                    questionBtn.textContent = question;
+                    questionBtn.addEventListener('click', () => {
+                        chatInput.value = question;
+                        chatInput.focus();
+                        // Auto-enviar la pregunta sugerida
+                        setTimeout(() => {
+                            chatForm.dispatchEvent(new Event('submit'));
+                        }, 100);
+                    });
+                    
+                    suggestedQuestions.appendChild(questionBtn);
+                });
+                
+                // Mostrar/ocultar sección de preguntas sugeridas
+                suggestedQuestions.style.display = questions.length > 0 ? 'flex' : 'none';
+            }
+
+            async function clearChat() {
+                if (!currentSessionId || !confirm('¿Estás seguro de que quieres limpiar el historial del chat?')) {
+                    return;
+                }
+                
+                try {
+                    await fetch('/chat/clear_history', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            session_id: currentSessionId
+                        })
+                    });
+                    
+                    // Limpiar UI
+                    chatHistory = [];
+                    chatMessages.innerHTML = `
+                        <div class="chat-message assistant">
+                            <div class="message-bubble assistant">
+                                🧹 Historial limpiado. ¿Qué te gustaría saber sobre la imagen?
+                            </div>
+                            <div class="message-time">${new Date().toLocaleTimeString()}</div>
+                        </div>
+                    `;
+                    
+                    // Recargar preguntas sugeridas
+                    loadSuggestedQuestions();
+                    
+                } catch (error) {
+                    console.error('Error clearing chat:', error);
+                    addChatMessage(`❌ Error al limpiar el chat: ${error.message}`, 'assistant');
+                }
+            }
+        });
+    </script>
+</body>
+</html> 

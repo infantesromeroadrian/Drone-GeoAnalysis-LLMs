@@ -1,0 +1,83 @@
+{
+  "mission_name": "Perimeter Patrol",
+  "description": "Patrol the perimeter of the specified area at an altitude of 76 meters, searching for drones.",
+  "estimated_duration": 60,
+  "waypoints": [
+    {
+      "latitude": 40.6496,
+      "longitude": -73.7907,
+      "altitude": 76,
+      "action": "takeoff",
+      "duration": 2,
+      "description": "Take off from the center of the operation area."
+    },
+    {
+      "latitude": 40.6296,
+      "longitude": -73.8107,
+      "altitude": 76,
+      "action": "navigate",
+      "duration": 10,
+      "description": "Navigate to the southwest corner of the operation area."
+    },
+    {
+      "latitude": 40.6296,
+      "longitude": -73.7607,
+      "altitude": 76,
+      "action": "patrol",
+      "duration": 12,
+      "description": "Patrol the southern boundary of the operation area."
+    },
+    {
+      "latitude": 40.6796,
+      "longitude": -73.7607,
+      "altitude": 76,
+      "action": "patrol",
+      "duration": 12,
+      "description": "Patrol the eastern boundary of the operation area."
+    },
+    {
+      "latitude": 40.6796,
+      "longitude": -73.8107,
+      "altitude": 76,
+      "action": "patrol",
+      "duration": 12,
+      "description": "Patrol the northern boundary of the operation area."
+    },
+    {
+      "latitude": 40.6296,
+      "longitude": -73.8107,
+      "altitude": 76,
+      "action": "patrol",
+      "duration": 12,
+      "description": "Patrol the western boundary of the operation area."
+    },
+    {
+      "latitude": 40.6496,
+      "longitude": -73.7907,
+      "altitude": 76,
+      "action": "land",
+      "duration": 2,
+      "description": "Land back at the center of the operation area."
+    }
+  ],
+  "safety_considerations": [
+    "Avoid flying over crowded areas.",
+    "Maintain a safe distance from other drones.",
+    "Ensure the drone remains within the operation area."
+  ],
+  "success_criteria": [
+    "Successfully patrol the entire perimeter of the operation area.",
+    "Identify any drones within the operation area.",
+    "Return to the center of the operation area safely."
+  ],
+  "area_used": "newyork_operations",
+  "id": "e117acf3-2840-4232-af8b-681b9a5f667f",
+  "created_at": "2025-05-29T00:19:34.632615",
+  "status": "planned",
+  "area_name": "newyork_operations",
+  "original_command": "haz un recorrido del perimetro a unos 76 metros buscando drones en el camino",
+  "area_center": {
+    "latitude": 40.64960000000001,
+    "longitude": -73.79069999999999
+  }
+}

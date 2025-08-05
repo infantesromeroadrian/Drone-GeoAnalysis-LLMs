@@ -1116,6 +1116,7 @@
             background: linear-gradient(135deg, rgba(52, 73, 94, 0.9), rgba(44, 62, 80, 0.9));
             border-radius: 15px;
             padding: 1.5rem;
+            -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
             box-shadow: 0 8px 25px rgba(0,0,0,0.2);
         }
@@ -1332,9 +1333,244 @@
         }
 
         .compass-n { position: absolute; top: 5px; left: 50%; transform: translateX(-50%); }
-        .compass-s { position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%); }
+        .compass-s { position: absolute; bottom: 5px; left: 50%; transform: translateY(-50%); }
         .compass-e { position: absolute; right: 5px; top: 50%; transform: translateY(-50%); }
         .compass-w { position: absolute; left: 5px; top: 50%; transform: translateY(-50%); }
+
+        /* Estilos para Control de Gimbal */
+        .gimbal-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .gimbal-joystick {
+            flex: 1;
+        }
+
+        .joystick-container {
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, rgba(52, 73, 94, 0.9), rgba(44, 62, 80, 0.9));
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+            margin: 0 auto;
+        }
+
+        .joystick-handle {
+            width: 30px;
+            height: 30px;
+            background: var(--accent);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.1s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .joystick-crosshair {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .joystick-crosshair::before,
+        .joystick-crosshair::after {
+            content: '';
+            position: absolute;
+            background: rgba(255,255,255,0.2);
+        }
+
+        .joystick-crosshair::before {
+            top: 50%;
+            left: 10%;
+            right: 10%;
+            height: 1px;
+            transform: translateY(-50%);
+        }
+
+        .joystick-crosshair::after {
+            left: 50%;
+            top: 10%;
+            bottom: 10%;
+            width: 1px;
+            transform: translateX(-50%);
+        }
+
+        .gimbal-presets {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .gimbal-preset {
+            padding: 0.5rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+
+        .gimbal-preset:hover {
+            background: var(--accent);
+            transform: translateY(-1px);
+        }
+
+        /* Estilos para Historial */
+        .history-filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-input);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .history-table th {
+            background: var(--bg-card);
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--accent);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .history-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .history-table tr:hover {
+            background: rgba(255,255,255,0.02);
+        }
+
+        /* Estilos para Galería */
+        .gallery-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            min-height: 300px;
+        }
+
+        .gallery-item {
+            position: relative;
+            background: var(--bg-input);
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+
+        .gallery-item-checkbox {
+            position: absolute;
+            top: 0.5rem;
+            left: 0.5rem;
+            width: 20px;
+            height: 20px;
+        }
+
+        .gallery-empty {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+
+        /* Estilos para Exportación */
+        .export-options {
+            background: var(--bg-input);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+
+        .export-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .export-section h5 {
+            color: var(--accent);
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+        }
+
+        .export-section label {
+            display: block;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+        }
+
+        .export-section input[type="checkbox"] {
+            margin-right: 0.5rem;
+        }
+
+        .heatmap-section {
+            background: var(--bg-input);
+            padding: 1.5rem;
+            border-radius: 12px;
+        }
+
+        .heatmap-controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        #heatmap-canvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+        }
+
+        /* Botón primario para exportación */
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
     </style>
 </head>
 <body>
@@ -1447,6 +1683,89 @@
                         </div>
                     </div>
 
+                    <!-- Orientación Completa -->
+                    <div class="telemetry-item">
+                        <div class="telemetry-icon">
+                            <i class="fas fa-sync-alt"></i>
+                        </div>
+                        <span>Orientación</span>
+                        <div class="telemetry-value" style="font-size: 0.85rem;">
+                            <div>R: <span id="roll">0.0°</span></div>
+                            <div>P: <span id="pitch">0.0°</span></div>
+                            <div>Y: <span id="yaw">0.0°</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Velocidad Detallada -->
+                    <div class="telemetry-item">
+                        <div class="telemetry-icon">
+                            <i class="fas fa-arrows-alt"></i>
+                        </div>
+                        <span>Velocidad XYZ</span>
+                        <div class="telemetry-value" style="font-size: 0.85rem;">
+                            <div>X: <span id="vx">0.0</span> m/s</div>
+                            <div>Y: <span id="vy">0.0</span> m/s</div>
+                            <div>Z: <span id="vz">0.0</span> m/s</div>
+                        </div>
+                    </div>
+
+                    <!-- GPS Detallado -->
+                    <div class="telemetry-item">
+                        <div class="telemetry-icon">
+                            <i class="fas fa-satellite"></i>
+                        </div>
+                        <span>Estado GPS</span>
+                        <div class="telemetry-value">
+                            <div>Satélites: <span id="gps-satellites">0</span></div>
+                            <div>Fix: <span id="gps-fix" style="color: #e74c3c;">NO</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Voltaje de Batería -->
+                    <div class="telemetry-item">
+                        <div class="telemetry-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <span>Voltaje</span>
+                        <div class="telemetry-value">
+                            <span id="battery-voltage">0.0V</span>
+                        </div>
+                    </div>
+
+                    <!-- Estado de Vuelo -->
+                    <div class="telemetry-item">
+                        <div class="telemetry-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <span>Estado</span>
+                        <div class="telemetry-value" style="font-size: 0.85rem;">
+                            <div>Armado: <span id="armed-status" style="color: #e74c3c;">NO</span></div>
+                            <div>Modo: <span id="flight-mode">MANUAL</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Tiempo de Vuelo -->
+                    <div class="telemetry-item">
+                        <div class="telemetry-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <span>Tiempo Vuelo</span>
+                        <div class="telemetry-value">
+                            <span id="flight-time">00:00:00</span>
+                        </div>
+                    </div>
+
+                    <!-- Latencia -->
+                    <div class="telemetry-item">
+                        <div class="telemetry-icon">
+                            <i class="fas fa-network-wired"></i>
+                        </div>
+                        <span>Latencia</span>
+                        <div class="telemetry-value">
+                            <span id="latency">0ms</span>
+                        </div>
+                    </div>
+
                     <!-- Mission Progress Bar -->
                     <div class="mission-progress" id="mission-progress" style="display: none;">
                         <div class="mission-progress-bar" id="mission-progress-bar"></div>
@@ -1486,6 +1805,33 @@
                 </div>
             </div>
 
+            <!-- Control de Gimbal -->
+            <div class="control-section">
+                <h3><i class="fas fa-video"></i> Control de Gimbal</h3>
+                <div class="gimbal-controls">
+                    <div class="gimbal-joystick">
+                        <div class="joystick-container" id="gimbal-joystick">
+                            <div class="joystick-handle" id="gimbal-handle"></div>
+                            <div class="joystick-crosshair"></div>
+                        </div>
+                    </div>
+                    <div class="gimbal-presets">
+                        <button class="gimbal-preset" data-pitch="0" data-yaw="0">
+                            <i class="fas fa-home"></i> Centro
+                        </button>
+                        <button class="gimbal-preset" data-pitch="-90" data-yaw="0">
+                            <i class="fas fa-arrow-down"></i> Abajo
+                        </button>
+                        <button class="gimbal-preset" data-pitch="0" data-yaw="90">
+                            <i class="fas fa-arrow-right"></i> Derecha
+                        </button>
+                        <button class="gimbal-preset" data-pitch="0" data-yaw="-90">
+                            <i class="fas fa-arrow-left"></i> Izquierda
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <div class="control-section">
                 <div class="tabs">
                     <div class="tab active" data-tab="missions"><i class="fas fa-tasks"></i> Misiones</div>
@@ -1493,6 +1839,9 @@
                     <div class="tab" data-tab="image-analysis"><i class="fas fa-image"></i> Análisis</div>
                     <div class="tab" data-tab="detection"><i class="fas fa-eye"></i> Detección</div>
                     <div class="tab" data-tab="simulation"><i class="fas fa-play-circle"></i> Simulación</div>
+                    <div class="tab" data-tab="history"><i class="fas fa-history"></i> Historial</div>
+                    <div class="tab" data-tab="gallery"><i class="fas fa-images"></i> Galería</div>
+                    <div class="tab" data-tab="data"><i class="fas fa-database"></i> Datos</div>
                 </div>
                 
                 <div class="tab-content active" id="missions-tab">
@@ -1746,6 +2095,106 @@
                                 <td id="simulation-velocity">0 m/s</td>
                             </tr>
                         </table>
+                    </div>
+                </div>
+
+                <!-- Pestaña Historial de Misiones -->
+                <div class="tab-content" id="history-tab">
+                    <h3><i class="fas fa-history"></i> Historial de Misiones</h3>
+                    <div class="history-filters">
+                        <input type="date" id="history-date-filter" class="form-control" style="display: inline-block; width: auto;">
+                        <select id="history-status-filter" class="form-control" style="display: inline-block; width: auto;">
+                            <option value="">Todos los estados</option>
+                            <option value="completed">Completadas</option>
+                            <option value="aborted">Abortadas</option>
+                            <option value="in_progress">En progreso</option>
+                        </select>
+                        <button id="refresh-history-btn"><i class="fas fa-sync"></i> Actualizar</button>
+                    </div>
+                    <div class="history-list" id="mission-history-list">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Misión</th>
+                                    <th>Duración</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-tbody">
+                                <tr>
+                                    <td colspan="5" style="text-align: center; color: var(--text-muted);">
+                                        No hay misiones en el historial
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Pestaña Galería de Imágenes -->
+                <div class="tab-content" id="gallery-tab">
+                    <h3><i class="fas fa-images"></i> Galería de Capturas</h3>
+                    <div class="gallery-controls">
+                        <button id="select-all-images"><i class="fas fa-check-square"></i> Seleccionar Todo</button>
+                        <button id="download-selected"><i class="fas fa-download"></i> Descargar Selección</button>
+                        <button id="delete-selected" class="danger"><i class="fas fa-trash"></i> Eliminar Selección</button>
+                    </div>
+                    <div class="gallery-grid" id="image-gallery">
+                        <div class="gallery-empty">
+                            <i class="fas fa-camera" style="font-size: 3rem; color: var(--text-muted);"></i>
+                            <p>No hay imágenes capturadas</p>
+                            <p style="font-size: 0.875rem;">Las imágenes capturadas aparecerán aquí</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pestaña Exportación de Datos -->
+                <div class="tab-content" id="data-tab">
+                    <h3><i class="fas fa-database"></i> Exportación de Datos</h3>
+                    <div class="export-options">
+                        <h4><i class="fas fa-file-export"></i> Opciones de Exportación</h4>
+                        
+                        <div class="export-section">
+                            <h5>Telemetría</h5>
+                            <label><input type="checkbox" id="export-position" checked> Datos de Posición</label>
+                            <label><input type="checkbox" id="export-orientation" checked> Datos de Orientación</label>
+                            <label><input type="checkbox" id="export-battery" checked> Datos de Batería</label>
+                            <label><input type="checkbox" id="export-speed" checked> Datos de Velocidad</label>
+                        </div>
+
+                        <div class="export-section">
+                            <h5>Formato</h5>
+                            <select id="export-format" class="form-control">
+                                <option value="json">JSON</option>
+                                <option value="csv">CSV</option>
+                                <option value="kml">KML (Google Earth)</option>
+                                <option value="gpx">GPX</option>
+                            </select>
+                        </div>
+
+                        <div class="export-section">
+                            <h5>Rango de Tiempo</h5>
+                            <input type="datetime-local" id="export-start" class="form-control">
+                            <input type="datetime-local" id="export-end" class="form-control">
+                        </div>
+
+                        <button id="export-data-btn" class="btn-primary">
+                            <i class="fas fa-download"></i> Exportar Datos
+                        </button>
+                    </div>
+
+                    <!-- Heatmap de Actividad -->
+                    <div class="heatmap-section">
+                        <h4><i class="fas fa-fire"></i> Mapa de Calor de Actividad</h4>
+                        <div id="activity-heatmap" style="height: 300px; background: var(--bg-input); border-radius: 8px;">
+                            <canvas id="heatmap-canvas"></canvas>
+                        </div>
+                        <div class="heatmap-controls">
+                            <button id="generate-heatmap"><i class="fas fa-sync"></i> Generar Mapa de Calor</button>
+                            <button id="clear-heatmap"><i class="fas fa-eraser"></i> Limpiar</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2070,6 +2519,26 @@
             document.getElementById('load-mission-btn').addEventListener('click', loadMissions);
             document.getElementById('start-mission-btn').addEventListener('click', startMission);
             document.getElementById('stop-mission-btn').addEventListener('click', stopMission);
+
+            // NUEVOS EVENT LISTENERS
+
+            // Control de Gimbal
+            initializeGimbalControl();
+
+            // Historial de Misiones
+            document.getElementById('refresh-history-btn')?.addEventListener('click', refreshMissionHistory);
+            document.getElementById('history-date-filter')?.addEventListener('change', filterMissionHistory);
+            document.getElementById('history-status-filter')?.addEventListener('change', filterMissionHistory);
+
+            // Galería de Imágenes
+            document.getElementById('select-all-images')?.addEventListener('click', selectAllImages);
+            document.getElementById('download-selected')?.addEventListener('click', downloadSelectedImages);
+            document.getElementById('delete-selected')?.addEventListener('click', deleteSelectedImages);
+
+            // Exportación de Datos
+            document.getElementById('export-data-btn')?.addEventListener('click', exportData);
+            document.getElementById('generate-heatmap')?.addEventListener('click', generateHeatmap);
+            document.getElementById('clear-heatmap')?.addEventListener('click', clearHeatmap);
 
             // FUNCIÓN PARA FUNCIONALIDAD LLM
             function initializeLLMFunctionality() {
@@ -2795,6 +3264,92 @@
                 if (compassNeedle && telemetry.orientation) {
                     const yaw = telemetry.orientation.yaw;
                     compassNeedle.style.transform = `rotate(${yaw}deg)`;
+                }
+
+                // NUEVOS ELEMENTOS DE TELEMETRÍA
+
+                // Actualizar orientación completa (Roll, Pitch, Yaw)
+                if (telemetry.attitude) {
+                    const roll = document.getElementById('roll');
+                    const pitch = document.getElementById('pitch');
+                    const yaw = document.getElementById('yaw');
+                    
+                    if (roll) roll.textContent = telemetry.attitude.roll.toFixed(1) + '°';
+                    if (pitch) pitch.textContent = telemetry.attitude.pitch.toFixed(1) + '°';
+                    if (yaw) yaw.textContent = telemetry.attitude.yaw.toFixed(1) + '°';
+                }
+
+                // Actualizar velocidades individuales
+                if (telemetry.speed) {
+                    const vx = document.getElementById('vx');
+                    const vy = document.getElementById('vy');
+                    const vz = document.getElementById('vz');
+                    
+                    if (vx) vx.textContent = (telemetry.speed.vx || 0).toFixed(1);
+                    if (vy) vy.textContent = (telemetry.speed.vy || 0).toFixed(1);
+                    if (vz) vz.textContent = (telemetry.speed.vz || 0).toFixed(1);
+                }
+
+                // Actualizar GPS detallado
+                if (telemetry.gps) {
+                    const gpsSatellites = document.getElementById('gps-satellites');
+                    const gpsFix = document.getElementById('gps-fix');
+                    
+                    if (gpsSatellites) gpsSatellites.textContent = telemetry.gps.satellites || 0;
+                    if (gpsFix) {
+                        const hasfix = telemetry.gps.fix || (telemetry.gps.satellites >= 6);
+                        gpsFix.textContent = hasfix ? 'SÍ' : 'NO';
+                        gpsFix.style.color = hasfix ? '#2ecc71' : '#e74c3c';
+                    }
+                }
+
+                // Actualizar voltaje de batería
+                if (telemetry.battery) {
+                    const batteryVoltage = document.getElementById('battery-voltage');
+                    if (batteryVoltage) {
+                        const voltage = telemetry.battery.voltage || 12.6;
+                        batteryVoltage.textContent = voltage.toFixed(1) + 'V';
+                    }
+                }
+
+                // Actualizar estado de vuelo
+                if (telemetry.status) {
+                    const armedStatus = document.getElementById('armed-status');
+                    const flightMode = document.getElementById('flight-mode');
+                    
+                    if (armedStatus) {
+                        const armed = telemetry.status.armed || false;
+                        armedStatus.textContent = armed ? 'SÍ' : 'NO';
+                        armedStatus.style.color = armed ? '#2ecc71' : '#e74c3c';
+                    }
+                    
+                    if (flightMode) {
+                        flightMode.textContent = telemetry.status.mode || 'MANUAL';
+                    }
+                }
+
+                // Actualizar tiempo de vuelo
+                const flightTime = document.getElementById('flight-time');
+                if (flightTime && telemetry.flight_time) {
+                    const seconds = telemetry.flight_time;
+                    const hours = Math.floor(seconds / 3600);
+                    const minutes = Math.floor((seconds % 3600) / 60);
+                    const secs = seconds % 60;
+                    flightTime.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                }
+
+                // Actualizar latencia
+                const latency = document.getElementById('latency');
+                if (latency) {
+                    // Calcular latencia basada en timestamp
+                    const now = Date.now();
+                    const messageLatency = telemetry.timestamp ? Math.round(now - telemetry.timestamp * 1000) : 0;
+                    latency.textContent = messageLatency + 'ms';
+                }
+
+                // Actualizar posición del drone en el mapa
+                if (droneMarker && telemetry.position) {
+                    droneMarker.setLatLng([telemetry.position.latitude, telemetry.position.longitude]);
                 }
 
                 // Actualizar gráficos de tiempo real
@@ -3855,6 +4410,316 @@
                 }
             }
         };
+
+        // NUEVAS FUNCIONES PARA CARACTERÍSTICAS ADICIONALES
+
+        // Control de Gimbal
+        function initializeGimbalControl() {
+            const joystick = document.getElementById('gimbal-joystick');
+            const handle = document.getElementById('gimbal-handle');
+            const presets = document.querySelectorAll('.gimbal-preset');
+            
+            let isDragging = false;
+            
+            if (joystick && handle) {
+                joystick.addEventListener('mousedown', startDrag);
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('mouseup', stopDrag);
+                
+                joystick.addEventListener('touchstart', startDrag);
+                document.addEventListener('touchmove', drag);
+                document.addEventListener('touchend', stopDrag);
+            }
+            
+            presets.forEach(preset => {
+                preset.addEventListener('click', function() {
+                    const pitch = parseFloat(this.dataset.pitch);
+                    const yaw = parseFloat(this.dataset.yaw);
+                    setGimbalPosition(pitch, yaw);
+                });
+            });
+            
+            function startDrag(e) {
+                isDragging = true;
+                e.preventDefault();
+            }
+            
+            function drag(e) {
+                if (!isDragging) return;
+                
+                const rect = joystick.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                
+                const clientX = e.clientX || e.touches[0].clientX;
+                const clientY = e.clientY || e.touches[0].clientY;
+                
+                let x = clientX - centerX;
+                let y = clientY - centerY;
+                
+                // Limitar al círculo
+                const distance = Math.sqrt(x * x + y * y);
+                const maxDistance = rect.width / 2 - 15;
+                
+                if (distance > maxDistance) {
+                    x = x * maxDistance / distance;
+                    y = y * maxDistance / distance;
+                }
+                
+                handle.style.transform = `translate(${x}px, ${y}px)`;
+                
+                // Calcular ángulos de gimbal
+                const pitch = -(y / maxDistance) * 90;
+                const yaw = (x / maxDistance) * 180;
+                
+                setGimbalPosition(pitch, yaw);
+            }
+            
+            function stopDrag() {
+                isDragging = false;
+                // Volver al centro
+                handle.style.transform = 'translate(-50%, -50%)';
+            }
+            
+            function setGimbalPosition(pitch, yaw) {
+                // Aquí enviarías el comando al drone
+                console.log(`Gimbal: Pitch=${pitch.toFixed(1)}°, Yaw=${yaw.toFixed(1)}°`);
+                // TODO: Implementar llamada API para control de gimbal
+            }
+        }
+
+        // Historial de Misiones
+        function refreshMissionHistory() {
+            fetch('/api/missions/history')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayMissionHistory(data.history);
+                    }
+                })
+                .catch(error => console.error('Error cargando historial:', error));
+        }
+
+        function displayMissionHistory(missions) {
+            const tbody = document.getElementById('history-tbody');
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+            
+            if (missions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No hay misiones en el historial</td></tr>';
+                return;
+            }
+            
+            missions.forEach(mission => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${new Date(mission.date).toLocaleString()}</td>
+                    <td>${mission.name}</td>
+                    <td>${mission.duration || 'N/A'}</td>
+                    <td><span class="status-badge status-${mission.status}">${mission.status}</span></td>
+                    <td>
+                        <button onclick="viewMissionDetails('${mission.id}')"><i class="fas fa-eye"></i></button>
+                        <button onclick="replayMission('${mission.id}')"><i class="fas fa-redo"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function filterMissionHistory() {
+            const dateFilter = document.getElementById('history-date-filter').value;
+            const statusFilter = document.getElementById('history-status-filter').value;
+            // TODO: Implementar filtrado
+            refreshMissionHistory();
+        }
+
+        // Galería de Imágenes
+        let selectedImages = new Set();
+
+        function loadImageGallery() {
+            fetch('/api/images/gallery')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayImageGallery(data.images);
+                    }
+                })
+                .catch(error => console.error('Error cargando galería:', error));
+        }
+
+        function displayImageGallery(images) {
+            const gallery = document.getElementById('image-gallery');
+            if (!gallery) return;
+            
+            gallery.innerHTML = '';
+            
+            if (images.length === 0) {
+                gallery.innerHTML = `
+                    <div class="gallery-empty">
+                        <i class="fas fa-camera" style="font-size: 3rem;"></i>
+                        <p>No hay imágenes capturadas</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            images.forEach(image => {
+                const item = document.createElement('div');
+                item.className = 'gallery-item';
+                item.innerHTML = `
+                    <input type="checkbox" class="gallery-item-checkbox" data-image-id="${image.id}">
+                    <img src="${image.thumbnail}" alt="${image.name}">
+                    <div class="gallery-item-info">
+                        <p>${image.name}</p>
+                        <p>${new Date(image.date).toLocaleDateString()}</p>
+                    </div>
+                `;
+                
+                item.querySelector('.gallery-item-checkbox').addEventListener('change', function() {
+                    if (this.checked) {
+                        selectedImages.add(image.id);
+                    } else {
+                        selectedImages.delete(image.id);
+                    }
+                });
+                
+                gallery.appendChild(item);
+            });
+        }
+
+        function selectAllImages() {
+            const checkboxes = document.querySelectorAll('.gallery-item-checkbox');
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+            
+            checkboxes.forEach(cb => {
+                cb.checked = !allChecked;
+                if (cb.checked) {
+                    selectedImages.add(cb.dataset.imageId);
+                } else {
+                    selectedImages.delete(cb.dataset.imageId);
+                }
+            });
+        }
+
+        function downloadSelectedImages() {
+            if (selectedImages.size === 0) {
+                alert('Seleccione al menos una imagen');
+                return;
+            }
+            
+            // TODO: Implementar descarga
+            console.log('Descargando imágenes:', Array.from(selectedImages));
+        }
+
+        function deleteSelectedImages() {
+            if (selectedImages.size === 0) {
+                alert('Seleccione al menos una imagen');
+                return;
+            }
+            
+            if (!confirm(`¿Eliminar ${selectedImages.size} imagen(es)?`)) return;
+            
+            // TODO: Implementar eliminación
+            console.log('Eliminando imágenes:', Array.from(selectedImages));
+        }
+
+        // Exportación de Datos
+        function exportData() {
+            const format = document.getElementById('export-format').value;
+            const includePosition = document.getElementById('export-position').checked;
+            const includeOrientation = document.getElementById('export-orientation').checked;
+            const includeBattery = document.getElementById('export-battery').checked;
+            const includeSpeed = document.getElementById('export-speed').checked;
+            const startDate = document.getElementById('export-start').value;
+            const endDate = document.getElementById('export-end').value;
+            
+            const params = {
+                format,
+                includePosition,
+                includeOrientation,
+                includeBattery,
+                includeSpeed,
+                startDate,
+                endDate
+            };
+            
+            fetch('/api/data/export', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(params)
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `drone_data_${format}_${Date.now()}.${format}`;
+                a.click();
+                window.URL.revokeObjectURL(url);
+            })
+            .catch(error => console.error('Error exportando datos:', error));
+        }
+
+        // Heatmap de Actividad
+        let heatmapData = [];
+
+        function generateHeatmap() {
+            fetch('/api/data/heatmap')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        drawHeatmap(data.points);
+                    }
+                })
+                .catch(error => console.error('Error generando heatmap:', error));
+        }
+
+        function drawHeatmap(points) {
+            const canvas = document.getElementById('heatmap-canvas');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width = canvas.offsetWidth;
+            const height = canvas.height = canvas.offsetHeight;
+            
+            // Limpiar canvas
+            ctx.clearRect(0, 0, width, height);
+            
+            // Dibujar heatmap
+            points.forEach(point => {
+                const gradient = ctx.createRadialGradient(
+                    point.x * width, point.y * height, 0,
+                    point.x * width, point.y * height, point.intensity * 50
+                );
+                
+                gradient.addColorStop(0, 'rgba(255, 0, 0, 0.8)');
+                gradient.addColorStop(0.5, 'rgba(255, 255, 0, 0.5)');
+                gradient.addColorStop(1, 'rgba(0, 255, 0, 0)');
+                
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, width, height);
+            });
+        }
+
+        function clearHeatmap() {
+            const canvas = document.getElementById('heatmap-canvas');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // Funciones auxiliares para misiones
+        function viewMissionDetails(missionId) {
+            // TODO: Implementar vista de detalles
+            console.log('Ver detalles de misión:', missionId);
+        }
+
+        function replayMission(missionId) {
+            // TODO: Implementar replay de misión
+            console.log('Reproducir misión:', missionId);
+        }
     </script>
 </body>
 </html> 

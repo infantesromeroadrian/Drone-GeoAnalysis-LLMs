@@ -16,8 +16,8 @@ try:
     import olympe
     from olympe.messages.ardrone3.Piloting import TakeOff, Landing, moveBy, moveTo, CancelMoveTo
     from olympe.messages.ardrone3.PilotingState import FlyingStateChanged, PositionChanged, SpeedChanged, AttitudeChanged
-    from olympe.messages.ardrone3.GPSState import NumberOfSatelliteChanged, GPSFixStateChanged
-    from olympe.messages.battery import level
+    from olympe.messages.ardrone3.GPSState import NumberOfSatelliteChanged
+    from olympe.messages.ardrone3.GPSSettingsState import GPSFixStateChanged
     from olympe.messages.camera import take_photo, start_recording, stop_recording
     from olympe.messages.common.CommonState import BatteryStateChanged
     from olympe.messages.gimbal import set_target

@@ -1,0 +1,75 @@
+{
+  "mission_name": "Recorrido Completo Base Militar Ejemplo",
+  "description": "Esta misi\u00f3n implica un recorrido completo de la base militar a una altura de 65 metros, cubriendo todos los puntos de inter\u00e9s.",
+  "estimated_duration": 45,
+  "waypoints": [
+    {
+      "latitude": 40.416475,
+      "longitude": -3.702963,
+      "altitude": 65,
+      "action": "takeoff",
+      "duration": 2,
+      "description": "Despegue desde el centro de la base"
+    },
+    {
+      "latitude": 40.4165,
+      "longitude": -3.703,
+      "altitude": 65,
+      "action": "navigate",
+      "duration": 5,
+      "description": "Navegaci\u00f3n hacia la Torre de Comunicaciones"
+    },
+    {
+      "latitude": 40.4162,
+      "longitude": -3.7035,
+      "altitude": 65,
+      "action": "navigate",
+      "duration": 7,
+      "description": "Navegaci\u00f3n hacia el Hangar Principal"
+    },
+    {
+      "latitude": 40.417,
+      "longitude": -3.7028,
+      "altitude": 65,
+      "action": "navigate",
+      "duration": 10,
+      "description": "Navegaci\u00f3n hacia la Pista de Aterrizaje"
+    },
+    {
+      "latitude": 40.4168,
+      "longitude": -3.7032,
+      "altitude": 65,
+      "action": "navigate",
+      "duration": 8,
+      "description": "Navegaci\u00f3n hacia el Centro de Control"
+    },
+    {
+      "latitude": 40.416475,
+      "longitude": -3.702963,
+      "altitude": 65,
+      "action": "land",
+      "duration": 3,
+      "description": "Aterrizaje en el centro de la base"
+    }
+  ],
+  "safety_considerations": [
+    "Mantener una altitud constante de 65 metros para evitar colisiones con estructuras",
+    "Evitar sobrevolar \u00e1reas con alta concentraci\u00f3n de personal",
+    "Mantenerse dentro de los l\u00edmites de la base"
+  ],
+  "success_criteria": [
+    "Cubrir todos los puntos de inter\u00e9s",
+    "Mantener la altitud y la ruta especificadas",
+    "Aterrizaje seguro en el punto de partida"
+  ],
+  "area_used": "base_militar_ejemplo",
+  "id": "ce7b7005-1b2e-4434-a41a-f68da458b239",
+  "created_at": "2025-06-23T13:48:41.633615",
+  "status": "planned",
+  "area_name": "base_militar_ejemplo",
+  "original_command": "Haz el recorrido completo a una altura de 65 metros",
+  "area_center": {
+    "latitude": 40.416475,
+    "longitude": -3.7029633333333334
+  }
+}

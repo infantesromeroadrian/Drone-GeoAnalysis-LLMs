@@ -1,0 +1,73 @@
+{
+  "mission_name": "Patrulla Base Militar Ejemplo",
+  "description": "Patrulla todos los puntos de interés dentro de la base militar",
+  "estimated_duration": 1200,
+  "waypoints": [
+    {
+      "latitude": 40.416475,
+      "longitude": -3.702963,
+      "altitude": 8,
+      "action": "navigate",
+      "duration": 30,
+      "description": "Arrival a la base militar"
+    },
+    {
+      "latitude": 40.4165,
+      "longitude": -3.703,
+      "altitude": 8,
+      "action": "hover",
+      "duration": 10,
+      "description": "Ubicación de la Torre de Comunicaciones"
+    },
+    {
+      "latitude": 40.4162,
+      "longitude": -3.7035,
+      "altitude": 8,
+      "action": "hover",
+      "duration": 10,
+      "description": "Ubicación del Hangar Principal"
+    },
+    {
+      "latitude": 40.417,
+      "longitude": -3.7028,
+      "altitude": 8,
+      "action": "hover",
+      "duration": 10,
+      "description": "Ubicación de la Pista de Aterrizaje"
+    },
+    {
+      "latitude": 40.4168,
+      "longitude": -3.7032,
+      "altitude": 8,
+      "action": "hover",
+      "duration": 10,
+      "description": "Ubicación del Centro de Control"
+    },
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 8,
+      "action": "navigate",
+      "duration": 30,
+      "description": "Salida de la base militar"
+    }
+  ],
+  "safety_considerations": [
+    "Evitar obstáculos y estructuras"
+  ],
+  "success_criteria": [
+    "Todas las áreas de interés han sido inspeccionadas"
+  ],
+  "area_used": "base_militar_ejemplo",
+  "id": "bfc9577f-2ebf-404b-b928-b0009349ee5b",
+  "created_at": "2025-08-05T11:09:32.679492",
+  "status": "planned",
+  "area_name": "base_militar_ejemplo",
+  "original_command": "patrulla todos los puntos a 8 metros de altura",
+  "llm_provider": "docker",
+  "llm_model": "ai/llama3.2:latest",
+  "area_center": {
+    "latitude": 40.416475,
+    "longitude": -3.7029633333333334
+  }
+}

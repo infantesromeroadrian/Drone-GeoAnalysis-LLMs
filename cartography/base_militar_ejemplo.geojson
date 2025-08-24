@@ -1,0 +1,68 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Base Militar Norte",
+        "type": "military_base",
+        "classification": "restricted"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-3.703790, 40.416775],
+          [-3.702500, 40.417800],
+          [-3.701200, 40.416500],
+          [-3.702000, 40.415200],
+          [-3.704500, 40.415800],
+          [-3.703790, 40.416775]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Torre de Comunicaciones",
+        "type": "communication_tower"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-3.703000, 40.416500]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Hangar Principal",
+        "type": "hangar"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-3.703500, 40.416200]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Pista de Aterrizaje",
+        "type": "runway"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-3.702800, 40.417000]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Centro de Control",
+        "type": "control_center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-3.703200, 40.416800]
+      }
+    }
+  ]
+} 

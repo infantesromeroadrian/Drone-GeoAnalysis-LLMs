@@ -1,0 +1,36 @@
+# Archivos de configuración con información sensible
+.env
+
+# Directorio de logs
+logs/
+
+# Directorio de resultados
+results/
+
+# Archivos de caché de Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Entornos virtuales
+venv/
+env/
+ENV/
+
+# Archivos de distribución
+dist/
+build/
+*.egg-info/
+
+# Archivos temporales del sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Archivos de jupyter notebook
+.ipynb_checkpoints 

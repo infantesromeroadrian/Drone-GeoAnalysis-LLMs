@@ -1,0 +1,75 @@
+{
+  "mission_name": "Patrulla base militar",
+  "description": "Patrulla el \u00e1rea sur de la base militar buscando intrusos",
+  "estimated_duration": 30,
+  "waypoints": [
+    {
+      "latitude": 40.416475,
+      "longitude": -3.702963,
+      "altitude": 75,
+      "action": "navigate",
+      "duration": 5,
+      "description": "Inicia patrulla desde el centro de la base"
+    },
+    {
+      "latitude": 40.4165,
+      "longitude": -3.703,
+      "altitude": 75,
+      "action": "hover",
+      "duration": 10,
+      "description": "Realiza escaneo en la Torre de Comunicaciones"
+    },
+    {
+      "latitude": 40.4162,
+      "longitude": -3.7035,
+      "altitude": 75,
+      "action": "scan",
+      "duration": 10,
+      "description": "Realiza escaneo en el Hangar Principal"
+    },
+    {
+      "latitude": 40.417,
+      "longitude": -3.7028,
+      "altitude": 75,
+      "action": "hover",
+      "duration": 10,
+      "description": "Realiza escaneo en la Pista de Aterrizaje"
+    },
+    {
+      "latitude": 40.4168,
+      "longitude": -3.7032,
+      "altitude": 75,
+      "action": "scan",
+      "duration": 10,
+      "description": "Realiza escaneo en el Centro de Control"
+    },
+    {
+      "latitude": 40.416475,
+      "longitude": -3.702963,
+      "altitude": 75,
+      "action": "hover",
+      "duration": 5,
+      "description": "Regresa al punto de partida"
+    }
+  ],
+  "safety_considerations": [
+    "Vigilancia constante del entorno",
+    "Uso de sensores de movimiento y visi\u00f3n nocturna"
+  ],
+  "success_criteria": [
+    "No se detectan intrusos en el \u00e1rea de patrulla",
+    "Se recopilan datos de seguridad y vigilancia efectivos"
+  ],
+  "area_used": "base_militar_ejemplo",
+  "id": "95b4696e-b115-46f1-8393-440349439282",
+  "created_at": "2025-07-01T20:49:44.632989",
+  "status": "planned",
+  "area_name": "base_militar_ejemplo",
+  "original_command": "Patrulla el \u00e1rea sur de la base a 75 metros de altura buscando intrusos",
+  "llm_provider": "docker",
+  "llm_model": "ai/llama3.2:latest",
+  "area_center": {
+    "latitude": 40.416475,
+    "longitude": -3.7029633333333334
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "mission_name": "Tokyo Base Reconnaissance",
+  "description": "Reconocer la base militar de Tokyo desde el aire",
+  "estimated_duration": 30,
+  "waypoints": [
+    {
+      "latitude": 35.6642,
+      "longitude": 139.7634,
+      "altitude": 2,
+      "action": "takeoff",
+      "duration": 5,
+      "description": "Lanzamiento desde el centro"
+    },
+    {
+      "latitude": 35.6612,
+      "longitude": 139.7664,
+      "altitude": 2,
+      "action": "navigate",
+      "duration": 10,
+      "description": "Dirigirse hacia el Control Tower Shiodome"
+    },
+    {
+      "latitude": 35.6592,
+      "longitude": 139.7594,
+      "altitude": 2,
+      "action": "hover",
+      "duration": 5,
+      "description": "Ubicaci\u00f3n del Landing Platform A"
+    },
+    {
+      "latitude": 35.6682,
+      "longitude": 139.7734,
+      "altitude": 2,
+      "action": "navigate",
+      "duration": 10,
+      "description": "Dirigirse hacia la Surveillance Post East"
+    },
+    {
+      "latitude": 35.6642,
+      "longitude": 139.7584,
+      "altitude": 2,
+      "action": "hover",
+      "duration": 5,
+      "description": "Ubicaci\u00f3n de la Emergency Response Base"
+    },
+    {
+      "latitude": 35.6762,
+      "longitude": 139.7514,
+      "altitude": 2,
+      "action": "navigate",
+      "duration": 10,
+      "description": "Dirigirse hacia el l\u00edmite norte del \u00e1rea"
+    },
+    {
+      "latitude": 35.6762,
+      "longitude": 139.7814,
+      "altitude": 2,
+      "action": "navigate",
+      "duration": 10,
+      "description": "Dirigirse hacia el l\u00edmite este del \u00e1rea"
+    },
+    {
+      "latitude": 35.6462,
+      "longitude": 139.7814,
+      "altitude": 2,
+      "action": "navigate",
+      "duration": 10,
+      "description": "Dirigirse hacia el l\u00edmite sur del \u00e1rea"
+    },
+    {
+      "latitude": 35.6462,
+      "longitude": 139.7514,
+      "altitude": 2,
+      "action": "navigate",
+      "duration": 10,
+      "description": "Dirigirse hacia el l\u00edmite oeste del \u00e1rea"
+    },
+    {
+      "latitude": 35.6642,
+      "longitude": 139.7634,
+      "altitude": 2,
+      "action": "land",
+      "duration": 5,
+      "description": "Aterrizaje en el centro"
+    }
+  ],
+  "safety_considerations": [
+    "Evitar obst\u00e1culos y estructuras altas",
+    "Mantener una distancia segura de las instalaciones"
+  ],
+  "success_criteria": [
+    "Tener una visi\u00f3n clara del Control Tower Shiodome",
+    "Ubicar el Landing Platform A y la Surveillance Post East",
+    "Verificar la presencia de la Emergency Response Base"
+  ],
+  "area_used": "Tokyo Base",
+  "id": "848c5a3d-c825-43db-b51b-f421ae151e3d",
+  "created_at": "2025-07-01T21:17:23.787160",
+  "status": "planned",
+  "area_name": "Base militar Tokyo",
+  "original_command": "Vas a recorrer desde el waypoint 1 al 3 solo a 2 metros de altura",
+  "llm_provider": "docker",
+  "llm_model": "ai/llama3.2:latest",
+  "area_center": {
+    "latitude": 35.6642,
+    "longitude": 139.7634
+  }
+}

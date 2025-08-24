@@ -1,0 +1,67 @@
+{
+  "mission_name": "Patrulla Norte",
+  "description": "Patrullar el per\u00edmetro norte buscando veh\u00edculos sospechosos a 50 metros de altitud",
+  "estimated_duration": 60,
+  "waypoints": [
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 50,
+      "action": "takeoff",
+      "duration": 5,
+      "description": "Despegue desde la base"
+    },
+    {
+      "latitude": 40.4178,
+      "longitude": -3.7025,
+      "altitude": 50,
+      "action": "navigate",
+      "duration": 10,
+      "description": "Navegaci\u00f3n hacia el primer punto del per\u00edmetro norte"
+    },
+    {
+      "latitude": 40.4165,
+      "longitude": -3.7012,
+      "altitude": 50,
+      "action": "patrol",
+      "duration": 15,
+      "description": "Patrullar el \u00e1rea buscando veh\u00edculos sospechosos"
+    },
+    {
+      "latitude": 40.4152,
+      "longitude": -3.702,
+      "altitude": 50,
+      "action": "patrol",
+      "duration": 15,
+      "description": "Continuar patrullando el \u00e1rea buscando veh\u00edculos sospechosos"
+    },
+    {
+      "latitude": 40.4158,
+      "longitude": -3.7045,
+      "altitude": 50,
+      "action": "patrol",
+      "duration": 15,
+      "description": "Finalizar patrulla en el \u00faltimo punto del per\u00edmetro norte"
+    },
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 50,
+      "action": "land",
+      "duration": 5,
+      "description": "Aterrizaje en la base"
+    }
+  ],
+  "safety_considerations": [
+    "Mantener una altitud segura de 50 metros para evitar colisiones con estructuras terrestres",
+    "Evitar la Torre de Comunicaciones y otros puntos de inter\u00e9s en la base"
+  ],
+  "success_criteria": [
+    "Patrullar todo el per\u00edmetro norte",
+    "Identificar y fotografiar cualquier veh\u00edculo sospechoso"
+  ],
+  "id": "15e25f4c-ff5c-444a-8507-c1fc8b31ab18",
+  "created_at": "2025-05-28T07:36:41.160706",
+  "status": "planned",
+  "area_name": "base_militar_ejemplo"
+}

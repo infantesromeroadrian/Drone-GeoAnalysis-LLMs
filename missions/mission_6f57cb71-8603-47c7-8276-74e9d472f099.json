@@ -1,0 +1,67 @@
+{
+  "mission_name": "Patrulla Perimetro Norte",
+  "description": "Patrullar el perimetro norte de la base militar a una altura de 500 metros",
+  "estimated_duration": 60,
+  "waypoints": [
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 500,
+      "action": "takeoff",
+      "duration": 5,
+      "description": "Despegue desde la base"
+    },
+    {
+      "latitude": 40.4178,
+      "longitude": -3.7025,
+      "altitude": 500,
+      "action": "navigate",
+      "duration": 10,
+      "description": "Navegar hacia el primer punto del perimetro norte"
+    },
+    {
+      "latitude": 40.4165,
+      "longitude": -3.7012,
+      "altitude": 500,
+      "action": "patrol",
+      "duration": 15,
+      "description": "Patrullar el segundo punto del perimetro norte"
+    },
+    {
+      "latitude": 40.4152,
+      "longitude": -3.702,
+      "altitude": 500,
+      "action": "patrol",
+      "duration": 15,
+      "description": "Patrullar el tercer punto del perimetro norte"
+    },
+    {
+      "latitude": 40.4158,
+      "longitude": -3.7045,
+      "altitude": 500,
+      "action": "patrol",
+      "duration": 15,
+      "description": "Patrullar el cuarto punto del perimetro norte"
+    },
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 500,
+      "action": "land",
+      "duration": 5,
+      "description": "Aterrizaje en la base"
+    }
+  ],
+  "safety_considerations": [
+    "Mantener una distancia segura de la torre de comunicaciones y otros puntos de inter\u00e9s",
+    "Asegurar que el dron est\u00e9 en buen estado antes del despegue"
+  ],
+  "success_criteria": [
+    "El dron ha patrullado todos los puntos del perimetro norte",
+    "El dron ha vuelto a la base de manera segura"
+  ],
+  "id": "6f57cb71-8603-47c7-8276-74e9d472f099",
+  "created_at": "2025-05-28T16:39:47.941293",
+  "status": "planned",
+  "area_name": "base_militar_ejemplo"
+}

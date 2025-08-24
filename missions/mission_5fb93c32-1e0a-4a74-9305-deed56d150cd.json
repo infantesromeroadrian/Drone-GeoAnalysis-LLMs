@@ -1,0 +1,68 @@
+{
+  "mission_name": "Patrulla Per\u00edmetro Norte",
+  "description": "Patrullar el per\u00edmetro norte de la base militar buscando veh\u00edculos sospechosos a una altura de 50 metros.",
+  "estimated_duration": 60,
+  "waypoints": [
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 50,
+      "action": "takeoff",
+      "duration": 2,
+      "description": "Despegue desde la ubicaci\u00f3n inicial"
+    },
+    {
+      "latitude": 40.4178,
+      "longitude": -3.7025,
+      "altitude": 50,
+      "action": "navigate",
+      "duration": 10,
+      "description": "Navegar al punto 2 del per\u00edmetro norte"
+    },
+    {
+      "latitude": 40.4165,
+      "longitude": -3.7012,
+      "altitude": 50,
+      "action": "search",
+      "duration": 15,
+      "description": "Buscar veh\u00edculos sospechosos"
+    },
+    {
+      "latitude": 40.4152,
+      "longitude": -3.702,
+      "altitude": 50,
+      "action": "navigate",
+      "duration": 10,
+      "description": "Navegar al punto 3 del per\u00edmetro norte"
+    },
+    {
+      "latitude": 40.4158,
+      "longitude": -3.7045,
+      "altitude": 50,
+      "action": "search",
+      "duration": 15,
+      "description": "Buscar veh\u00edculos sospechosos"
+    },
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 50,
+      "action": "land",
+      "duration": 2,
+      "description": "Aterrizaje en la ubicaci\u00f3n inicial"
+    }
+  ],
+  "safety_considerations": [
+    "Mantener una distancia segura de la Torre de Comunicaciones y otros puntos de inter\u00e9s",
+    "Evitar sobrevolar \u00e1reas con alta concentraci\u00f3n de personal"
+  ],
+  "success_criteria": [
+    "Identificaci\u00f3n de veh\u00edculos sospechosos",
+    "Cobertura completa del per\u00edmetro norte",
+    "Regreso seguro a la ubicaci\u00f3n inicial"
+  ],
+  "id": "5fb93c32-1e0a-4a74-9305-deed56d150cd",
+  "created_at": "2025-05-27T22:01:04.488122",
+  "status": "planned",
+  "area_name": "base_militar_ejemplo"
+}

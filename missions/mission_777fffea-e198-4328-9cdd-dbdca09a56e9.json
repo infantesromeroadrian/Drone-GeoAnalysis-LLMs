@@ -1,0 +1,65 @@
+{
+  "mission_name": "Patrulla en Base Militar",
+  "description": "Patrulla los primeros 3 puntos e inmediatamente vuelve al primero a 2 metros de altura",
+  "estimated_duration": 10,
+  "waypoints": [
+    {
+      "latitude": 40.416475,
+      "longitude": -3.702963,
+      "altitude": 10,
+      "action": "navigate",
+      "duration": 2,
+      "description": "Inicia la patrulla desde el centro de la base"
+    },
+    {
+      "latitude": 40.4165,
+      "longitude": -3.703,
+      "altitude": 10,
+      "action": "hover",
+      "duration": 1,
+      "description": "Aproximaci\u00f3n a la Torre de Comunicaciones"
+    },
+    {
+      "latitude": 40.4162,
+      "longitude": -3.7035,
+      "altitude": 10,
+      "action": "hover",
+      "duration": 1,
+      "description": "Aproximaci\u00f3n al Hangar Principal"
+    },
+    {
+      "latitude": 40.417,
+      "longitude": -3.7028,
+      "altitude": 10,
+      "action": "hover",
+      "duration": 1,
+      "description": "Aproximaci\u00f3n a la Pista de Aterrizaje"
+    },
+    {
+      "latitude": 40.416475,
+      "longitude": -3.702963,
+      "altitude": 2,
+      "action": "land",
+      "duration": 1,
+      "description": "Regresa al primer punto de partida a 2 metros de altura"
+    }
+  ],
+  "safety_considerations": [
+    "Evitar obst\u00e1culos y personas no autorizadas"
+  ],
+  "success_criteria": [
+    "Completa la patrulla sin incidentes"
+  ],
+  "area_used": "base_militar_ejemplo",
+  "id": "777fffea-e198-4328-9cdd-dbdca09a56e9",
+  "created_at": "2025-07-01T21:29:58.348453",
+  "status": "planned",
+  "area_name": "base_militar_ejemplo",
+  "original_command": "Patrulla los primeros 3 puntos e inmediatamente vuelve al primero a 2 metros de altura",
+  "llm_provider": "docker",
+  "llm_model": "ai/llama3.2:latest",
+  "area_center": {
+    "latitude": 40.416475,
+    "longitude": -3.7029633333333334
+  }
+}

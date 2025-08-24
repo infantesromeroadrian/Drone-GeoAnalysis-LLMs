@@ -1,0 +1,60 @@
+{
+  "mission_name": "Patrulla Perimetro Norte",
+  "description": "Patrullar el per\u00edmetro norte de la base a una altitud de 500 metros.",
+  "estimated_duration": 60,
+  "waypoints": [
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 500,
+      "action": "takeoff",
+      "duration": 5,
+      "description": "Despegue desde la base"
+    },
+    {
+      "latitude": 40.4178,
+      "longitude": -3.7025,
+      "altitude": 500,
+      "action": "navigate",
+      "duration": 15,
+      "description": "Navegar hacia el primer punto del per\u00edmetro norte"
+    },
+    {
+      "latitude": 40.4165,
+      "longitude": -3.7012,
+      "altitude": 500,
+      "action": "patrol",
+      "duration": 20,
+      "description": "Patrullar el per\u00edmetro norte"
+    },
+    {
+      "latitude": 40.4152,
+      "longitude": -3.702,
+      "altitude": 500,
+      "action": "patrol",
+      "duration": 20,
+      "description": "Continuar patrullando el per\u00edmetro norte"
+    },
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 500,
+      "action": "land",
+      "duration": 5,
+      "description": "Aterrizaje en la base"
+    }
+  ],
+  "safety_considerations": [
+    "Mantener una distancia segura de la torre de comunicaciones y otros puntos de inter\u00e9s",
+    "Asegurar que el dron est\u00e9 en buen estado antes del despegue",
+    "Monitorear constantemente las condiciones clim\u00e1ticas"
+  ],
+  "success_criteria": [
+    "El dron debe completar la patrulla sin incidentes",
+    "El dron debe aterrizar de manera segura en la base"
+  ],
+  "id": "1da1504b-d0f7-4341-b0db-e992b5a2cc59",
+  "created_at": "2025-05-28T12:07:53.278643",
+  "status": "planned",
+  "area_name": "base_militar_ejemplo"
+}

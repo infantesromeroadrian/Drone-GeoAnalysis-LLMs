@@ -1,0 +1,89 @@
+{
+  "mission_name": "Recorrido Completo en Base Militar",
+  "description": "Realizar un recorrido completo en la base militar con un vuelo a 32 metros de altura",
+  "estimated_duration": 20,
+  "waypoints": [
+    {
+      "latitude": 40.416475,
+      "longitude": -3.702963,
+      "altitude": 32,
+      "action": "takeoff",
+      "duration": 2,
+      "description": "Llegada al punto de despegue"
+    },
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 32,
+      "action": "navigate",
+      "duration": 5,
+      "description": "Recorrido hacia el norte"
+    },
+    {
+      "latitude": 40.4178,
+      "longitude": -3.7025,
+      "altitude": 32,
+      "action": "navigate",
+      "duration": 5,
+      "description": "Recorrido hacia el este"
+    },
+    {
+      "latitude": 40.4165,
+      "longitude": -3.7012,
+      "altitude": 32,
+      "action": "scan",
+      "duration": 3,
+      "description": "Escaneo de la zona"
+    },
+    {
+      "latitude": 40.4152,
+      "longitude": -3.702,
+      "altitude": 32,
+      "action": "navigate",
+      "duration": 5,
+      "description": "Recorrido hacia el sur"
+    },
+    {
+      "latitude": 40.4158,
+      "longitude": -3.7045,
+      "altitude": 32,
+      "action": "navigate",
+      "duration": 5,
+      "description": "Recorrido hacia el oeste"
+    },
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 32,
+      "action": "hover",
+      "duration": 2,
+      "description": "Posicionamiento en el punto de llegada"
+    },
+    {
+      "latitude": 40.416475,
+      "longitude": -3.702963,
+      "altitude": 32,
+      "action": "land",
+      "duration": 2,
+      "description": "Aterrizaje en el punto de despegue"
+    }
+  ],
+  "safety_considerations": [
+    "Evitar obstáculos y estructuras en el área de vuelo"
+  ],
+  "success_criteria": [
+    "Completa el recorrido completo sin incidentes"
+  ],
+  "area_used": "base_militar_ejemplo",
+  "id": "417d6fa7-34d0-4868-a5a8-78bf3e0a4661",
+  "created_at": "2025-07-04T13:20:49.111821",
+  "status": "planned",
+  "area_name": "base_militar_ejemplo",
+  "original_command": "Haz el recorrido completo a 32 metros de altura",
+  "llm_provider": "docker",
+  "llm_model": "ai/llama3.2:latest",
+  "area_center": {
+    "latitude": 40.416475,
+    "longitude": -3.7029633333333334
+  }
+}

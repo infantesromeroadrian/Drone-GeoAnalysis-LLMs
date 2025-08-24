@@ -1,0 +1,17 @@
+flask==2.3.3
+openai==1.40.0
+httpx==0.25.0
+python-dotenv==1.0.0
+requests==2.31.0
+Pillow==9.5.0
+waitress==2.1.2
+opencv-python-headless==4.8.0.74
+numpy==1.24.3
+geojson==3.0.1
+pytest==7.4.3
+ultralytics>=8.3.0
+torch>=2.0.0
+torchvision>=0.15.0
+
+# Parrot drone dependencies
+parrot-olympe>=7.7.0 

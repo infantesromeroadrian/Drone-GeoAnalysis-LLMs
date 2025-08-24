@@ -1,0 +1,147 @@
+{
+  "mission_name": "Reconocimiento A\u00e9reo de Base Militar",
+  "description": "Realizar un recorrido a\u00e9reo de 2 veces seguidas a 2 metros de altura en la base militar espec\u00edfica",
+  "estimated_duration": 1200,
+  "waypoints": [
+    {
+      "latitude": 40.416475,
+      "longitude": -3.702963,
+      "altitude": 2,
+      "action": "takeoff",
+      "duration": 10,
+      "description": "Lanzamiento desde la base"
+    },
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 2,
+      "action": "navigate",
+      "duration": 30,
+      "description": "Recorrido en l\u00ednea recta hacia el punto de inter\u00e9s 1"
+    },
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 2,
+      "action": "hover",
+      "duration": 10,
+      "description": "Parada en el punto de inter\u00e9s 1"
+    },
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 2,
+      "action": "navigate",
+      "duration": 30,
+      "description": "Recorrido en l\u00ednea recta hacia el punto de inter\u00e9s 2"
+    },
+    {
+      "latitude": 40.4178,
+      "longitude": -3.7025,
+      "altitude": 2,
+      "action": "hover",
+      "duration": 10,
+      "description": "Parada en el punto de inter\u00e9s 2"
+    },
+    {
+      "latitude": 40.4178,
+      "longitude": -3.7025,
+      "altitude": 2,
+      "action": "navigate",
+      "duration": 30,
+      "description": "Recorrido en l\u00ednea recta hacia el punto de inter\u00e9s 3"
+    },
+    {
+      "latitude": 40.4165,
+      "longitude": -3.703,
+      "altitude": 2,
+      "action": "hover",
+      "duration": 10,
+      "description": "Parada en el punto de inter\u00e9s 3"
+    },
+    {
+      "latitude": 40.4165,
+      "longitude": -3.703,
+      "altitude": 2,
+      "action": "navigate",
+      "duration": 30,
+      "description": "Recorrido en l\u00ednea recta hacia el punto de inter\u00e9s 4"
+    },
+    {
+      "latitude": 40.4162,
+      "longitude": -3.7035,
+      "altitude": 2,
+      "action": "hover",
+      "duration": 10,
+      "description": "Parada en el punto de inter\u00e9s 4"
+    },
+    {
+      "latitude": 40.4162,
+      "longitude": -3.7035,
+      "altitude": 2,
+      "action": "navigate",
+      "duration": 30,
+      "description": "Recorrido en l\u00ednea recta hacia el punto de inter\u00e9s 5"
+    },
+    {
+      "latitude": 40.417,
+      "longitude": -3.7028,
+      "altitude": 2,
+      "action": "hover",
+      "duration": 10,
+      "description": "Parada en el punto de inter\u00e9s 5"
+    },
+    {
+      "latitude": 40.417,
+      "longitude": -3.7028,
+      "altitude": 2,
+      "action": "navigate",
+      "duration": 30,
+      "description": "Recorrido en l\u00ednea recta hacia el punto de inter\u00e9s 6"
+    },
+    {
+      "latitude": 40.4168,
+      "longitude": -3.7032,
+      "altitude": 2,
+      "action": "hover",
+      "duration": 10,
+      "description": "Parada en el punto de inter\u00e9s 6"
+    },
+    {
+      "latitude": 40.4168,
+      "longitude": -3.7032,
+      "altitude": 2,
+      "action": "navigate",
+      "duration": 30,
+      "description": "Recorrido en l\u00ednea recta hacia el punto de aterrizaje"
+    },
+    {
+      "latitude": 40.416475,
+      "longitude": -3.702963,
+      "altitude": 2,
+      "action": "land",
+      "duration": 10,
+      "description": "Aterrizaje en la base"
+    }
+  ],
+  "safety_considerations": [
+    "Evitar \u00e1reas de alta actividad militar",
+    "No volar sobre \u00e1reas de alta densidad poblacional"
+  ],
+  "success_criteria": [
+    "Completa el recorrido sin incidentes",
+    "Obtener im\u00e1genes de alta calidad de los puntos de inter\u00e9s"
+  ],
+  "area_used": "base_militar_ejemplo",
+  "id": "8f99fd4b-480f-4d2a-9eea-f263c7defce5",
+  "created_at": "2025-07-02T14:34:23.096495",
+  "status": "planned",
+  "area_name": "base_militar_ejemplo",
+  "original_command": "Haz el recorrido 2 veces seguidas a 2 metros de altura",
+  "llm_provider": "docker",
+  "llm_model": "ai/llama3.2:latest",
+  "area_center": {
+    "latitude": 40.416475,
+    "longitude": -3.7029633333333334
+  }
+}

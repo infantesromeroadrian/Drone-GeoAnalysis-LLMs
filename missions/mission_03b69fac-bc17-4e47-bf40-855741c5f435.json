@@ -1,0 +1,75 @@
+{
+  "mission_name": "Perimeter Patrol",
+  "description": "This mission involves the drone patrolling the entire perimeter of the base_militar_ejemplo at an altitude of 20 meters.",
+  "estimated_duration": 30,
+  "waypoints": [
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 20,
+      "action": "takeoff",
+      "duration": 2,
+      "description": "Drone takes off from the center of the base"
+    },
+    {
+      "latitude": 40.4178,
+      "longitude": -3.7025,
+      "altitude": 20,
+      "action": "navigate",
+      "duration": 5,
+      "description": "Drone navigates to the north boundary of the base"
+    },
+    {
+      "latitude": 40.4165,
+      "longitude": -3.7012,
+      "altitude": 20,
+      "action": "navigate",
+      "duration": 5,
+      "description": "Drone navigates to the east boundary of the base"
+    },
+    {
+      "latitude": 40.4152,
+      "longitude": -3.702,
+      "altitude": 20,
+      "action": "navigate",
+      "duration": 5,
+      "description": "Drone navigates to the south boundary of the base"
+    },
+    {
+      "latitude": 40.4158,
+      "longitude": -3.7045,
+      "altitude": 20,
+      "action": "navigate",
+      "duration": 5,
+      "description": "Drone navigates to the west boundary of the base"
+    },
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 20,
+      "action": "land",
+      "duration": 2,
+      "description": "Drone lands back at the center of the base"
+    }
+  ],
+  "safety_considerations": [
+    "Ensure the drone maintains a consistent altitude of 20 meters to avoid any obstacles.",
+    "Ensure the drone's battery is fully charged before takeoff to complete the mission.",
+    "Avoid flying over the communication tower and control center to prevent any interference with the drone's signals."
+  ],
+  "success_criteria": [
+    "Drone successfully patrols the entire perimeter of the base.",
+    "Drone maintains a consistent altitude of 20 meters.",
+    "Drone lands back at the center of the base."
+  ],
+  "area_used": "base_militar_ejemplo",
+  "id": "03b69fac-bc17-4e47-bf40-855741c5f435",
+  "created_at": "2025-06-22T18:06:53.113980",
+  "status": "planned",
+  "area_name": "base_militar_ejemplo",
+  "original_command": "haz el perimetro completo a 20 metros de altura",
+  "area_center": {
+    "latitude": 40.416475,
+    "longitude": -3.7029633333333334
+  }
+}

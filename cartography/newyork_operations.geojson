@@ -1,0 +1,224 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Manhattan Operations Zone",
+        "type": "primary_area",
+        "classification": "operational",
+        "description": "Zona principal de operaciones en Manhattan"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-73.9857, 40.7589],
+          [-73.9697, 40.7589],
+          [-73.9697, 40.7789],
+          [-73.9857, 40.7789],
+          [-73.9857, 40.7589]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Central Park Command Center",
+        "type": "command_center",
+        "priority": "high",
+        "description": "Centro de comando principal en Central Park"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-73.9777, 40.7700]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Times Square Surveillance Hub",
+        "type": "surveillance",
+        "priority": "critical",
+        "description": "Hub de vigilancia en Times Square"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-73.9855, 40.7580]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Hudson River Landing Zone Alpha",
+        "type": "landing_zone",
+        "capacity": "large_aircraft",
+        "description": "Zona de aterrizaje principal en Hudson River"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.0059, 40.7614]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "East River Landing Zone Bravo",
+        "type": "landing_zone",
+        "capacity": "medium_aircraft",
+        "description": "Zona de aterrizaje secundaria en East River"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-73.9442, 40.7614]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Empire State Communications Tower",
+        "type": "comm_tower",
+        "height": "443m",
+        "description": "Torre de comunicaciones Empire State"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-73.9857, 40.7484]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Brooklyn Bridge Observation Post",
+        "type": "observation",
+        "visibility": "360_degrees",
+        "description": "Puesto de observación en Brooklyn Bridge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-73.9969, 40.7061]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Yankee Stadium Emergency LZ",
+        "type": "emergency_lz",
+        "status": "standby",
+        "description": "Zona de aterrizaje de emergencia en Yankee Stadium"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-73.9286, 40.8296]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "LaGuardia Airport Coordination Point",
+        "type": "coordination_point",
+        "airspace": "controlled",
+        "description": "Punto de coordinación con LaGuardia Airport"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-73.8740, 40.7769]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Statue of Liberty Patrol Zone",
+        "type": "patrol_area",
+        "security_level": "maximum",
+        "description": "Zona de patrullaje Estatua de la Libertad"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-74.0482, 40.6844],
+          [-74.0402, 40.6844],
+          [-74.0402, 40.6924],
+          [-74.0482, 40.6924],
+          [-74.0482, 40.6844]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Financial District Restricted Zone",
+        "type": "restricted_area",
+        "restriction": "no_fly_below_150m",
+        "description": "Zona restringida distrito financiero"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-74.0142, 40.7074],
+          [-74.0042, 40.7074],
+          [-74.0042, 40.7174],
+          [-74.0142, 40.7174],
+          [-74.0142, 40.7074]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Queens Emergency Response Base",
+        "type": "emergency_base",
+        "response_time": "5_minutes",
+        "description": "Base de respuesta de emergencia en Queens"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-73.7949, 40.7282]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Bronx Surveillance Outpost",
+        "type": "surveillance",
+        "coverage": "north_sector",
+        "description": "Puesto de vigilancia del sector norte"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-73.8648, 40.8448]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Newark Coordination Center",
+        "type": "coordination_center",
+        "jurisdiction": "interstate",
+        "description": "Centro de coordinación interestatal Newark"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-74.1724, 40.7357]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "JFK Airport Exclusion Zone",
+        "type": "exclusion_zone",
+        "radius": "5km",
+        "description": "Zona de exclusión aeropuerto JFK"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-73.8107, 40.6296],
+          [-73.7607, 40.6296],
+          [-73.7607, 40.6796],
+          [-73.8107, 40.6796],
+          [-73.8107, 40.6296]
+        ]]
+      }
+    }
+  ]
+} 

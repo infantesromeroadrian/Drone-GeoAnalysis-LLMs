@@ -1,0 +1,67 @@
+{
+  "mission_name": "Patrulla Per\u00edmetro Norte",
+  "description": "Patrullar el per\u00edmetro norte de la base buscando veh\u00edculos sospechosos a 50 metros de altura",
+  "estimated_duration": 60,
+  "waypoints": [
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 50,
+      "action": "takeoff",
+      "duration": 2,
+      "description": "Despegue desde la base"
+    },
+    {
+      "latitude": 40.4178,
+      "longitude": -3.7025,
+      "altitude": 50,
+      "action": "navigate",
+      "duration": 10,
+      "description": "Navegar hacia el primer punto del per\u00edmetro"
+    },
+    {
+      "latitude": 40.4165,
+      "longitude": -3.7012,
+      "altitude": 50,
+      "action": "patrol",
+      "duration": 15,
+      "description": "Patrullar el \u00e1rea buscando veh\u00edculos sospechosos"
+    },
+    {
+      "latitude": 40.4152,
+      "longitude": -3.702,
+      "altitude": 50,
+      "action": "navigate",
+      "duration": 10,
+      "description": "Navegar hacia el segundo punto del per\u00edmetro"
+    },
+    {
+      "latitude": 40.4158,
+      "longitude": -3.7045,
+      "altitude": 50,
+      "action": "patrol",
+      "duration": 15,
+      "description": "Continuar patrullando el \u00e1rea buscando veh\u00edculos sospechosos"
+    },
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 50,
+      "action": "land",
+      "duration": 2,
+      "description": "Aterrizaje en la base"
+    }
+  ],
+  "safety_considerations": [
+    "Mantener una distancia segura de la torre de comunicaciones y otros edificios",
+    "Evitar volar sobre personal o veh\u00edculos no sospechosos"
+  ],
+  "success_criteria": [
+    "Completa la patrulla sin incidentes",
+    "Identifica cualquier veh\u00edculo sospechoso"
+  ],
+  "id": "92425758-4541-4714-9cba-226c9724d59d",
+  "created_at": "2025-05-27T21:53:03.400548",
+  "status": "planned",
+  "area_name": "base_militar_ejemplo"
+}

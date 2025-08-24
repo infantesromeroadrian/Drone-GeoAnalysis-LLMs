@@ -1,0 +1,67 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Tokyo Bay Operations Zone",
+        "type": "maritime_ops",
+        "classification": "restricted"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [139.7514, 35.6762],
+          [139.7814, 35.6762],
+          [139.7814, 35.6462],
+          [139.7514, 35.6462],
+          [139.7514, 35.6762]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Control Tower Shiodome",
+        "type": "control_tower"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [139.7664, 35.6612]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Landing Platform A",
+        "type": "landing_pad"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [139.7594, 35.6592]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Surveillance Post East",
+        "type": "surveillance"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [139.7734, 35.6682]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Emergency Response Base",
+        "type": "emergency_base"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [139.7584, 35.6642]
+      }
+    }
+  ]
+} 

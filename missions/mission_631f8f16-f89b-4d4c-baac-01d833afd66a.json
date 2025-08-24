@@ -1,0 +1,74 @@
+{
+  "mission_name": "Reconocimiento de la base militar",
+  "description": "Esta misi\u00f3n implica recorrer todos los waypoints a una altura de 2 metros en la base militar especificada.",
+  "estimated_duration": 30,
+  "waypoints": [
+    {
+      "latitude": 40.416475,
+      "longitude": -3.702963,
+      "altitude": 2,
+      "action": "takeoff",
+      "duration": 2,
+      "description": "Despegue desde el centro de la base militar"
+    },
+    {
+      "latitude": 40.4165,
+      "longitude": -3.703,
+      "altitude": 2,
+      "action": "navigate",
+      "duration": 5,
+      "description": "Navegar hacia la Torre de Comunicaciones"
+    },
+    {
+      "latitude": 40.4162,
+      "longitude": -3.7035,
+      "altitude": 2,
+      "action": "navigate",
+      "duration": 5,
+      "description": "Navegar hacia el Hangar Principal"
+    },
+    {
+      "latitude": 40.417,
+      "longitude": -3.7028,
+      "altitude": 2,
+      "action": "navigate",
+      "duration": 5,
+      "description": "Navegar hacia la Pista de Aterrizaje"
+    },
+    {
+      "latitude": 40.4168,
+      "longitude": -3.7032,
+      "altitude": 2,
+      "action": "navigate",
+      "duration": 5,
+      "description": "Navegar hacia el Centro de Control"
+    },
+    {
+      "latitude": 40.416475,
+      "longitude": -3.702963,
+      "altitude": 2,
+      "action": "land",
+      "duration": 2,
+      "description": "Aterrizaje en el centro de la base militar"
+    }
+  ],
+  "safety_considerations": [
+    "Mantener una altura constante de 2 metros para evitar colisiones con estructuras de la base",
+    "Evitar volar sobre personal o veh\u00edculos en movimiento"
+  ],
+  "success_criteria": [
+    "El dron ha recorrido todos los waypoints",
+    "El dron ha mantenido una altura constante de 2 metros",
+    "El dron ha aterrizado con \u00e9xito en el centro de la base militar"
+  ],
+  "area_used": "base_militar_ejemplo",
+  "id": "631f8f16-f89b-4d4c-baac-01d833afd66a",
+  "created_at": "2025-07-01T15:50:04.190407",
+  "status": "planned",
+  "area_name": "base_militar_ejemplo",
+  "original_command": "recorre todos los waypoints a 2 metros de altura",
+  "area_center": {
+    "latitude": 40.416475,
+    "longitude": -3.7029633333333334
+  }
+}

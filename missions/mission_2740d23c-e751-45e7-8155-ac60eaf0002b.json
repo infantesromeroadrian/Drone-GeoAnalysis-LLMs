@@ -1,0 +1,58 @@
+{
+  "mission_name": "Diagonal Perimeter Crossing",
+  "description": "This mission involves the drone crossing the specified area in a diagonal direction at a high speed and at an altitude of 10 meters.",
+  "estimated_duration": 15,
+  "waypoints": [
+    {
+      "latitude": 40.6296,
+      "longitude": -73.8107,
+      "altitude": 10,
+      "action": "takeoff",
+      "duration": 2,
+      "description": "Takeoff from the southwest corner of the operation area."
+    },
+    {
+      "latitude": 40.6496,
+      "longitude": -73.7907,
+      "altitude": 10,
+      "action": "navigate",
+      "duration": 5,
+      "description": "Navigate to the center of the operation area."
+    },
+    {
+      "latitude": 40.6796,
+      "longitude": -73.7607,
+      "altitude": 10,
+      "action": "navigate",
+      "duration": 5,
+      "description": "Continue in a diagonal direction towards the northeast corner of the operation area."
+    },
+    {
+      "latitude": 40.6796,
+      "longitude": -73.7607,
+      "altitude": 10,
+      "action": "land",
+      "duration": 3,
+      "description": "Land at the northeast corner of the operation area."
+    }
+  ],
+  "safety_considerations": [
+    "Ensure that the drone maintains a consistent speed and altitude throughout the mission to avoid any potential obstacles.",
+    "Monitor the drone's battery level to ensure it has enough power to complete the mission."
+  ],
+  "success_criteria": [
+    "The drone successfully crosses the operation area in a diagonal direction.",
+    "The drone maintains a consistent speed and altitude throughout the mission.",
+    "The drone lands safely at the northeast corner of the operation area."
+  ],
+  "area_used": "newyork_operations",
+  "id": "2740d23c-e751-45e7-8155-ac60eaf0002b",
+  "created_at": "2025-05-29T11:36:52.033797",
+  "status": "planned",
+  "area_name": "newyork_operations",
+  "original_command": "atraviesa el perimetro directamente en diagonal a gran velocidad a una altura de 10 metros",
+  "area_center": {
+    "latitude": 40.64960000000001,
+    "longitude": -73.79069999999999
+  }
+}

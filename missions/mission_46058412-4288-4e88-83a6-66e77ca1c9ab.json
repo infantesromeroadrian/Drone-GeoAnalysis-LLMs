@@ -1,0 +1,61 @@
+{
+  "mission_name": "Misi\u00f3n nocturna: patrulla silenciosa del per\u00edmetro oeste",
+  "description": "Patrulla nocturna a 30 metros de altura en modo stealth a lo largo del per\u00edmetro oeste de la base militar",
+  "estimated_duration": 45,
+  "waypoints": [
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 30,
+      "action": "takeoff",
+      "duration": 2,
+      "description": "Despegue desde la base"
+    },
+    {
+      "latitude": 40.4178,
+      "longitude": -3.7025,
+      "altitude": 30,
+      "action": "navigate",
+      "duration": 10,
+      "description": "Navegaci\u00f3n hacia el punto noroeste del per\u00edmetro"
+    },
+    {
+      "latitude": 40.4165,
+      "longitude": -3.7012,
+      "altitude": 30,
+      "action": "patrol",
+      "duration": 15,
+      "description": "Patrullaje a lo largo del borde norte del per\u00edmetro"
+    },
+    {
+      "latitude": 40.4152,
+      "longitude": -3.702,
+      "altitude": 30,
+      "action": "patrol",
+      "duration": 15,
+      "description": "Patrullaje a lo largo del borde oeste del per\u00edmetro"
+    },
+    {
+      "latitude": 40.416775,
+      "longitude": -3.70379,
+      "altitude": 30,
+      "action": "land",
+      "duration": 3,
+      "description": "Aterrizaje en la base"
+    }
+  ],
+  "safety_considerations": [
+    "Evitar la Torre de Comunicaciones y el Hangar Principal",
+    "Mantener el modo stealth durante toda la misi\u00f3n",
+    "Vigilar el nivel de bater\u00eda para asegurar el retorno y aterrizaje seguros"
+  ],
+  "success_criteria": [
+    "Patrullaje completo del per\u00edmetro oeste",
+    "Evitar todos los puntos de inter\u00e9s",
+    "Retorno seguro a la base"
+  ],
+  "id": "46058412-4288-4e88-83a6-66e77ca1c9ab",
+  "created_at": "2025-05-27T22:10:38.057052",
+  "status": "planned",
+  "area_name": "base_militar_ejemplo"
+}

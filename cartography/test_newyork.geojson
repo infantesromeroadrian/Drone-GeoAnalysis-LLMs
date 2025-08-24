@@ -1,0 +1,67 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Central Park Operations Center",
+        "type": "command_center",
+        "classification": "public"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-73.9735, 40.7829],
+          [-73.9495, 40.7829],
+          [-73.9495, 40.7640],
+          [-73.9735, 40.7640],
+          [-73.9735, 40.7829]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Helipad Alpha",
+        "type": "landing_zone"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-73.9615, 40.7735]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Communications Tower",
+        "type": "comm_tower"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-73.9555, 40.7705]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Emergency Landing Zone",
+        "type": "emergency_lz"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-73.9675, 40.7785]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Observation Post",
+        "type": "observation"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-73.9590, 40.7750]
+      }
+    }
+  ]
+} 

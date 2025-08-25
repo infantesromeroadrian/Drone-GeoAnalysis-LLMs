@@ -10,7 +10,8 @@ RUN apt-get update && apt-get install -y \
     libsm6 \
     libxext6 \
     libxrender-dev \
-    libgl1-mesa-glx \
+    libgl1-mesa-dev \
+    libegl1-mesa-dev \
     libgstreamer1.0-0 \
     libgstreamer-plugins-base1.0-0 \
     libfontconfig1 \

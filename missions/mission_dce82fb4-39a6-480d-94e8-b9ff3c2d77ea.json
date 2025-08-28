@@ -1,0 +1,93 @@
+{
+  "mission_name": "Patrulla Base Militar Ejemplo",
+  "description": "Misión de patrulla a baja altura para monitorear la base militar y sus puntos críticos",
+  "estimated_duration": 15,
+  "waypoints": [
+    {
+      "latitude": 40.416475,
+      "longitude": -3.702963,
+      "altitude": 4,
+      "action": "takeoff",
+      "duration": 2,
+      "description": "Despegue desde el punto central"
+    },
+    {
+      "latitude": 40.4165,
+      "longitude": -3.703,
+      "altitude": 4,
+      "action": "patrol",
+      "duration": 5,
+      "description": "Patrulla alrededor de la Torre de Comunicaciones"
+    },
+    {
+      "latitude": 40.4162,
+      "longitude": -3.7035,
+      "altitude": 4,
+      "action": "patrol",
+      "duration": 5,
+      "description": "Inspección del Hangar Principal"
+    },
+    {
+      "latitude": 40.4169,
+      "longitude": -3.703,
+      "altitude": 4,
+      "action": "patrol",
+      "duration": 5,
+      "description": "Vigilancia del perímetro norte"
+    },
+    {
+      "latitude": 40.417,
+      "longitude": -3.7028,
+      "altitude": 4,
+      "action": "patrol",
+      "duration": 5,
+      "description": "Revisión de la Pista de Aterrizaje"
+    },
+    {
+      "latitude": 40.4168,
+      "longitude": -3.7032,
+      "altitude": 4,
+      "action": "patrol",
+      "duration": 5,
+      "description": "Monitoreo del Centro de Control"
+    },
+    {
+      "latitude": 40.4152,
+      "longitude": -3.702,
+      "altitude": 4,
+      "action": "patrol",
+      "duration": 5,
+      "description": "Inspección del límite este"
+    },
+    {
+      "latitude": 40.416475,
+      "longitude": -3.702963,
+      "altitude": 4,
+      "action": "land",
+      "duration": 3,
+      "description": "Aterrizaje en el punto central"
+    }
+  ],
+  "safety_considerations": [
+    "Evitar zonas restringidas cercanas a instalaciones críticas",
+    "Monitorear condiciones meteorológicas en tiempo real",
+    "Mantener altitud constante para evitar interferencias"
+  ],
+  "success_criteria": [
+    "Completa la patrulla de todos los waypoints sin colisiones",
+    "Captura imágenes claras de todos los puntos de interés",
+    "Mantiene comunicación constante con la estación de control"
+  ],
+  "area_used": "Base Militar Ejemplo (área limitada por coordenadas proporcionadas)",
+  "id": "dce82fb4-39a6-480d-94e8-b9ff3c2d77ea",
+  "created_at": "2025-08-25T09:57:50.592773",
+  "status": "planned",
+  "area_name": "base_militar_ejemplo",
+  "original_command": "patrulla todos los waypoints a una altura de 4 metros",
+  "llm_provider": "docker",
+  "llm_model": "ai/qwen3",
+  "area_center": {
+    "latitude": 40.416475,
+    "longitude": -3.7029633333333334
+  }
+}

@@ -26,8 +26,13 @@ class ChatService:
     def __init__(self):
         """Inicializa el servicio de chat."""
         self.config = get_openai_config()
-        self.client = OpenAI(api_key=self.config["api_key"])
-        self.context_storage = {}  # Almacena contextos de análisis por sesión
+        api_key = self.config.get("api_key")
+        if api_key:
+            self.client = OpenAI(api_key=api_key)
+        else:
+            self.client = None
+            logger.warning("OPENAI_API_KEY no disponible. Chat contextual deshabilitado.")
+        self.context_storage = {}
         logger.info("Servicio de chat contextual inicializado")
 
     def store_analysis_context(self, session_id: str, analysis_results: Dict[str, Any],

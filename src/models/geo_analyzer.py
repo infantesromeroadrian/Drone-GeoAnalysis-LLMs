@@ -35,18 +35,27 @@ class GeoAnalyzer:
     def _setup_client(self) -> None:
         """Configura el cliente LLM según el proveedor."""
         if self.provider == "docker":
-            logger.warning("Docker Models no soporta analisis de imagenes. Usando OpenAI como fallback.")
+            logger.warning("Docker Models no soporta analisis de imagenes. Intentando OpenAI como fallback.")
             self._setup_openai_fallback()
         elif self.provider == "openai":
             logger.info("Inicializando OpenAI API para análisis de imágenes")
             self.client = OpenAI(api_key=self.config["api_key"])
-        
+        else:
+            self.client = None
+            logger.warning("Proveedor LLM no soportado para vision: %s", self.provider)
+
     def _setup_openai_fallback(self) -> None:
         """Configura OpenAI como fallback para análisis de imágenes."""
+        import os
         from src.utils.config import get_openai_config
         self.config = get_openai_config()
-        self.client = OpenAI(api_key=self.config["api_key"])
-        self.provider = "openai"  # Override para este caso específico
+        api_key = self.config.get("api_key") or os.environ.get("OPENAI_API_KEY")
+        if not api_key:
+            self.client = None
+            logger.warning("OPENAI_API_KEY no disponible. Analisis de imagenes deshabilitado.")
+            return
+        self.client = OpenAI(api_key=api_key)
+        self.provider = "openai"
         
     def analyze_image(self, base64_image: str, metadata: Dict[str, Any], image_format: str = 'jpeg') -> Dict[str, Any]:
         """
@@ -82,7 +91,7 @@ class GeoAnalyzer:
     
     def _validate_api_configuration(self) -> Dict[str, Any]:
         """Valida la configuración de la API."""
-        if not self.config.get("api_key") or self.config["api_key"].startswith("your_"):
+        if self.client is None or not self.config.get("api_key") or self.config["api_key"].startswith("your_"):
             logger.error("API key de OpenAI no configurada o inválida")
             return {
                 "error": "API key de OpenAI no configurada. El análisis de imágenes requiere OpenAI GPT-4 Vision.",

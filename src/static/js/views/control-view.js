@@ -3,9 +3,12 @@ import API from '../services/api.js';
 let map = null;
 let droneMarker = null;
 let missionLayer = null;
+let trailLayer = null;
+let trailPoints = [];
 let initialized = false;
 let currentMissionId = null;
 let execPollInterval = null;
+let currentHeading = 0;
 
 export async function initControlView() {
     if (!initialized) {
@@ -26,47 +29,85 @@ export function destroyControlView() {
 }
 
 async function setupMap() {
-    // Get drone position before creating map
     let lat = 40.4168, lng = -3.7038;
     try {
         const t = await API.getTelemetry();
         if (t.success && t.telemetry?.position) {
             const p = t.telemetry.position;
-            if (p.latitude !== 0 || p.longitude !== 0) {
-                lat = p.latitude;
-                lng = p.longitude;
-            }
+            if (p.latitude !== 0 || p.longitude !== 0) { lat = p.latitude; lng = p.longitude; }
         }
-    } catch { /* use defaults */ }
+    } catch { /* defaults */ }
 
-    map = L.map('map', { zoomControl: true }).setView([lat, lng], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap',
-        maxZoom: 19,
-    }).addTo(map);
+    map = L.map('map', { zoomControl: true }).setView([lat, lng], 14);
 
+    // Tile layers
+    const token = window.MAPBOX_TOKEN;
+    const satellite = token
+        ? L.tileLayer(`https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v12/tiles/{z}/{x}/{y}?access_token=${token}`, {
+            tileSize: 512, zoomOffset: -1, maxZoom: 20,
+            attribution: '&copy; Mapbox &copy; OpenStreetMap',
+          })
+        : null;
+    const streets = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19, attribution: '&copy; OpenStreetMap',
+    });
+    const dark = token
+        ? L.tileLayer(`https://api.mapbox.com/styles/v1/mapbox/dark-v11/tiles/{z}/{x}/{y}?access_token=${token}`, {
+            tileSize: 512, zoomOffset: -1, maxZoom: 20,
+            attribution: '&copy; Mapbox',
+          })
+        : null;
+
+    // Default to satellite if available
+    (satellite || streets).addTo(map);
+
+    // Layer toggle buttons
+    const toggleDiv = document.createElement('div');
+    toggleDiv.className = 'map-layer-toggle';
+    const layers = [];
+    if (satellite) layers.push(['Satellite', satellite]);
+    layers.push(['Streets', streets]);
+    if (dark) layers.push(['Dark', dark]);
+
+    layers.forEach(([name, layer], i) => {
+        const btn = document.createElement('button');
+        btn.className = 'map-layer-btn' + (i === 0 ? ' active' : '');
+        btn.textContent = name;
+        btn.addEventListener('click', () => {
+            layers.forEach(([, l]) => map.removeLayer(l));
+            layer.addTo(map);
+            toggleDiv.querySelectorAll('.map-layer-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        });
+        toggleDiv.appendChild(btn);
+    });
+    document.querySelector('.control-center').appendChild(toggleDiv);
+
+    // Drone marker with rotation
     droneMarker = L.marker([lat, lng], {
         icon: L.divIcon({
-            className: '',
-            html: `<div style="width:40px;height:40px;position:relative">
-                <svg viewBox="0 0 100 100" width="40" height="40" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5))">
-                    <circle cx="50" cy="50" r="18" fill="#3B82F6" stroke="white" stroke-width="4"/>
-                    <line x1="50" y1="32" x2="20" y2="15" stroke="white" stroke-width="4" stroke-linecap="round"/>
-                    <line x1="50" y1="32" x2="80" y2="15" stroke="white" stroke-width="4" stroke-linecap="round"/>
-                    <line x1="50" y1="68" x2="20" y2="85" stroke="white" stroke-width="4" stroke-linecap="round"/>
-                    <line x1="50" y1="68" x2="80" y2="85" stroke="white" stroke-width="4" stroke-linecap="round"/>
-                    <circle cx="20" cy="15" r="10" fill="none" stroke="#3B82F6" stroke-width="3" opacity="0.7"/>
-                    <circle cx="80" cy="15" r="10" fill="none" stroke="#3B82F6" stroke-width="3" opacity="0.7"/>
-                    <circle cx="20" cy="85" r="10" fill="none" stroke="#3B82F6" stroke-width="3" opacity="0.7"/>
-                    <circle cx="80" cy="85" r="10" fill="none" stroke="#3B82F6" stroke-width="3" opacity="0.7"/>
+            className: 'drone-marker',
+            html: `<div class="drone-pulse" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center">
+                <svg viewBox="0 0 100 100" width="36" height="36" class="drone-svg">
+                    <circle cx="50" cy="50" r="16" fill="#3B82F6" stroke="white" stroke-width="3"/>
+                    <line x1="50" y1="34" x2="22" y2="16" stroke="white" stroke-width="3.5" stroke-linecap="round"/>
+                    <line x1="50" y1="34" x2="78" y2="16" stroke="white" stroke-width="3.5" stroke-linecap="round"/>
+                    <line x1="50" y1="66" x2="22" y2="84" stroke="white" stroke-width="3.5" stroke-linecap="round"/>
+                    <line x1="50" y1="66" x2="78" y2="84" stroke="white" stroke-width="3.5" stroke-linecap="round"/>
+                    <circle cx="22" cy="16" r="9" fill="rgba(59,130,246,0.3)" stroke="#60A5FA" stroke-width="2"/>
+                    <circle cx="78" cy="16" r="9" fill="rgba(59,130,246,0.3)" stroke="#60A5FA" stroke-width="2"/>
+                    <circle cx="22" cy="84" r="9" fill="rgba(59,130,246,0.3)" stroke="#60A5FA" stroke-width="2"/>
+                    <circle cx="78" cy="84" r="9" fill="rgba(59,130,246,0.3)" stroke="#60A5FA" stroke-width="2"/>
+                    <polygon points="50,38 46,50 50,48 54,50" fill="white" opacity="0.9"/>
                 </svg>
             </div>`,
-            iconSize: [40, 40],
-            iconAnchor: [20, 20],
+            iconSize: [44, 44],
+            iconAnchor: [22, 22],
         }),
-    }).addTo(map).bindPopup('Drone');
+    }).addTo(map);
 
     missionLayer = L.layerGroup().addTo(map);
+    trailLayer = L.layerGroup().addTo(map);
 }
 
 function setupDroneControls() {
@@ -282,6 +323,8 @@ async function executeMission(missionId) {
     }
     showToast(`Mission executing: ${r.waypoints} waypoints`);
     document.getElementById('exec-bar')?.classList.remove('hidden');
+    trailPoints = [];
+    if (trailLayer) trailLayer.clearLayers();
     startExecPolling();
 
     const abortBtn = document.getElementById('btn-abort-exec');
@@ -319,9 +362,30 @@ async function pollExecStatus() {
         if (wp) wp.textContent = `WP ${s.current_waypoint || 0}/${s.total_waypoints || 0}`;
         if (eta) eta.textContent = `ETA ${Math.round(s.eta_seconds || 0)}s`;
 
-        // Move drone marker
+        // Move drone marker + trail
         if (s.position && droneMarker) {
-            droneMarker.setLatLng([s.position.latitude, s.position.longitude]);
+            const pos = [s.position.latitude, s.position.longitude];
+            droneMarker.setLatLng(pos);
+
+            // Add trail point
+            trailPoints.push(pos);
+            if (trailPoints.length > 1 && trailLayer) {
+                trailLayer.clearLayers();
+                L.polyline(trailPoints, {
+                    color: '#10B981', weight: 3, opacity: 0.7,
+                    dashArray: null,
+                }).addTo(trailLayer);
+            }
+
+            // Rotate drone icon toward movement direction
+            if (trailPoints.length >= 2) {
+                const prev = trailPoints[trailPoints.length - 2];
+                const dx = pos[1] - prev[1];
+                const dy = pos[0] - prev[0];
+                const angle = Math.atan2(dx, dy) * (180 / Math.PI);
+                const svgEl = document.querySelector('.drone-svg');
+                if (svgEl) svgEl.style.transform = `rotate(${-angle}deg)`;
+            }
         }
 
         // Status label

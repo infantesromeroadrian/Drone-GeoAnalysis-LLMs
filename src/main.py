@@ -205,16 +205,18 @@ class DroneGeoApp:
         @self.app.route('/')
         def dashboard():
             """SPA dashboard principal."""
-            return render_template('dashboard.html')
+            return render_template('dashboard.html',
+                                   mapbox_token=os.environ.get('MAPBOX_TOKEN', ''))
 
-        # Legacy routes redirect to SPA
         @self.app.route('/drone_control.html')
         def drone_control_legacy():
-            return render_template('dashboard.html')
+            return render_template('dashboard.html',
+                                   mapbox_token=os.environ.get('MAPBOX_TOKEN', ''))
 
         @self.app.route('/web_index.html')
         def web_index_legacy():
-            return render_template('dashboard.html')
+            return render_template('dashboard.html',
+                                   mapbox_token=os.environ.get('MAPBOX_TOKEN', ''))
 
         logger.info("Rutas registradas")
     

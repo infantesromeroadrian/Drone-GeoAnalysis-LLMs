@@ -486,6 +486,62 @@ select.form-control {
 .modal-body { padding: 20px; }
 .modal-footer { padding: 12px 20px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
 
+/* ---- Drone Marker ---- */
+.drone-marker {
+    transition: transform 0.3s ease;
+}
+
+.drone-marker svg { filter: drop-shadow(0 3px 6px rgba(0,0,0,0.5)); }
+
+@keyframes drone-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+    50% { box-shadow: 0 0 0 12px rgba(59, 130, 246, 0); }
+}
+
+.drone-pulse {
+    animation: drone-pulse 2s ease-in-out infinite;
+    border-radius: 50%;
+}
+
+/* ---- Waypoint Reached Animation ---- */
+@keyframes wp-reached {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.8); opacity: 0.5; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.wp-reached { animation: wp-reached 0.6s ease-out; }
+
+/* ---- Map Layer Toggle ---- */
+.map-layer-toggle {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 500;
+    display: flex;
+    gap: 4px;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(8px);
+    border-radius: var(--radius);
+    padding: 4px;
+    border: 1px solid var(--border);
+}
+
+.map-layer-btn {
+    padding: 5px 10px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: var(--text-muted);
+    background: transparent;
+    transition: all var(--transition);
+}
+
+.map-layer-btn.active { background: var(--accent); color: white; }
+.map-layer-btn:hover:not(.active) { color: var(--text-primary); }
+
 /* ---- Spinner ---- */
 .spinner {
     width: 28px;

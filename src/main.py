@@ -92,7 +92,7 @@ class DroneGeoApp:
     def _create_flask_app(self) -> Flask:
         """Crea la instancia básica de Flask."""
         app = Flask(__name__,
-                   static_folder='templates/static',
+                   static_folder='static',
                    template_folder='templates')
 
         # Configuración básica
@@ -195,30 +195,24 @@ class DroneGeoApp:
         return components
     
     def _register_routes(self):
-        """Registra rutas básicas de la aplicación."""
+        """Registra rutas de la aplicacion."""
         assert self.app is not None, "Flask app must be initialized first"
-        
+
         @self.app.route('/')
-        def index():
-            """Ruta principal que muestra la interfaz moderna."""
-            return render_template('index.html')
-        
+        def dashboard():
+            """SPA dashboard principal."""
+            return render_template('dashboard.html')
+
+        # Legacy routes redirect to SPA
         @self.app.route('/drone_control.html')
-        def drone_control():
-            """Panel de control completo de drones."""
-            return render_template('drone_control.html')
-        
+        def drone_control_legacy():
+            return render_template('dashboard.html')
+
         @self.app.route('/web_index.html')
-        def web_index():
-            """Análisis rápido de imágenes."""
-            return render_template('web_index.html')
-        
-        @self.app.route('/mission_instructions.html')
-        def mission_instructions():
-            """Instrucciones de misiones LLM."""
-            return render_template('mission_instructions.html')
-        
-        logger.info("Rutas basicas registradas")
+        def web_index_legacy():
+            return render_template('dashboard.html')
+
+        logger.info("Rutas registradas")
     
     def _register_blueprints(self):
         """Registra todos los blueprints de controladores."""

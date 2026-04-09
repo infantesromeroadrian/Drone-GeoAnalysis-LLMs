@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drone Geo Analysis</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght%40300;400;500;600;700&family=JetBrains+Mono:wght%40400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
+</head>
+<body>
+<div class="app">
+
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="sidebar-logo"><i class="fas fa-satellite-dish"></i></div>
+        <div class="sidebar-nav">
+            <button class="nav-item active" data-view="dashboard"><i class="fas fa-th-large"></i><span>Dashboard</span></button>
+            <button class="nav-item" data-view="control"><i class="fas fa-gamepad"></i><span>Mission Control</span></button>
+            <button class="nav-item" data-view="analysis"><i class="fas fa-microscope"></i><span>Analysis</span></button>
+            <button class="nav-item" data-view="missions"><i class="fas fa-folder-open"></i><span>Missions</span></button>
+        </div>
+        <div class="sidebar-spacer"></div>
+        <div class="sidebar-nav">
+            <div class="nav-item" style="cursor:default;opacity:0.4"><i class="fas fa-cog"></i><span>Settings</span></div>
+        </div>
+    </nav>
+
+    <!-- Top Bar -->
+    <header class="topbar">
+        <span class="topbar-title" id="topbar-title">Dashboard</span>
+        <div class="topbar-status">
+            <span class="status-badge"><span class="status-dot online" id="tb-status-dot"></span>LLM: Groq</span>
+            <span class="status-badge"><i class="fas fa-battery-three-quarters" style="color:var(--success)"></i> <span id="tb-battery">--</span></span>
+            <span class="status-badge"><i class="fas fa-mountain"></i> <span id="tb-altitude">--</span></span>
+            <span class="status-badge"><i class="fas fa-map-pin"></i> <span id="tb-gps">--</span></span>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+        <!-- ===== DASHBOARD VIEW ===== -->
+        <div class="view active" id="view-dashboard">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="fas fa-route"></i></div>
+                    <div><div class="stat-value" id="stat-missions">0</div><div class="stat-label">Missions Created</div></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green"><i class="fas fa-map"></i></div>
+                    <div><div class="stat-value" id="stat-areas">0</div><div class="stat-label">Areas Loaded</div></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange"><i class="fas fa-eye"></i></div>
+                    <div><div class="stat-value" id="stat-yolo">--</div><div class="stat-label">YOLO Status</div></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon red"><i class="fas fa-satellite-dish"></i></div>
+                    <div><div class="stat-value">Groq</div><div class="stat-label">LLM Provider</div></div>
+                </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div class="card">
+                    <div class="card-header"><span class="card-title"><i class="fas fa-history"></i> Recent Missions</span></div>
+                    <div id="recent-missions"><span class="text-muted text-sm">Loading...</span></div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><span class="card-title"><i class="fas fa-bolt"></i> Quick Actions</span></div>
+                    <div style="display:flex;flex-direction:column;gap:8px">
+                        <button class="btn btn-primary btn-block" id="qa-control"><i class="fas fa-gamepad"></i> Open Mission Control</button>
+                        <button class="btn btn-block" id="qa-analysis"><i class="fas fa-microscope"></i> Analyze Image</button>
+                        <button class="btn btn-block" id="qa-missions"><i class="fas fa-folder-open"></i> Browse Missions</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== CONTROL VIEW ===== -->
+        <div class="view" id="view-control">
+            <div class="control-layout">
+                <div class="control-left">
+                    <div class="card mb-12">
+                        <div class="card-title"><i class="fas fa-signal"></i> Telemetry</div>
+                        <div class="telemetry-item"><span class="telemetry-label"><i class="fas fa-battery-three-quarters"></i> Battery</span><span class="telemetry-value" id="tel-battery">--%</span></div>
+                        <div class="telemetry-item"><span class="telemetry-label"><i class="fas fa-mountain"></i> Altitude</span><span class="telemetry-value" id="tel-altitude">--m</span></div>
+                        <div class="telemetry-item"><span class="telemetry-label"><i class="fas fa-tachometer-alt"></i> Speed</span><span class="telemetry-value" id="tel-speed">-- m/s</span></div>
+                        <div class="telemetry-item"><span class="telemetry-label"><i class="fas fa-map-pin"></i> GPS</span><span class="telemetry-value" id="tel-gps">--</span></div>
+                        <div class="telemetry-item"><span class="telemetry-label"><i class="fas fa-wifi"></i> Signal</span><span class="telemetry-value" id="tel-signal">--%</span></div>
+                        <div class="telemetry-item"><span class="telemetry-label"><i class="fas fa-satellite"></i> Sats</span><span class="telemetry-value" id="tel-satellites">--</span></div>
+                        <div class="telemetry-item"><span class="telemetry-label"><i class="fas fa-compass"></i> Heading</span><span class="telemetry-value" id="tel-heading">--</span></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-gamepad"></i> Controls</div>
+                        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">
+                            <button class="btn btn-success btn-sm" id="btn-connect"><i class="fas fa-plug"></i> Connect</button>
+                            <button class="btn btn-sm" id="btn-disconnect"><i class="fas fa-times"></i> Disconnect</button>
+                        </div>
+                        <div class="form-group" style="margin-top:12px">
+                            <label>Takeoff altitude (m)</label>
+                            <div style="display:flex;gap:6px">
+                                <input type="number" id="takeoff-alt" class="form-control" value="30" min="1" max="120" style="width:80px">
+                                <button class="btn btn-primary btn-sm" id="btn-takeoff"><i class="fas fa-arrow-up"></i> Takeoff</button>
+                                <button class="btn btn-danger btn-sm" id="btn-land"><i class="fas fa-arrow-down"></i> Land</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-center"><div id="map"></div></div>
+
+                <div class="control-right">
+                    <div class="tabs" id="control-tabs">
+                        <div class="tab active" data-tab="missions"><i class="fas fa-tasks"></i> Missions</div>
+                        <div class="tab" data-tab="geo"><i class="fas fa-globe"></i> Geo</div>
+                        <div class="tab" data-tab="sim"><i class="fas fa-play"></i> Sim</div>
+                    </div>
+                    <div id="control-panels">
+                        <div class="tab-panel active" id="panel-missions">
+                            <div class="card mb-12">
+                                <div class="card-title"><i class="fas fa-map"></i> Cartography</div>
+                                <div class="form-group">
+                                    <label>Area name</label>
+                                    <input type="text" id="carto-area-name" class="form-control" placeholder="e.g. Tokyo Bay Ops">
+                                </div>
+                                <input type="file" id="carto-file" accept=".geojson,.json" class="hidden">
+                                <button class="btn btn-sm btn-block" id="btn-upload-carto"><i class="fas fa-upload"></i> Load GeoJSON</button>
+                            </div>
+                            <div class="card mb-12">
+                                <div class="card-title"><i class="fas fa-brain"></i> AI Mission</div>
+                                <div class="form-group">
+                                    <label>Command (natural language)</label>
+                                    <textarea id="mission-command" class="form-control" rows="3" placeholder="e.g. Patrol all waypoints at 40m altitude"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>Area</label>
+                                    <select id="mission-area" class="form-control"><option value="">No area selected</option></select>
+                                </div>
+                                <button class="btn btn-primary btn-block" id="btn-create-mission"><i class="fas fa-magic"></i> Create AI Mission</button>
+                            </div>
+                            <div class="card">
+                                <div class="card-title"><i class="fas fa-list"></i> Missions</div>
+                                <div id="mission-list"><span class="text-muted text-sm">Loading...</span></div>
+                            </div>
+                        </div>
+                        <div class="tab-panel" id="panel-geo">
+                            <div class="card">
+                                <div class="card-title"><i class="fas fa-crosshairs"></i> Geo Intelligence</div>
+                                <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px">
+                                    <button class="btn btn-sm btn-block"><i class="fas fa-plus-circle"></i> Add Reference</button>
+                                    <button class="btn btn-sm btn-block"><i class="fas fa-crosshairs"></i> Create Target</button>
+                                    <button class="btn btn-sm btn-block"><i class="fas fa-search-plus"></i> Detect Changes</button>
+                                    <button class="btn btn-sm btn-block"><i class="fas fa-calculator"></i> Calculate Position</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-panel" id="panel-sim">
+                            <div class="card">
+                                <div class="card-title"><i class="fas fa-route"></i> Flight Simulation</div>
+                                <button class="btn btn-sm btn-block mb-12" id="btn-load-sims"><i class="fas fa-download"></i> Load Routes</button>
+                                <div id="sim-list"><span class="text-muted text-sm">Click to load routes</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ANALYSIS VIEW ===== -->
+        <div class="view" id="view-analysis">
+            <div class="analysis-layout">
+                <div class="analysis-left">
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-upload"></i> Image Upload</div>
+                        <div class="upload-area" id="upload-drop">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <h3>Drop image here</h3>
+                            <p>or click to select</p>
+                        </div>
+                        <input type="file" id="analysis-file" accept="image/*" class="hidden">
+                        <div id="analysis-preview" style="margin-top:12px"></div>
+                        <div id="analysis-buttons" class="hidden" style="margin-top:12px;display:flex;gap:8px">
+                            <button class="btn btn-primary" id="btn-analyze-geo"><i class="fas fa-map-marker-alt"></i> Geo Analysis</button>
+                            <button class="btn" id="btn-analyze-yolo"><i class="fas fa-eye"></i> YOLO Detection</button>
+                        </div>
+                    </div>
+                    <div class="card hidden" id="chat-section" style="margin-top:12px">
+                        <div class="card-title"><i class="fas fa-comments"></i> Ask about the image</div>
+                        <div class="chat-messages" id="chat-messages"></div>
+                        <div class="chat-input-row">
+                            <input type="text" id="chat-input" class="form-control" placeholder="Ask a question...">
+                            <button class="btn btn-primary btn-sm" id="btn-chat-send"><i class="fas fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="analysis-right">
+                    <div class="card" style="height:100%">
+                        <div class="card-title"><i class="fas fa-chart-bar"></i> Results</div>
+                        <div id="analysis-results">
+                            <div style="text-align:center;padding:60px;color:var(--text-muted)">
+                                <i class="fas fa-image" style="font-size:2.5rem;margin-bottom:12px;display:block"></i>
+                                <p>Upload an image to start analysis</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== MISSIONS VIEW ===== -->
+        <div class="view" id="view-missions">
+            <div class="card-header" style="margin-bottom:16px">
+                <span class="card-title" style="font-size:1.1rem"><i class="fas fa-folder-open"></i> Missions Library</span>
+                <span class="status-badge" id="missions-count">-- missions</span>
+            </div>
+            <div id="missions-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px">
+                <span class="text-muted text-sm">Loading...</span>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<!-- Toast -->
+<div id="toast" style="position:fixed;bottom:20px;right:20px;background:var(--secondary);border:1px solid var(--border);border-radius:var(--radius);padding:12px 20px;font-size:0.85rem;z-index:600;opacity:0;transform:translateY(10px);transition:all 0.3s;pointer-events:none"></div>
+<style>#toast.active{opacity:1;transform:translateY(0)}</style>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-route"></i> AI Generated Mission</h3>
+            <button class="modal-close" id="btn-modal-close">&times;</button>
+        </div>
+        <div class="modal-body" id="modal-body"></div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" id="btn-modal-accept"><i class="fas fa-check"></i> Accept</button>
+            <button class="btn" onclick="document.getElementById('modal-overlay').classList.remove('active')">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script type="module" src="/static/js/app.js"></script>
+</body>
+</html>

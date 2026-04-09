@@ -131,7 +131,7 @@ class ParrotAnafiController(BaseDrone):
             if not self.connected:
                 raise ConnectionError("Dron no conectado")
             
-            if not OLYMPE_AVAILABLE:
+            if not OLYMPE_AVAILABLE or self.simulation_mode:
                 # Simulación
                 self.is_flying = True
                 self.current_position["altitude"] = altitude
@@ -162,7 +162,7 @@ class ParrotAnafiController(BaseDrone):
             if not self.connected:
                 raise ConnectionError("Dron no conectado")
             
-            if not OLYMPE_AVAILABLE:
+            if not OLYMPE_AVAILABLE or self.simulation_mode:
                 # Simulación
                 self.is_flying = False
                 self.current_position["altitude"] = 0
@@ -196,7 +196,7 @@ class ParrotAnafiController(BaseDrone):
             if not self.connected:
                 raise ConnectionError("Dron no conectado")
             
-            if not OLYMPE_AVAILABLE:
+            if not OLYMPE_AVAILABLE or self.simulation_mode:
                 # Simulación
                 self.current_position = {
                     "latitude": latitude,
@@ -244,7 +244,7 @@ class ParrotAnafiController(BaseDrone):
             timestamp = time.strftime("%Y%m%d_%H%M%S")
             image_path = os.path.join(temp_dir, f"anafi_image_{timestamp}.jpg")
             
-            if not OLYMPE_AVAILABLE:
+            if not OLYMPE_AVAILABLE or self.simulation_mode:
                 # Simulación - crear archivo vacío
                 open(image_path, 'a').close()
                 logger.info(f"Imagen capturada (simulada): {image_path}")
@@ -275,7 +275,7 @@ class ParrotAnafiController(BaseDrone):
             if not self.connected:
                 raise ConnectionError("Dron no conectado")
             
-            if not OLYMPE_AVAILABLE:
+            if not OLYMPE_AVAILABLE or self.simulation_mode:
                 # Simulación
                 self.is_streaming = True
                 stream_url = "rtsp://simulated.parrot.stream/live"

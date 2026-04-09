@@ -1,5 +1,4 @@
 import API from '../services/api.js';
-import { navigate } from '../app.js';
 
 let loaded = false;
 
@@ -47,9 +46,9 @@ export async function initDashboardView() {
     } catch { /* ignore */ }
 
     // Quick action buttons
-    document.getElementById('qa-control')?.addEventListener('click', () => navigate('control'));
-    document.getElementById('qa-analysis')?.addEventListener('click', () => navigate('analysis'));
-    document.getElementById('qa-missions')?.addEventListener('click', () => navigate('missions'));
+    document.getElementById('qa-control')?.addEventListener('click', () => { window.location.hash = 'control'; });
+    document.getElementById('qa-analysis')?.addEventListener('click', () => { window.location.hash = 'analysis'; });
+    document.getElementById('qa-missions')?.addEventListener('click', () => { window.location.hash = 'missions'; });
 }
 
 function setText(id, value) {

@@ -7,10 +7,10 @@ let initialized = false;
 let currentMissionId = null;
 let execPollInterval = null;
 
-export function initControlView() {
+export async function initControlView() {
     if (!initialized) {
         initialized = true;
-        setupMap();
+        await setupMap();
         setupDroneControls();
         setupMissionTabs();
         setupCartography();
@@ -25,21 +25,34 @@ export function destroyControlView() {
     // Keep map alive but don't re-init
 }
 
-function setupMap() {
-    map = L.map('map', { zoomControl: true }).setView([40.4168, -3.7038], 13);
+async function setupMap() {
+    // Get drone position before creating map
+    let lat = 40.4168, lng = -3.7038;
+    try {
+        const t = await API.getTelemetry();
+        if (t.success && t.telemetry?.position) {
+            const p = t.telemetry.position;
+            if (p.latitude !== 0 || p.longitude !== 0) {
+                lat = p.latitude;
+                lng = p.longitude;
+            }
+        }
+    } catch { /* use defaults */ }
+
+    map = L.map('map', { zoomControl: true }).setView([lat, lng], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap',
         maxZoom: 19,
     }).addTo(map);
 
-    droneMarker = L.marker([40.4168, -3.7038], {
+    droneMarker = L.marker([lat, lng], {
         icon: L.divIcon({
             className: 'drone-icon',
             html: '<div style="background:#3B82F6;width:24px;height:24px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.4)"></div>',
             iconSize: [24, 24],
             iconAnchor: [12, 12],
         }),
-    }).addTo(map);
+    }).addTo(map).bindPopup('Drone');
 
     missionLayer = L.layerGroup().addTo(map);
 }

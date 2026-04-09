@@ -19,16 +19,19 @@ class ChatService:
     Servicio que maneja conversaciones contextuales sobre imágenes analizadas.
     Combina información de YOLO y GPT-4 Vision para responder preguntas específicas.
     """
-    
+
+    MAX_SESSIONS = 50
+    SESSION_TTL_HOURS = 2
+
     def __init__(self):
         """Inicializa el servicio de chat."""
         self.config = get_openai_config()
         self.client = OpenAI(api_key=self.config["api_key"])
         self.context_storage = {}  # Almacena contextos de análisis por sesión
         logger.info("Servicio de chat contextual inicializado")
-    
-    def store_analysis_context(self, session_id: str, analysis_results: Dict[str, Any], 
-                             yolo_results: Dict[str, Any], image_filename: str, 
+
+    def store_analysis_context(self, session_id: str, analysis_results: Dict[str, Any],
+                             yolo_results: Dict[str, Any], image_filename: str,
                              encoded_image: Optional[str] = None, image_format: str = "jpeg") -> None:
         """
         Almacena el contexto de un análisis para futuras consultas.
@@ -41,6 +44,7 @@ class ChatService:
             encoded_image: Imagen codificada en base64 para análisis visual específico
             image_format: Formato de la imagen (jpeg, png, etc.)
         """
+        self._cleanup_expired_sessions()
         self.context_storage[session_id] = {
             "timestamp": datetime.now().isoformat(),
             "image_filename": image_filename,
@@ -51,7 +55,26 @@ class ChatService:
             "chat_history": []
         }
         logger.info(f"Contexto almacenado para sesión: {session_id}")
-    
+
+    def _cleanup_expired_sessions(self) -> None:
+        """Elimina sesiones expiradas y limita el total."""
+        now = datetime.now()
+        expired = [
+            sid for sid, data in self.context_storage.items()
+            if (now - datetime.fromisoformat(data["timestamp"])).total_seconds() > self.SESSION_TTL_HOURS * 3600
+        ]
+        for sid in expired:
+            del self.context_storage[sid]
+
+        # Si aun hay demasiadas, eliminar las mas antiguas
+        if len(self.context_storage) >= self.MAX_SESSIONS:
+            sorted_sessions = sorted(
+                self.context_storage.items(),
+                key=lambda x: x[1]["timestamp"]
+            )
+            for sid, _ in sorted_sessions[:len(self.context_storage) - self.MAX_SESSIONS + 1]:
+                del self.context_storage[sid]
+
     def ask_question(self, session_id: str, question: str) -> Dict[str, Any]:
         """
         Procesa una pregunta sobre la imagen analizada.

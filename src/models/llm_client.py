@@ -41,7 +41,9 @@ class LLMClient:
         elif self.provider == "openai":
             logger.info("OpenAI API configurada")
             self.client = openai.OpenAI(api_key=self.config["api_key"])
-    
+        else:
+            raise ValueError(f"LLM provider no soportado: {self.provider}. Use 'docker' o 'openai'.")
+
     def create_chat_completion(self, 
                              messages: List[ChatCompletionMessageParam],
                              temperature: Optional[float] = None) -> str:
@@ -63,7 +65,9 @@ class LLMClient:
                 response = self._create_docker_completion(messages, temp)
             elif self.provider == "openai":
                 response = self._create_openai_completion(messages, temp)
-            
+            else:
+                raise ValueError(f"LLM provider no soportado: {self.provider}")
+
             content = response.choices[0].message.content
             return content if content else ""
             

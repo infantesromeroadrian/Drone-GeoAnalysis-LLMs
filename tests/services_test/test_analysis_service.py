@@ -14,10 +14,11 @@ Estos tests verifican la funcionalidad del servicio de análisis de imágenes:
 import sys
 import os
 import unittest
-from unittest.mock import patch, MagicMock, Mock
+from unittest.mock import patch, MagicMock, Mock, ANY
 import tempfile
 import json
 from datetime import datetime
+import flask
 
 # Configurar path para imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -73,25 +74,33 @@ class TestAnalysisService(unittest.TestCase):
         self.mock_image_file.save.assert_called_once_with('/tmp/test_image.jpg')
         print("✓ test_save_temp_image: EXITOSO")
     
-    @patch('src.utils.helpers.get_image_metadata')
+    @patch('src.services.analysis_service.get_image_metadata')
     def test_prepare_metadata(self, mock_get_metadata):
         """Test: Preparación de metadatos combinados."""
+        # Mock returns the same keys as the real get_image_metadata implementation
         mock_get_metadata.return_value = {
-            'width': 1920,
-            'height': 1080,
+            'filename': 'test_image.jpg',
+            'path': '/tmp/test_image.jpg',
+            'size': 204800,
+            'dimensions': (1920, 1080),
             'format': 'JPEG'
         }
-        
+
         temp_path = '/tmp/test_image.jpg'
         result = self.service._prepare_metadata(temp_path, self.config_params)
-        
-        # Verificar que se combinan metadatos de imagen y configuración
-        expected_keys = ['width', 'height', 'format', 'confidence_threshold', 'analysis_type', 'region']
-        for key in expected_keys:
+
+        # Verify image metadata keys are present
+        expected_image_keys = ['filename', 'path', 'size', 'dimensions', 'format']
+        for key in expected_image_keys:
             self.assertIn(key, result)
-        
+
+        # Verify config_params were merged in
+        expected_config_keys = ['confidence_threshold', 'analysis_type', 'region']
+        for key in expected_config_keys:
+            self.assertIn(key, result)
+
         self.assertEqual(result['confidence_threshold'], 0.7)
-        self.assertEqual(result['width'], 1920)
+        self.assertEqual(result['format'], 'JPEG')
         mock_get_metadata.assert_called_once_with(temp_path)
         print("✓ test_prepare_metadata: EXITOSO")
     
@@ -157,18 +166,22 @@ class TestAnalysisService(unittest.TestCase):
         self.assertNotIn('warning', results)
         print("✓ test_apply_confidence_filter_zero_threshold: EXITOSO")
     
-    @patch('src.utils.helpers.save_analysis_results_with_filename')
+    @patch('src.services.analysis_service.save_analysis_results_with_filename')
     @patch('src.services.analysis_service.datetime')
     def test_save_results(self, mock_datetime, mock_save):
         """Test: Guardado de resultados de análisis."""
+        expected_filename = 'analysis_20240101_120000.json'
         mock_datetime.now.return_value.strftime.return_value = '20240101_120000'
-        mock_save.return_value = '/results/analysis_20240101_120000.json'
-        
+        # The helper returns an absolute path; mock a realistic absolute path
+        mock_save.return_value = f'/some/absolute/results/{expected_filename}'
+
         results = {'confidence': 0.85, 'analysis': 'test'}
         save_path = self.service._save_results(results)
-        
-        self.assertEqual(save_path, '/results/analysis_20240101_120000.json')
-        mock_save.assert_called_once_with(results, 'analysis_20240101_120000.json')
+
+        # Verify the returned path ends with the expected filename
+        self.assertTrue(save_path.endswith(expected_filename),
+                        f"Expected path ending with '{expected_filename}', got: '{save_path}'")
+        mock_save.assert_called_once_with(results, expected_filename)
         print("✓ test_save_results: EXITOSO")
     
     @patch.object(AnalysisService, '_save_temp_image')
@@ -197,9 +210,14 @@ class TestAnalysisService(unittest.TestCase):
         mock_save_temp.assert_called_once_with(self.mock_image_file)
         mock_prepare.assert_called_once_with('/tmp/test_image.jpg', self.config_params)
         mock_encode.assert_called_once_with('/tmp/test_image.jpg')
+        # metadata now includes yolo_context added before the analyzer call
         self.mock_analyzer.analyze_image.assert_called_once_with(
-            'base64_data', {'width': 1920, 'confidence_threshold': 0.7}, 'jpeg'
+            'base64_data', ANY, 'jpeg'
         )
+        # Verify the static keys from _prepare_metadata are present in the actual call
+        actual_metadata = self.mock_analyzer.analyze_image.call_args[0][1]
+        self.assertEqual(actual_metadata['width'], 1920)
+        self.assertEqual(actual_metadata['confidence_threshold'], 0.7)
         mock_filter.assert_called_once()
         mock_save.assert_called_once()
         print("✓ test_analyze_image_success: EXITOSO")
@@ -233,21 +251,25 @@ class TestAnalysisService(unittest.TestCase):
         self.assertIn('Temp save error', result['error'])
         print("✓ test_analyze_image_exception: EXITOSO")
     
-    @patch('flask.send_from_directory')
-    @patch('os.path.join')
-    @patch('os.path.dirname')
-    @patch('os.path.abspath')
-    def test_serve_result_file(self, mock_abspath, mock_dirname, mock_join, mock_send):
+    def test_serve_result_file(self):
         """Test: Servir archivo de resultados."""
-        # Configurar path esperado
-        mock_abspath.return_value = '/app/src/services/analysis_service.py'
-        mock_dirname.side_effect = ['/app/src/services', '/app/src', '/app']
-        mock_join.return_value = '/app/results'
-        
         filename = 'analysis_result.json'
-        self.service.serve_result_file(filename)
-        
-        mock_send.assert_called_once_with('/app/results', filename)
+
+        # Patch send_from_directory at the point it is used in analysis_service
+        with patch('src.services.analysis_service.send_from_directory') as mock_send:
+            # send_from_directory requires a Flask application context
+            app = flask.Flask(__name__)
+            with app.app_context():
+                self.service.serve_result_file(filename)
+
+            # Verify it was called with the correct filename; the directory is the
+            # real absolute path computed by the service from its own __file__
+            mock_send.assert_called_once()
+            call_args = mock_send.call_args[0]
+            self.assertEqual(call_args[1], filename)
+            self.assertTrue(call_args[0].endswith('results'),
+                            f"Expected results dir, got: {call_args[0]}")
+
         print("✓ test_serve_result_file: EXITOSO")
     
     def test_get_analysis_status(self):

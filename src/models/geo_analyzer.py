@@ -35,7 +35,7 @@ class GeoAnalyzer:
     def _setup_client(self) -> None:
         """Configura el cliente LLM según el proveedor."""
         if self.provider == "docker":
-            logger.warning("⚠️ Docker Models no soporta análisis de imágenes. Usando OpenAI como fallback.")
+            logger.warning("Docker Models no soporta analisis de imagenes. Usando OpenAI como fallback.")
             self._setup_openai_fallback()
         elif self.provider == "openai":
             logger.info("Inicializando OpenAI API para análisis de imágenes")

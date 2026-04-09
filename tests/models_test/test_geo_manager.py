@@ -199,23 +199,23 @@ class TestGeolocationManager(unittest.TestCase):
     def test_reference_image_id_format(self):
         """Test: Formato correcto del ID de imagen de referencia."""
         ref_id = self.manager.add_reference_image(self.sample_telemetry)
-        
-        # Verificar formato: ref_YYYYMMDDHHMMSS
+
+        # Verificar formato: ref_<12 hex chars>
         self.assertTrue(ref_id.startswith("ref_"))
         id_part = ref_id[4:]  # Remover "ref_"
-        self.assertEqual(len(id_part), 14)  # YYYYMMDDHHMMSS
-        self.assertTrue(id_part.isdigit())
+        self.assertEqual(len(id_part), 12)  # uuid4().hex[:12]
+        self.assertTrue(all(c in '0123456789abcdef' for c in id_part))
         print("✓ test_reference_image_id_format: EXITOSO")
     
     def test_target_id_format(self):
         """Test: Formato correcto del ID de objetivo."""
         target_id = self.manager.create_target()
-        
-        # Verificar formato: target_YYYYMMDDHHMMSS
+
+        # Verificar formato: target_<12 hex chars>
         self.assertTrue(target_id.startswith("target_"))
         id_part = target_id[7:]  # Remover "target_"
-        self.assertEqual(len(id_part), 14)  # YYYYMMDDHHMMSS
-        self.assertTrue(id_part.isdigit())
+        self.assertEqual(len(id_part), 12)  # uuid4().hex[:12]
+        self.assertTrue(all(c in '0123456789abcdef' for c in id_part))
         print("✓ test_target_id_format: EXITOSO")
 
 

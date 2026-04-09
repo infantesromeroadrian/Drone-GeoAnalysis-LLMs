@@ -5,10 +5,13 @@ services:
       dockerfile: Dockerfile
     container_name: drone-geo-analysis
     volumes:
-      - ./:/app
+      - ./missions:/app/missions
+      - ./results:/app/results
+      - ./logs:/app/logs
+      - ./cartography:/app/cartography
     env_file:
       - .env
     ports:
       - "4001:5000"
     restart: unless-stopped
-    command: python src/main.py 
+    command: python src/main.py

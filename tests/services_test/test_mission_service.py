@@ -237,13 +237,12 @@ class TestMissionService(unittest.TestCase):
     
     def test_adaptive_control_exception(self):
         """Test: Excepción durante control adaptativo."""
-        # Simular excepción en el análisis
-        with patch.dict('sys.modules', {'situation_report': None}):
-            result = self.service.adaptive_control('mission_001', (40.0, -3.0), None)
-            
-            # Debería manejar la situación gracefully
-            self.assertTrue(result['success'])  # El método actual no falla con None
-        
+        # Passing None as situation_report causes AttributeError on .lower() —
+        # the service catches it and returns success: False
+        result = self.service.adaptive_control('mission_001', (40.0, -3.0), None)
+
+        self.assertFalse(result['success'])
+        self.assertIn('error', result)
         print("✓ test_adaptive_control_exception: EXITOSO")
     
     def test_get_llm_missions_success(self):
@@ -413,16 +412,17 @@ class TestMissionService(unittest.TestCase):
         mock_area_1 = MagicMock()
         mock_area_1.boundaries = [1, 2, 3]  # 3 boundaries
         mock_area_1.points_of_interest = [{'name': 'POI1'}, {'name': 'POI2'}]  # 2 POIs
-        
+
         mock_area_2 = MagicMock()
         mock_area_2.boundaries = [1, 2]  # 2 boundaries
         mock_area_2.points_of_interest = None  # Sin POIs
-        
-        self.mock_mission_planner.loaded_areas = {
+
+        # The service calls mission_planner.cartography_manager.get_loaded_areas()
+        self.mock_mission_planner.cartography_manager.get_loaded_areas.return_value = {
             'area_1': mock_area_1,
             'area_2': mock_area_2
         }
-        
+
         result = self.service.get_loaded_areas()
         
         self.assertTrue(result['success'])
@@ -457,11 +457,14 @@ class TestMissionService(unittest.TestCase):
     
     def test_get_loaded_areas_exception(self):
         """Test: Excepción al obtener áreas cargadas."""
-        # Configurar excepción en el acceso
-        self.mock_mission_planner.loaded_areas = property(lambda self: 1/0)  # División por cero
-        
+        # The code checks hasattr(mission_planner, 'cartography_manager') then calls
+        # cartography_manager.get_loaded_areas(). Make get_loaded_areas raise.
+        self.mock_mission_planner.cartography_manager.get_loaded_areas.side_effect = (
+            ZeroDivisionError("division by zero")
+        )
+
         result = self.service.get_loaded_areas()
-        
+
         self.assertFalse(result['success'])
         self.assertIn('error', result)
         print("✓ test_get_loaded_areas_exception: EXITOSO")

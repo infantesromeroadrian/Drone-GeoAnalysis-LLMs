@@ -6,6 +6,7 @@ Responsabilidad única: Gestionar estado de geolocalización, referencias e imá
 """
 
 import logging
+import uuid
 from datetime import datetime
 from typing import Dict, Any
 
@@ -34,7 +35,7 @@ class GeolocationManager:
         Returns:
             ID de la referencia creada
         """
-        ref_id = f"ref_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        ref_id = f"ref_{uuid.uuid4().hex[:12]}"
         self.reference_images[ref_id] = {
             'timestamp': datetime.now().isoformat(),
             'location': drone_telemetry.get('gps', {})
@@ -50,7 +51,7 @@ class GeolocationManager:
         Returns:
             ID del objetivo creado
         """
-        target_id = f"target_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        target_id = f"target_{uuid.uuid4().hex[:12]}"
         self.targets[target_id] = {
             'captures': [],
             'timestamp': datetime.now().isoformat()

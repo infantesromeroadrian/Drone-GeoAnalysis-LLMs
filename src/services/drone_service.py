@@ -151,7 +151,8 @@ class DroneService:
                 'latitude': self.drone_controller.current_position["latitude"],
                 'longitude': self.drone_controller.current_position["longitude"]
             }
-        except:
+        except Exception as e:
+            logger.debug("No se pudo obtener posicion del dron, usando default: %s", e)
             # Posición por defecto si no se puede obtener
             return {'latitude': 40.416775, 'longitude': -3.703790}
     

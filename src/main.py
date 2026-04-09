@@ -9,6 +9,9 @@ import os
 import sys
 import logging
 from flask import Flask, render_template
+from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from dotenv import load_dotenv
 
 # Agregar la ruta del proyecto al PYTHONPATH
@@ -44,6 +47,7 @@ class DroneGeoApp:
         self.app = None
         self.services = {}
         self.use_real_modules = False
+        self.limiter = None
         
     def create_app(self) -> Flask:
         """
@@ -78,22 +82,33 @@ class DroneGeoApp:
         return self.app
     
     def _validate_environment(self):
-        """Valida que las variables de entorno críticas estén configuradas."""
-        if "OPENAI_API_KEY" not in os.environ:
-            logger.error("No se encontró OPENAI_API_KEY en las variables de entorno")
-            print("Error: Se requiere una API key de OpenAI. Agrégala al archivo .env")
-            sys.exit(1)
+        """Valida que las variables de entorno criticas esten configuradas."""
+        provider = os.environ.get("LLM_PROVIDER", "docker").lower()
+        if provider == "openai" and "OPENAI_API_KEY" not in os.environ:
+            raise RuntimeError(
+                "OPENAI_API_KEY requerida cuando LLM_PROVIDER=openai. Agregala al archivo .env"
+            )
     
     def _create_flask_app(self) -> Flask:
         """Crea la instancia básica de Flask."""
-        app = Flask(__name__, 
+        app = Flask(__name__,
                    static_folder='templates/static',
                    template_folder='templates')
-        
+
         # Configuración básica
         app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB máximo
-        app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
-        
+        secret_key = os.environ.get('SECRET_KEY')
+        if not secret_key:
+            secret_key = os.urandom(32).hex()
+            logger.warning("SECRET_KEY no configurada. Usando clave aleatoria (sesiones no persistiran entre reinicios)")
+        app.config['SECRET_KEY'] = secret_key
+
+        # Configurar CORS
+        CORS(app, origins=os.environ.get('CORS_ORIGINS', 'http://localhost:4001').split(','))
+
+        # Configurar rate limiting
+        self.limiter = Limiter(get_remote_address, app=app, default_limits=["200 per hour"])
+
         return app
     
     def _initialize_components(self):
@@ -137,25 +152,22 @@ class DroneGeoApp:
         logger.info(f"Servicios inicializados: {list(self.services.keys())}")
     
     def _detect_available_modules(self):
-        """Detecta qué módulos están disponibles (reales vs fallback)."""
+        """Detecta que modulos estan disponibles."""
         try:
-            # Intentar importar módulos reales
             from src.drones.parrot_anafi_controller import ParrotAnafiController
             from src.processors.video_processor import VideoProcessor
             from src.processors.change_detector import ChangeDetector
             from src.geo.geo_triangulation import GeoTriangulation
             from src.geo.geo_correlator import GeoCorrelator
-            
+
             self.use_real_modules = True
-            logger.info("✅ Módulos reales detectados y disponibles")
-            
+            logger.info("Modulos reales detectados y disponibles")
         except ImportError as e:
             self.use_real_modules = False
-            logger.error(f"❌ Módulos reales no disponibles: {e}")
-            logger.error("💥 Sistema requiere módulos reales para funcionar correctamente")
-            print("❌ Error: Módulos de hardware no encontrados")
-            print("🔧 Asegúrate de que todos los drivers y dependencias estén instalados")
-            sys.exit(1)
+            raise ImportError(
+                f"Modulos de hardware no encontrados: {e}. "
+                "Asegurate de que todos los drivers y dependencias esten instalados."
+            ) from e
     
     def _initialize_hardware_components(self) -> dict:
         """Inicializa componentes de hardware reales."""
@@ -179,7 +191,7 @@ class DroneGeoApp:
             'geo_correlator': GeoCorrelator()
         }
         
-        logger.info("✅ Componentes reales inicializados correctamente")
+        logger.info("Componentes reales inicializados correctamente")
         return components
     
     def _register_routes(self):
@@ -206,7 +218,7 @@ class DroneGeoApp:
             """Instrucciones de misiones LLM."""
             return render_template('mission_instructions.html')
         
-        logger.info("✅ Rutas básicas registradas")
+        logger.info("Rutas basicas registradas")
     
     def _register_blueprints(self):
         """Registra todos los blueprints de controladores."""
@@ -224,7 +236,7 @@ class DroneGeoApp:
         self.app.register_blueprint(analysis_blueprint)
         self.app.register_blueprint(geo_blueprint)
         
-        logger.info("✅ Blueprints registrados correctamente")
+        logger.info("Blueprints registrados correctamente")
 
 def main():
     """Función principal que inicia el servidor web."""
@@ -236,12 +248,12 @@ def main():
     host = '0.0.0.0'
     port = 5000
     
-    logger.info(f"🚀 Servidor iniciado en {host}:{port}")
-    print(f"🚀 Servidor iniciado en http://{host}:{port} (puerto interno del contenedor)")
-    print(f"🌐 Accede desde tu navegador en: http://localhost:4001")
-    print(f"🎮 Panel de Control: http://localhost:4001/drone_control.html")
-    print(f"⚡ Análisis Rápido: http://localhost:4001/web_index.html")
-    print(f"📱 Mapeo de puertos: localhost:4001 → contenedor:5000")
+    logger.info("Servidor iniciado en %s:%d", host, port)
+    logger.info("Acceso interno: http://%s:%d", host, port)
+    logger.info("Acceso externo: http://localhost:4001")
+    logger.info("Panel de Control: http://localhost:4001/drone_control.html")
+    logger.info("Analisis Rapido: http://localhost:4001/web_index.html")
+    logger.info("Mapeo de puertos: localhost:4001 -> contenedor:5000")
     
     # Usar waitress para producción
     try:

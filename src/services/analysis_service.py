@@ -11,6 +11,7 @@ import tempfile
 from datetime import datetime
 from flask import send_from_directory
 from typing import Dict, Any, Optional, List
+from werkzeug.utils import secure_filename
 
 from src.utils.helpers import get_image_metadata, save_analysis_results_with_filename
 from src.models.yolo_detector import YoloObjectDetector
@@ -196,7 +197,10 @@ class AnalysisService:
     def _save_temp_image(self, image_file) -> str:
         """Guarda la imagen en un directorio temporal."""
         temp_dir = tempfile.gettempdir()
-        temp_path = os.path.join(temp_dir, image_file.filename)
+        safe_name = secure_filename(image_file.filename)
+        if not safe_name:
+            safe_name = f"upload_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        temp_path = os.path.join(temp_dir, safe_name)
         image_file.save(temp_path)
         return temp_path
     

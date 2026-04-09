@@ -350,13 +350,16 @@ class TestDroneService(unittest.TestCase):
     
     def test_start_simulation_exception(self):
         """Test: Excepción durante inicio de simulación."""
-        with patch('time.time', side_effect=Exception("Time error")):
+        # Patch the 'time' module as imported inside drone_service, then configure
+        # the .time() callable on the mock to raise an exception
+        with patch('src.services.drone_service.time') as mock_time_module:
+            mock_time_module.time.side_effect = Exception("Time error")
             result = self.service.start_simulation('route_1')
-            
+
             self.assertFalse(result['success'])
             self.assertIn('error', result)
             self.assertIn('Time error', result['error'])
-        
+
         print("✓ test_start_simulation_exception: EXITOSO")
     
     def test_validate_altitude_valid_range(self):

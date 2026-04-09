@@ -32,20 +32,33 @@ class YoloResultFormatter:
         Returns:
             Diccionario con detección formateada
         """
+        # Obtener dimensiones de imagen
+        img_height, img_width = image_shape[:2]
+
+        if img_width <= 0 or img_height <= 0:
+            logger.warning("Invalid image dimensions: %dx%d", img_width, img_height)
+            return {
+                'id': detection_id,
+                'class_name': class_names.get(int(box_data.cls[0]), 'unknown'),
+                'class_id': int(box_data.cls[0]),
+                'confidence': round(float(box_data.conf[0]), 3),
+                'bbox': {},
+                'normalized_bbox': {},
+                'area': 0,
+                'area_percentage': 0.0
+            }
+
         # Extraer coordenadas y datos
         x1, y1, x2, y2 = box_data.xyxy[0]
         class_id = int(box_data.cls[0])
         confidence = float(box_data.conf[0])
         class_name = class_names.get(class_id, f"class_{class_id}")
-        
+
         # Calcular dimensiones
         width = x2 - x1
         height = y2 - y1
         center_x = (x1 + x2) / 2
         center_y = (y1 + y2) / 2
-        
-        # Obtener dimensiones de imagen
-        img_height, img_width = image_shape[:2]
         
         return {
             'id': detection_id,

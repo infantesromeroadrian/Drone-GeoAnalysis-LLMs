@@ -10,6 +10,7 @@ import tempfile
 import os
 from typing import Dict, Any, List, Optional
 from datetime import datetime
+from werkzeug.utils import secure_filename
 
 logger = logging.getLogger(__name__)
 
@@ -209,8 +210,8 @@ class MissionService:
                 # Limpiar archivo temporal
                 try:
                     os.remove(temp_path)
-                except:
-                    pass  # No es crítico si no se puede limpiar
+                except Exception as e:
+                    logger.debug("No se pudo eliminar archivo temporal %s: %s", temp_path, e)
                 
                 return response_data
             else:
@@ -259,6 +260,9 @@ class MissionService:
     def _save_temp_file(self, file) -> str:
         """Guarda archivo en directorio temporal."""
         temp_dir = tempfile.gettempdir()
-        temp_path = os.path.join(temp_dir, file.filename)
+        safe_name = secure_filename(file.filename)
+        if not safe_name:
+            safe_name = f"upload_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        temp_path = os.path.join(temp_dir, safe_name)
         file.save(temp_path)
-        return temp_path 
+        return temp_path

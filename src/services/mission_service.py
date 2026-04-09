@@ -20,16 +20,10 @@ class MissionService:
     Maneja planificación LLM, cartografía y validación de misiones.
     """
     
-    def __init__(self, mission_planner, drone_controller):
-        """
-        Inicializa el servicio de misiones.
-        
-        Args:
-            mission_planner: Planificador de misiones LLM
-            drone_controller: Controlador de dron
-        """
+    def __init__(self, mission_planner, drone_controller, mission_executor=None):
         self.mission_planner = mission_planner
         self.drone_controller = drone_controller
+        self.executor = mission_executor
         logger.info("Servicio de misiones inicializado")
     
     def get_missions(self) -> Dict[str, Any]:
@@ -266,3 +260,25 @@ class MissionService:
         temp_path = os.path.join(temp_dir, safe_name)
         file.save(temp_path)
         return temp_path
+
+    def execute_mission(self, mission_id: str) -> Dict[str, Any]:
+        """Ejecuta una mision en background."""
+        if not self.executor:
+            return {'success': False, 'error': 'Mission executor not available'}
+        try:
+            return self.executor.start(mission_id)
+        except Exception as e:
+            logger.error("Error executing mission: %s", e)
+            return {'success': False, 'error': str(e)}
+
+    def abort_execution(self) -> Dict[str, Any]:
+        """Aborta la ejecucion en curso."""
+        if not self.executor:
+            return {'success': False, 'error': 'Mission executor not available'}
+        return self.executor.abort()
+
+    def get_execution_status(self) -> Dict[str, Any]:
+        """Obtiene el estado de la ejecucion actual."""
+        if not self.executor:
+            return {'status': 'idle'}
+        return self.executor.get_status()

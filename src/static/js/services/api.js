@@ -33,6 +33,9 @@ const API = {
     createLLMMission: (cmd, area) => API.post('/api/missions/llm/create', { command: cmd, area_name: area }),
     startMission: (id)   => API.post('/api/missions/start', { id }),
     abortMission: ()     => API.post('/api/missions/abort'),
+    executeMission: (id) => API.post('/api/missions/execute', { mission_id: id }),
+    abortExecution: ()   => API.post('/api/missions/execution/abort'),
+    getExecStatus: ()    => API.get('/api/missions/execution/status'),
     getLoadedAreas: ()   => API.get('/api/missions/cartography/areas'),
     uploadCartography: (form) => API.postForm('/api/missions/cartography/upload', form),
 

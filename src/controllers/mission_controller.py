@@ -162,7 +162,49 @@ def get_loaded_areas():
             
         result = mission_service.get_loaded_areas()
         return jsonify(result)
-        
+
     except Exception as e:
         logger.error(f"Error obteniendo áreas: {str(e)}")
-        return jsonify({'success': False, 'error': str(e)}) 
+        return jsonify({'success': False, 'error': str(e)})
+
+
+@mission_blueprint.route('/execute', methods=['POST'])
+def execute_mission():
+    """Ejecuta una mision en background."""
+    try:
+        if not mission_service:
+            return jsonify({'success': False, 'error': 'Servicio no inicializado'})
+        data = request.json or {}
+        mission_id = data.get('mission_id')
+        if not mission_id:
+            return jsonify({'success': False, 'error': 'mission_id requerido'})
+        result = mission_service.execute_mission(mission_id)
+        return jsonify(result)
+    except Exception as e:
+        logger.error("Error executing mission: %s", e)
+        return jsonify({'success': False, 'error': str(e)})
+
+
+@mission_blueprint.route('/execution/abort', methods=['POST'])
+def abort_execution():
+    """Aborta la ejecucion en curso."""
+    try:
+        if not mission_service:
+            return jsonify({'success': False, 'error': 'Servicio no inicializado'})
+        result = mission_service.abort_execution()
+        return jsonify(result)
+    except Exception as e:
+        logger.error("Error aborting execution: %s", e)
+        return jsonify({'success': False, 'error': str(e)})
+
+
+@mission_blueprint.route('/execution/status', methods=['GET'])
+def execution_status():
+    """Estado de la ejecucion actual."""
+    try:
+        if not mission_service:
+            return jsonify({'status': 'idle'})
+        return jsonify(mission_service.get_execution_status())
+    except Exception as e:
+        logger.error("Error getting execution status: %s", e)
+        return jsonify({'status': 'error', 'error': str(e)}) 

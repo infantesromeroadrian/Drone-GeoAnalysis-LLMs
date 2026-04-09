@@ -110,7 +110,23 @@
                     </div>
                 </div>
 
-                <div class="control-center"><div id="map"></div></div>
+                <div class="control-center">
+                    <div id="map"></div>
+                    <!-- Execution progress overlay -->
+                    <div id="exec-bar" class="hidden" style="position:absolute;bottom:0;left:0;right:0;z-index:500;background:rgba(15,23,42,0.95);padding:10px 16px;display:flex;align-items:center;gap:12px;border-top:1px solid var(--border)">
+                        <div style="flex:1">
+                            <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:0.78rem">
+                                <span id="exec-label">Flying...</span>
+                                <span id="exec-wp">WP 0/0</span>
+                            </div>
+                            <div style="height:6px;background:var(--tertiary);border-radius:3px;overflow:hidden">
+                                <div id="exec-progress" style="height:100%;background:var(--accent);border-radius:3px;width:0%;transition:width 0.3s"></div>
+                            </div>
+                        </div>
+                        <span id="exec-eta" style="font-size:0.78rem;color:var(--text-muted);min-width:60px">ETA --s</span>
+                        <button class="btn btn-danger btn-sm" id="btn-abort-exec"><i class="fas fa-stop"></i> Abort</button>
+                    </div>
+                </div>
 
                 <div class="control-right">
                     <div class="tabs" id="control-tabs">
@@ -237,6 +253,7 @@
         </div>
         <div class="modal-body" id="modal-body"></div>
         <div class="modal-footer">
+            <button class="btn btn-success" id="btn-modal-execute"><i class="fas fa-play"></i> Execute Mission</button>
             <button class="btn btn-primary" id="btn-modal-accept"><i class="fas fa-check"></i> Accept</button>
             <button class="btn" onclick="document.getElementById('modal-overlay').classList.remove('active')">Cancel</button>
         </div>

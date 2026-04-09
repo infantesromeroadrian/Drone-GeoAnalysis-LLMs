@@ -130,6 +130,14 @@ class DroneGeoApp:
         # Inicializar controladores de hardware
         hardware_components = self._initialize_hardware_components()
         
+        # Crear executor de misiones
+        from src.services.mission_executor import MissionExecutor
+        from src.utils.helpers import get_missions_directory
+        mission_executor = MissionExecutor(
+            hardware_components['drone_controller'],
+            get_missions_directory()
+        )
+
         # Crear servicios
         self.services = {
             'drone': DroneService(
@@ -138,7 +146,8 @@ class DroneGeoApp:
             ),
             'mission': MissionService(
                 mission_planner,
-                hardware_components['drone_controller']
+                hardware_components['drone_controller'],
+                mission_executor
             ),
             'analysis': AnalysisService(analyzer, yolo_detector),
             'geo': GeoService(

@@ -4,6 +4,8 @@ let map = null;
 let droneMarker = null;
 let missionLayer = null;
 let initialized = false;
+let currentMissionId = null;
+let execPollInterval = null;
 
 export function initControlView() {
     if (!initialized) {
@@ -173,10 +175,16 @@ function showMissionModal(mission) {
     `;
     overlay.classList.add('active');
 
+    currentMissionId = mission.id;
+
     document.getElementById('btn-modal-close')?.addEventListener('click', () => overlay.classList.remove('active'), { once: true });
     document.getElementById('btn-modal-accept')?.addEventListener('click', () => {
         overlay.classList.remove('active');
         showToast('Mission accepted');
+    }, { once: true });
+    document.getElementById('btn-modal-execute')?.addEventListener('click', () => {
+        overlay.classList.remove('active');
+        executeMission(mission.id);
     }, { once: true });
 }
 
@@ -235,4 +243,67 @@ function showToast(msg) {
     toast.textContent = msg;
     toast.classList.add('active');
     setTimeout(() => toast.classList.remove('active'), 3000);
+}
+
+// ---- Mission Execution ----
+
+async function executeMission(missionId) {
+    const r = await API.executeMission(missionId);
+    if (!r.success) {
+        showToast(`Error: ${r.error}`);
+        return;
+    }
+    showToast(`Mission executing: ${r.waypoints} waypoints`);
+    document.getElementById('exec-bar')?.classList.remove('hidden');
+    startExecPolling();
+
+    onClick('btn-abort-exec', async () => {
+        const a = await API.abortExecution();
+        showToast(a.success ? 'Mission aborted' : a.error);
+    });
+}
+
+function startExecPolling() {
+    if (execPollInterval) clearInterval(execPollInterval);
+    execPollInterval = setInterval(pollExecStatus, 500);
+}
+
+function stopExecPolling() {
+    if (execPollInterval) { clearInterval(execPollInterval); execPollInterval = null; }
+    document.getElementById('exec-bar')?.classList.add('hidden');
+}
+
+async function pollExecStatus() {
+    try {
+        const s = await API.getExecStatus();
+
+        // Update progress bar
+        const bar = document.getElementById('exec-progress');
+        const label = document.getElementById('exec-label');
+        const wp = document.getElementById('exec-wp');
+        const eta = document.getElementById('exec-eta');
+
+        if (bar) bar.style.width = `${s.progress_pct || 0}%`;
+        if (wp) wp.textContent = `WP ${s.current_waypoint || 0}/${s.total_waypoints || 0}`;
+        if (eta) eta.textContent = `ETA ${Math.round(s.eta_seconds || 0)}s`;
+
+        // Move drone marker
+        if (s.position && droneMarker) {
+            droneMarker.setLatLng([s.position.latitude, s.position.longitude]);
+        }
+
+        // Status label
+        if (label) {
+            if (s.status === 'flying') label.textContent = 'Flying...';
+            else if (s.status === 'completed') label.textContent = 'Mission completed!';
+            else if (s.status === 'aborted') label.textContent = 'Mission aborted';
+            else if (s.status === 'error') label.textContent = 'Execution error';
+        }
+
+        // Stop polling on terminal states
+        if (s.status === 'completed' || s.status === 'aborted' || s.status === 'error') {
+            showToast(s.status === 'completed' ? 'Mission completed!' : `Mission ${s.status}`);
+            setTimeout(stopExecPolling, 2000);
+        }
+    } catch { /* ignore polling errors */ }
 }

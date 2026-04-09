@@ -1,0 +1,69 @@
+{
+  "mission_name": "Reconocimiento de Área de Test en Tokio",
+  "description": "Misión de reconocimiento para recorrer todos los puntos de interés en el área de test de Tokio a una altura de 4 metros",
+  "estimated_duration": 120,
+  "waypoints": [
+    {
+      "latitude": 35.6612,
+      "longitude": 139.7664,
+      "altitude": 4,
+      "action": "hover",
+      "duration": 10,
+      "description": "Control Tower Shiodome"
+    },
+    {
+      "latitude": 35.6592,
+      "longitude": 139.7594,
+      "altitude": 4,
+      "action": "hover",
+      "duration": 10,
+      "description": "Landing Platform A"
+    },
+    {
+      "latitude": 35.6682,
+      "longitude": 139.7734,
+      "altitude": 4,
+      "action": "hover",
+      "duration": 10,
+      "description": "Surveillance Post East"
+    },
+    {
+      "latitude": 35.6642,
+      "longitude": 139.7584,
+      "altitude": 4,
+      "action": "hover",
+      "duration": 10,
+      "description": "Emergency Response Base"
+    },
+    {
+      "latitude": 35.6642,
+      "longitude": 139.7634,
+      "altitude": 4,
+      "action": "land",
+      "duration": 10,
+      "description": "Punto de aterrizaje final"
+    }
+  ],
+  "safety_considerations": [
+    "Evitar obstáculos en el área de vuelo",
+    "Mantener una distancia segura de los puntos de interés",
+    "Verificar el clima antes de la misión"
+  ],
+  "success_criteria": [
+    "Recopilar información de todos los puntos de interés",
+    "Completar la misión dentro del tiempo estimado",
+    "No registrar incidentes durante la misión"
+  ],
+  "area_used": "test_tokyo",
+  "id": "01693d06-4206-4fb9-9603-ac4c400236a2",
+  "created_at": "2026-04-09T17:27:47.610267",
+  "status": "planned",
+  "area_name": "test_tokyo",
+  "original_command": "Recorre todos los waypoints a 4 metros de altura",
+  "llm_provider": "groq",
+  "llm_model": "llama-3.3-70b-versatile",
+  "area_center": {
+    "latitude": 35.6642,
+    "longitude": 139.7634
+  }
+}

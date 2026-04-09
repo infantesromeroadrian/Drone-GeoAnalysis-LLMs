@@ -1,0 +1,61 @@
+{
+  "mission_name": "Recorrido de Waypoints en Área de Test de Tokio",
+  "description": "Misión para recorrer todos los waypoints a 46 metros de altura en el área de test de Tokio",
+  "estimated_duration": 120,
+  "waypoints": [
+    {
+      "latitude": 35.6612,
+      "longitude": 139.7664,
+      "altitude": 46,
+      "action": "hover",
+      "duration": 10,
+      "description": "Control Tower Shiodome"
+    },
+    {
+      "latitude": 35.6592,
+      "longitude": 139.7594,
+      "altitude": 46,
+      "action": "navigate",
+      "duration": 15,
+      "description": "Landing Platform A"
+    },
+    {
+      "latitude": 35.6682,
+      "longitude": 139.7734,
+      "altitude": 46,
+      "action": "scan",
+      "duration": 20,
+      "description": "Surveillance Post East"
+    },
+    {
+      "latitude": 35.6642,
+      "longitude": 139.7584,
+      "altitude": 46,
+      "action": "photograph",
+      "duration": 15,
+      "description": "Emergency Response Base"
+    }
+  ],
+  "safety_considerations": [
+    "Evitar obstáculos en el área de vuelo",
+    "Mantener una distancia segura de los puntos de interés",
+    "Verificar el clima antes de la misión"
+  ],
+  "success_criteria": [
+    "Recorrer todos los waypoints sin incidentes",
+    "Completar la misión dentro del tiempo estimado",
+    "Obtener imágenes y datos de los puntos de interés"
+  ],
+  "area_used": "test_tokyo",
+  "id": "28db18b3-f1f1-4530-a43b-53139c0d6c73",
+  "created_at": "2026-04-09T16:56:50.162064",
+  "status": "planned",
+  "area_name": "test_tokyo",
+  "original_command": "Recorre todos los waypoints a 46 metros de altura",
+  "llm_provider": "groq",
+  "llm_model": "llama-3.3-70b-versatile",
+  "area_center": {
+    "latitude": 35.6642,
+    "longitude": 139.7634
+  }
+}

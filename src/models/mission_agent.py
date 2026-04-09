@@ -312,6 +312,9 @@ class MissionPlannerAgent:
         if not dp:
             raise RuntimeError("MissionDataProcessor not available")
         missions_dir = dp.missions_dir
-        path = os.path.join(missions_dir, f"mission_{mission_id}.json")
+        safe_id = mission_id.replace("/", "").replace("..", "").replace("\\", "")
+        path = os.path.join(missions_dir, f"mission_{safe_id}.json")
+        if not os.path.abspath(path).startswith(os.path.abspath(missions_dir)):
+            raise RuntimeError("Invalid mission_id: path traversal detected")
         with open(path, "r", encoding="utf-8") as f:
             return json.load(f)

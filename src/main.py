@@ -107,7 +107,7 @@ class DroneGeoApp:
         CORS(app, origins=os.environ.get('CORS_ORIGINS', 'http://localhost:4001').split(','))
 
         # Configurar rate limiting
-        self.limiter = Limiter(get_remote_address, app=app, default_limits=["200 per hour"])
+        self.limiter = Limiter(get_remote_address, app=app, default_limits=["2000 per hour"])
 
         return app
     
@@ -128,7 +128,7 @@ class DroneGeoApp:
         chat_service = ChatService()
         
         # Inicializar controladores de hardware
-        hardware_components = self._initialize_hardware_components()
+        hardware_components = self._initialize_hardware_components(analyzer)
         
         # Crear executor de misiones
         from src.services.mission_executor import MissionExecutor
@@ -175,19 +175,17 @@ class DroneGeoApp:
             self.use_real_modules = False
             logger.warning("Algunos modulos no disponibles: %s. Continuando en modo degradado.", e)
     
-    def _initialize_hardware_components(self) -> dict:
+    def _initialize_hardware_components(self, analyzer=None) -> dict:
         """Inicializa componentes de hardware reales."""
-        return self._initialize_real_components()
+        return self._initialize_real_components(analyzer)
     
-    def _initialize_real_components(self) -> dict:
+    def _initialize_real_components(self, analyzer=None) -> dict:
         """Inicializa componentes reales."""
         from src.drones.parrot_anafi_controller import ParrotAnafiController
         from src.processors.video_processor import VideoProcessor
         from src.processors.change_detector import ChangeDetector
         from src.geo.geo_triangulation import GeoTriangulation
         from src.geo.geo_correlator import GeoCorrelator
-        
-        analyzer = GeoAnalyzer()  # Necesario para VideoProcessor
         
         components = {
             'drone_controller': ParrotAnafiController(),

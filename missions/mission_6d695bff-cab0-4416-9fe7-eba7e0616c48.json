@@ -1,0 +1,237 @@
+{
+  "mission_name": "recorre todos los waypoint a 5 metros de altura",
+  "description": "Mision de reconocimiento",
+  "estimated_duration": 30.0,
+  "waypoints": [
+    {
+      "latitude": 35.6471009009009,
+      "longitude": 139.75250862221947,
+      "altitude": 5.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 35.6471009009009,
+      "longitude": 139.75361724443894,
+      "altitude": 5.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 35.6471009009009,
+      "longitude": 139.75472586665842,
+      "altitude": 5.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 35.6471009009009,
+      "longitude": 139.7558344888779,
+      "altitude": 5.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 35.6471009009009,
+      "longitude": 139.75694311109737,
+      "altitude": 5.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 35.6471009009009,
+      "longitude": 139.75805173331685,
+      "altitude": 5.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 35.6471009009009,
+      "longitude": 139.75916035553632,
+      "altitude": 5.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 35.6471009009009,
+      "longitude": 139.7602689777558,
+      "altitude": 5.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 35.6471009009009,
+      "longitude": 139.76137759997528,
+      "altitude": 5.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 35.6471009009009,
+      "longitude": 139.76248622219475,
+      "altitude": 5.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 35.6471009009009,
+      "longitude": 139.76359484441423,
+      "altitude": 5.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 35.6471009009009,
+      "longitude": 139.7647034666337,
+      "altitude": 5.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 35.6471009009009,
+      "longitude": 139.76581208885318,
+      "altitude": 5.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 35.6471009009009,
+      "longitude": 139.76692071107266,
+      "altitude": 5.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 35.6471009009009,
+      "longitude": 139.76802933329213,
+      "altitude": 5.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 35.6471009009009,
+      "longitude": 139.7691379555116,
+      "altitude": 5.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 35.6471009009009,
+      "longitude": 139.7702465777311,
+      "altitude": 5.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 35.6471009009009,
+      "longitude": 139.77135519995056,
+      "altitude": 5.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 35.6471009009009,
+      "longitude": 139.77246382217004,
+      "altitude": 5.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 35.6471009009009,
+      "longitude": 139.77357244438952,
+      "altitude": 5.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 35.6471009009009,
+      "longitude": 139.774681066609,
+      "altitude": 5.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 35.6471009009009,
+      "longitude": 139.77578968882847,
+      "altitude": 5.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 35.6471009009009,
+      "longitude": 139.77689831104794,
+      "altitude": 5.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 35.6471009009009,
+      "longitude": 139.77800693326742,
+      "altitude": 5.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 35.6471009009009,
+      "longitude": 139.7791155554869,
+      "altitude": 5.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 35.6471009009009,
+      "longitude": 139.78022417770637,
+      "altitude": 5.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 35.6471009009009,
+      "longitude": 139.78133279992585,
+      "altitude": 5.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    }
+  ],
+  "safety_considerations": [
+    "Avoid obstacles"
+  ],
+  "success_criteria": [
+    "Complete all waypoints"
+  ],
+  "area_used": "test_tokyo",
+  "id": "6d695bff-cab0-4416-9fe7-eba7e0616c48",
+  "created_at": "2026-04-09T17:17:54.745415",
+  "status": "planned",
+  "area_name": null,
+  "original_command": "recorre todos los waypoint a 5 metros de altura",
+  "llm_provider": "groq",
+  "llm_model": "llama-3.3-70b-versatile"
+}

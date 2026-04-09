@@ -1,0 +1,69 @@
+{
+  "mission_name": "Reconocimiento de Área de Test en Tokio",
+  "description": "Misión de reconocimiento de los puntos de interés en el área de test de Tokio",
+  "estimated_duration": 120,
+  "waypoints": [
+    {
+      "latitude": 35.6612,
+      "longitude": 139.7664,
+      "altitude": 4,
+      "action": "navigate",
+      "duration": 10,
+      "description": "Navegar hacia la Torre de Control Shiodome"
+    },
+    {
+      "latitude": 35.6592,
+      "longitude": 139.7594,
+      "altitude": 4,
+      "action": "navigate",
+      "duration": 10,
+      "description": "Navegar hacia la Plataforma de Aterrizaje A"
+    },
+    {
+      "latitude": 35.6682,
+      "longitude": 139.7734,
+      "altitude": 4,
+      "action": "navigate",
+      "duration": 10,
+      "description": "Navegar hacia el Puesto de Vigilancia Este"
+    },
+    {
+      "latitude": 35.6642,
+      "longitude": 139.7584,
+      "altitude": 4,
+      "action": "navigate",
+      "duration": 10,
+      "description": "Navegar hacia la Base de Respuesta de Emergencia"
+    },
+    {
+      "latitude": 35.6642,
+      "longitude": 139.7634,
+      "altitude": 4,
+      "action": "land",
+      "duration": 10,
+      "description": "Aterrizar en el centro del área"
+    }
+  ],
+  "safety_considerations": [
+    "Evitar obstáculos en el área",
+    "Mantener una distancia segura de los puntos de interés",
+    "No sobrevolar áreas restringidas"
+  ],
+  "success_criteria": [
+    "Completar todos los waypoints",
+    "No registrar incidentes durante la misión",
+    "Recopilar información útil sobre los puntos de interés"
+  ],
+  "area_used": "test_tokyo",
+  "id": "fa79bde1-031d-43c8-a40d-96185bbf3d46",
+  "created_at": "2026-04-09T17:27:09.126531",
+  "status": "planned",
+  "area_name": "test_tokyo",
+  "original_command": "Recorre todos los waypoints a 4 metros de altura",
+  "llm_provider": "groq",
+  "llm_model": "llama-3.3-70b-versatile",
+  "area_center": {
+    "latitude": 35.6642,
+    "longitude": 139.7634
+  }
+}

@@ -1,0 +1,109 @@
+{
+  "mission_name": "New York Operations - Recorrido de Waypoints",
+  "description": "Misión de recorrido de waypoints en el área de New York, con un radio máximo de 2km desde el centro",
+  "estimated_duration": 120,
+  "waypoints": [
+    {
+      "latitude": 40.758,
+      "longitude": -73.9855,
+      "altitude": 3,
+      "action": "navigate",
+      "duration": 10,
+      "description": "Punto de partida - Times Square Surveillance Hub"
+    },
+    {
+      "latitude": 40.77,
+      "longitude": -73.9777,
+      "altitude": 3,
+      "action": "navigate",
+      "duration": 10,
+      "description": "Central Park Command Center"
+    },
+    {
+      "latitude": 40.7614,
+      "longitude": -74.0059,
+      "altitude": 3,
+      "action": "navigate",
+      "duration": 10,
+      "description": "Hudson River Landing Zone Alpha"
+    },
+    {
+      "latitude": 40.7614,
+      "longitude": -73.9442,
+      "altitude": 3,
+      "action": "navigate",
+      "duration": 10,
+      "description": "East River Landing Zone Bravo"
+    },
+    {
+      "latitude": 40.7484,
+      "longitude": -73.9857,
+      "altitude": 3,
+      "action": "navigate",
+      "duration": 10,
+      "description": "Empire State Communications Tower"
+    },
+    {
+      "latitude": 40.7061,
+      "longitude": -73.9969,
+      "altitude": 3,
+      "action": "navigate",
+      "duration": 10,
+      "description": "Brooklyn Bridge Observation Post"
+    },
+    {
+      "latitude": 40.7769,
+      "longitude": -73.874,
+      "altitude": 3,
+      "action": "navigate",
+      "duration": 10,
+      "description": "LaGuardia Airport Coordination Point"
+    },
+    {
+      "latitude": 40.7282,
+      "longitude": -73.7949,
+      "altitude": 3,
+      "action": "navigate",
+      "duration": 10,
+      "description": "Queens Emergency Response Base"
+    },
+    {
+      "latitude": 40.7357,
+      "longitude": -74.1724,
+      "altitude": 3,
+      "action": "navigate",
+      "duration": 10,
+      "description": "Newark Coordination Center"
+    },
+    {
+      "latitude": 40.703875,
+      "longitude": -73.9563,
+      "altitude": 3,
+      "action": "land",
+      "duration": 10,
+      "description": "Punto de llegada - Centro del área"
+    }
+  ],
+  "safety_considerations": [
+    "Evitar obstáculos en el área",
+    "Mantener una distancia segura de los puntos de interés",
+    "Evitar interferencias con otros drones o aeronaves"
+  ],
+  "success_criteria": [
+    "Recorrer todos los waypoints sin incidentes",
+    "Mantener la altitud y velocidad establecidas",
+    "Completar la misión dentro del tiempo estimado"
+  ],
+  "area_used": "newyork_operations",
+  "id": "ba42bdd5-f19c-47bd-8ab8-4108d92bc036",
+  "created_at": "2026-04-09T17:34:58.946539",
+  "status": "planned",
+  "area_name": "newyork_operations",
+  "original_command": "recorre todos los waypoints a 3 metrso de altura",
+  "llm_provider": "groq",
+  "llm_model": "llama-3.3-70b-versatile",
+  "area_center": {
+    "latitude": 40.703875000000004,
+    "longitude": -73.9563
+  }
+}

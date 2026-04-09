@@ -1,0 +1,37 @@
+{
+  "mission_name": "example_mission",
+  "description": "example mission",
+  "estimated_duration": 10.0,
+  "waypoints": [
+    {
+      "latitude": 37.7749,
+      "longitude": -122.4194,
+      "altitude": 5.0,
+      "action": "navigate",
+      "duration": 10.0,
+      "description": "waypoint 1"
+    },
+    {
+      "latitude": 37.7859,
+      "longitude": -122.4364,
+      "altitude": 5.0,
+      "action": "navigate",
+      "duration": 10.0,
+      "description": "waypoint 2"
+    }
+  ],
+  "safety_considerations": [
+    "example consideration"
+  ],
+  "success_criteria": [
+    "example criteria"
+  ],
+  "area_used": "example_area",
+  "id": "ace1bcf5-a480-463a-8c3c-abd1b914a84b",
+  "created_at": "2026-04-09T17:17:29.666705",
+  "status": "planned",
+  "area_name": null,
+  "original_command": "recorre todos los waypoint a 5 metros de altura",
+  "llm_provider": "groq",
+  "llm_model": "llama-3.3-70b-versatile"
+}

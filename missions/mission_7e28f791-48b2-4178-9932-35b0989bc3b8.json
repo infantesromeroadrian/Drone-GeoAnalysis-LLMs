@@ -1,0 +1,37 @@
+{
+  "mission_name": "test_mission",
+  "description": "Test mission",
+  "estimated_duration": 120.0,
+  "waypoints": [
+    {
+      "latitude": 40.764900900900905,
+      "longitude": -73.97231054343342,
+      "altitude": 3.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 40.78201801801804,
+      "longitude": -73.94971086866843,
+      "altitude": 3.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    }
+  ],
+  "safety_considerations": [
+    "Avoid obstacles"
+  ],
+  "success_criteria": [
+    "Complete all waypoints"
+  ],
+  "area_used": "test_newyork",
+  "id": "7e28f791-48b2-4178-9932-35b0989bc3b8",
+  "created_at": "2026-04-09T17:51:47.650361",
+  "status": "planned",
+  "area_name": "test_newyork",
+  "original_command": "recorre todos los waypoints a 3 metros de altura",
+  "llm_provider": "groq",
+  "llm_model": "llama-3.3-70b-versatile"
+}

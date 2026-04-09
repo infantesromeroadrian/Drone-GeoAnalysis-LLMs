@@ -1,0 +1,183 @@
+{
+  "mission_name": "test_mission",
+  "description": "Test mission for area test_newyork",
+  "estimated_duration": 120.0,
+  "waypoints": [
+    {
+      "latitude": 40.764900900900905,
+      "longitude": -73.97231054343342,
+      "altitude": 3.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 40.764900900900905,
+      "longitude": -73.97112108686684,
+      "altitude": 3.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 40.764900900900905,
+      "longitude": -73.96993163030027,
+      "altitude": 3.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 40.764900900900905,
+      "longitude": -73.96874217373369,
+      "altitude": 3.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 40.764900900900905,
+      "longitude": -73.96755271716711,
+      "altitude": 3.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 40.764900900900905,
+      "longitude": -73.96636326060053,
+      "altitude": 3.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 40.764900900900905,
+      "longitude": -73.96517380403395,
+      "altitude": 3.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 40.764900900900905,
+      "longitude": -73.96398434746737,
+      "altitude": 3.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 40.764900900900905,
+      "longitude": -73.9627948909008,
+      "altitude": 3.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 40.764900900900905,
+      "longitude": -73.96160543433422,
+      "altitude": 3.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 40.764900900900905,
+      "longitude": -73.96041597776764,
+      "altitude": 3.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 40.764900900900905,
+      "longitude": -73.95922652120106,
+      "altitude": 3.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 40.764900900900905,
+      "longitude": -73.95803706463448,
+      "altitude": 3.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 40.764900900900905,
+      "longitude": -73.9568476080679,
+      "altitude": 3.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 40.764900900900905,
+      "longitude": -73.95565815150132,
+      "altitude": 3.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 40.764900900900905,
+      "longitude": -73.95446869493475,
+      "altitude": 3.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 40.764900900900905,
+      "longitude": -73.95327923836817,
+      "altitude": 3.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 40.764900900900905,
+      "longitude": -73.95208978180159,
+      "altitude": 3.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 40.764900900900905,
+      "longitude": -73.95090032523501,
+      "altitude": 3.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    },
+    {
+      "latitude": 40.764900900900905,
+      "longitude": -73.94971086866843,
+      "altitude": 3.0,
+      "action": "scan",
+      "duration": 5.0,
+      "description": "Grid scan point"
+    }
+  ],
+  "safety_considerations": [
+    "Avoid obstacles",
+    "Maintain safe distance"
+  ],
+  "success_criteria": [
+    "Complete scan",
+    "No obstacles"
+  ],
+  "area_used": "test_newyork",
+  "id": "f7b21257-cd73-46dd-9186-58cd0a401e2f",
+  "created_at": "2026-04-09T17:39:03.784752",
+  "status": "planned",
+  "area_name": "test_newyork",
+  "original_command": "recorre todos los waypoints a 3 metros de altura",
+  "llm_provider": "groq",
+  "llm_model": "llama-3.3-70b-versatile"
+}

@@ -92,7 +92,8 @@ class MissionExecutor:
         try:
             for i, wp in enumerate(waypoints):
                 if self._abort_flag:
-                    self._status = "aborted"
+                    with self._lock:
+                        self._status = "aborted"
                     logger.info("Mission aborted at waypoint %d/%d", i + 1, len(waypoints))
                     return
 
@@ -134,12 +135,14 @@ class MissionExecutor:
                 # Brief pause at waypoint
                 time.sleep(0.5)
 
-            self._status = "completed"
-            self._eta_seconds = 0
+            with self._lock:
+                self._status = "completed"
+                self._eta_seconds = 0
             logger.info("Mission %s completed successfully", self._mission_id)
 
         except Exception as e:
-            self._status = "error"
+            with self._lock:
+                self._status = "error"
             logger.error("Mission execution error: %s", e)
 
     def _calculate_remaining_eta(self, waypoints: list, current_idx: int) -> float:

@@ -99,9 +99,9 @@ class GeoAnalyzer:
     def _validate_api_configuration(self) -> Dict[str, Any]:
         """Valida la configuración de la API."""
         if self.client is None or not self.config.get("api_key") or self.config["api_key"].startswith("your_"):
-            logger.error("API key de OpenAI no configurada o inválida")
+            logger.error("API key no configurada o cliente de vision no disponible")
             return {
-                "error": "API key de OpenAI no configurada. El análisis de imágenes requiere OpenAI GPT-4 Vision.",
+                "error": f"API key no configurada para {self.provider}. El analisis de imagenes requiere un provider con soporte vision.",
                 "country": "No configurado",
                 "city": "No configurado", 
                 "district": "No configurado",

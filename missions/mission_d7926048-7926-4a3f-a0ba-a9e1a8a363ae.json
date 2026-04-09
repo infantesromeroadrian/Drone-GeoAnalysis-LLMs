@@ -1,0 +1,89 @@
+{
+  "mission_name": "Misión de Recorrido de Waypoints",
+  "description": "Misión para volar a través de una serie de waypoints a una altitud de 30 metros",
+  "estimated_duration": 120,
+  "waypoints": [
+    {
+      "latitude": 37.7749,
+      "longitude": -122.4194,
+      "altitude": 30,
+      "action": "takeoff",
+      "duration": 10,
+      "description": "Despegue inicial"
+    },
+    {
+      "latitude": 37.7751,
+      "longitude": -122.4196,
+      "altitude": 30,
+      "action": "navigate",
+      "duration": 20,
+      "description": "Navegación hacia el primer waypoint"
+    },
+    {
+      "latitude": 37.7753,
+      "longitude": -122.4198,
+      "altitude": 30,
+      "action": "hover",
+      "duration": 15,
+      "description": "Pausa en el primer waypoint"
+    },
+    {
+      "latitude": 37.7755,
+      "longitude": -122.42,
+      "altitude": 30,
+      "action": "scan",
+      "duration": 25,
+      "description": "Escaneo del área en el segundo waypoint"
+    },
+    {
+      "latitude": 37.7757,
+      "longitude": -122.4202,
+      "altitude": 30,
+      "action": "photograph",
+      "duration": 20,
+      "description": "Fotografía del área en el tercer waypoint"
+    },
+    {
+      "latitude": 37.7759,
+      "longitude": -122.4204,
+      "altitude": 30,
+      "action": "patrol",
+      "duration": 30,
+      "description": "Patrullaje del área en el cuarto waypoint"
+    },
+    {
+      "latitude": 37.7761,
+      "longitude": -122.4206,
+      "altitude": 30,
+      "action": "navigate",
+      "duration": 20,
+      "description": "Navegación hacia el punto de aterrizaje"
+    },
+    {
+      "latitude": 37.7763,
+      "longitude": -122.4208,
+      "altitude": 0,
+      "action": "land",
+      "duration": 10,
+      "description": "Aterrizaje final"
+    }
+  ],
+  "safety_considerations": [
+    "Evitar obstáculos en el camino",
+    "Mantener una distancia segura de otros vehículos aéreos",
+    "Monitorear el clima y las condiciones de vuelo"
+  ],
+  "success_criteria": [
+    "Completar todos los waypoints sin incidentes",
+    "Obtener imágenes y datos de alta calidad",
+    "Mantener la altitud y la velocidad establecidas"
+  ],
+  "area_used": "Área no especificada, utilizando coordenadas generadas automáticamente",
+  "id": "d7926048-7926-4a3f-a0ba-a9e1a8a363ae",
+  "created_at": "2026-04-09T20:18:30.191681",
+  "status": "planned",
+  "area_name": "test_tokyo",
+  "original_command": "fly to all waypoints at 30m",
+  "llm_provider": "groq",
+  "llm_model": "llama-3.3-70b-versatile"
+}

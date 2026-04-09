@@ -74,15 +74,24 @@ def _try_markdown_json_parse(content: str) -> Optional[Dict]:
 
 
 def _try_regex_json_parse(content: str) -> Optional[Dict]:
-    """Intenta extraer JSON usando regex de llaves."""
+    """Intenta extraer JSON usando regex de llaves (non-greedy, tries multiple matches)."""
     try:
-        json_match = re.search(r'({[\s\S]*})', content)
+        # Find all potential JSON objects (non-greedy)
+        matches = re.finditer(r'(\{[\s\S]*?\})', content)
+        for match in matches:
+            try:
+                result = json.loads(match.group(1))
+                if isinstance(result, dict) and "waypoints" in result:
+                    logger.info("JSON de mision encontrado usando regex")
+                    return result
+            except json.JSONDecodeError:
+                continue
+        # Fallback: try the greedy match (entire content between first { and last })
+        json_match = re.search(r'(\{[\s\S]*\})', content)
         if json_match:
-            json_content = json_match.group(1).strip()
-            logger.info("JSON encontrado usando regex de llaves")
-            return json.loads(json_content)
+            return json.loads(json_match.group(1).strip())
     except json.JSONDecodeError as e:
-        logger.error(f"Error parseando JSON desde regex: {e}")
+        logger.error("Error parseando JSON desde regex: %s", e)
     return None
 
 

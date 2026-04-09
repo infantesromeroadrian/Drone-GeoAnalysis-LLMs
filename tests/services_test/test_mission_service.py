@@ -35,9 +35,15 @@ class TestMissionService(unittest.TestCase):
         
         # Mock del controlador de dron
         self.mock_drone_controller = MagicMock()
-        
+
+        # Mock del executor
+        self.mock_executor = MagicMock()
+        self.mock_executor.start.return_value = {'success': True, 'mission_id': 'test', 'waypoints': 3}
+        self.mock_executor.abort.return_value = {'success': True, 'message': 'Abort signal sent'}
+        self.mock_executor.get_status.return_value = {'status': 'idle'}
+
         # Crear instancia del servicio
-        self.service = MissionService(self.mock_mission_planner, self.mock_drone_controller)
+        self.service = MissionService(self.mock_mission_planner, self.mock_drone_controller, self.mock_executor)
         
         # Mock de archivo Flask
         self.mock_file = MagicMock()
@@ -81,51 +87,28 @@ class TestMissionService(unittest.TestCase):
         print("✓ test_get_missions_exception: EXITOSO")
     
     def test_start_mission_success(self):
-        """Test: Iniciar misión exitosamente."""
-        mission_id = 'mission_001'
-        
-        result = self.service.start_mission(mission_id)
-        
+        """Test: Iniciar mision delega al executor."""
+        result = self.service.start_mission('mission_001')
         self.assertTrue(result['success'])
-        self.assertIn('message', result)
-        self.assertIn(mission_id, result['message'])
-        print("✓ test_start_mission_success: EXITOSO")
-    
+        self.mock_executor.start.assert_called_once_with('mission_001')
+
     def test_start_mission_exception(self):
-        """Test: Excepción al iniciar misión."""
-        # Forzar excepción mockeando el logger
-        with patch('src.services.mission_service.logger') as mock_logger:
-            mock_logger.info.side_effect = Exception("Logger error")
-            
-            result = self.service.start_mission('mission_001')
-            
-            self.assertFalse(result['success'])
-            self.assertIn('error', result)
-            self.assertIn('Logger error', result['error'])
-        
-        print("✓ test_start_mission_exception: EXITOSO")
-    
+        """Test: Excepcion al iniciar mision."""
+        self.mock_executor.start.side_effect = Exception("Exec error")
+        result = self.service.start_mission('mission_001')
+        self.assertFalse(result['success'])
+        self.assertIn('error', result)
+
     def test_abort_mission_success(self):
-        """Test: Abortar misión exitosamente."""
+        """Test: Abortar mision delega al executor."""
         result = self.service.abort_mission()
-        
         self.assertTrue(result['success'])
-        self.assertIn('message', result)
-        self.assertIn('abortada', result['message'])
-        print("✓ test_abort_mission_success: EXITOSO")
     
-    def test_abort_mission_exception(self):
-        """Test: Excepción al abortar misión."""
-        with patch('src.services.mission_service.logger') as mock_logger:
-            mock_logger.info.side_effect = Exception("Abort error")
-            
-            result = self.service.abort_mission()
-            
-            self.assertFalse(result['success'])
-            self.assertIn('error', result)
-            self.assertIn('Abort error', result['error'])
-        
-        print("✓ test_abort_mission_exception: EXITOSO")
+    def test_abort_mission_no_executor(self):
+        """Test: Abortar sin executor retorna error."""
+        service_no_exec = MissionService(self.mock_mission_planner, self.mock_drone_controller)
+        result = service_no_exec.abort_mission()
+        self.assertFalse(result['success'])
     
     @patch('src.models.mission_validator.validate_mission_safety')
     def test_create_llm_mission_success(self, mock_validate):

@@ -39,25 +39,12 @@ class MissionService:
             return {'success': False, 'error': str(e)}
     
     def start_mission(self, mission_id: str) -> Dict[str, Any]:
-        """Inicia una misión específica."""
-        try:
-            # En una implementación real, esto cargaría la misión y la ejecutaría
-            logger.info(f"Iniciando misión: {mission_id}")
-            return {'success': True, 'message': f'Misión {mission_id} iniciada'}
-            
-        except Exception as e:
-            logger.error(f"Error iniciando misión: {str(e)}")
-            return {'success': False, 'error': str(e)}
-    
+        """Inicia la ejecucion de una mision (delega al executor)."""
+        return self.execute_mission(mission_id)
+
     def abort_mission(self) -> Dict[str, Any]:
-        """Aborta la misión actual."""
-        try:
-            logger.info("Abortando misión actual")
-            return {'success': True, 'message': 'Misión abortada'}
-            
-        except Exception as e:
-            logger.error(f"Error abortando misión: {str(e)}")
-            return {'success': False, 'error': str(e)}
+        """Aborta la mision en curso."""
+        return self.abort_execution()
     
     def create_llm_mission(self, natural_command: str, area_name: Optional[str] = None) -> Dict[str, Any]:
         """Crea una misión usando comandos en lenguaje natural con LLM."""

@@ -109,7 +109,7 @@ class ChatService:
             Respuesta del chat con contexto
         """
         try:
-            # Verificar si existe contexto para esta sesión
+            self._cleanup_expired_sessions()
             if session_id not in self.context_storage:
                 return {
                     "error": "No hay contexto de análisis disponible para esta sesión",

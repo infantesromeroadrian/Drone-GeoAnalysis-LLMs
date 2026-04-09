@@ -14,4 +14,11 @@ services:
     ports:
       - "4001:5000"
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: "2.0"
+        reservations:
+          memory: 512M
     command: python src/main.py

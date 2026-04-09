@@ -136,8 +136,8 @@ def is_point_in_boundaries(point: Tuple[float, float],
                 if x <= max(p1x, p2x):
                     if p1y != p2y:
                         xinters = (y - p1y) * (p2x - p1x) / (p2y - p1y) + p1x
-                    if p1x == p2x or x <= xinters:
-                        inside = not inside
+                        if p1x == p2x or x <= xinters:
+                            inside = not inside
         p1x, p1y = p2x, p2y
     
     return inside

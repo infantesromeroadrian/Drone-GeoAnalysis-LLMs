@@ -170,13 +170,10 @@ class DroneGeoApp:
             from src.geo.geo_correlator import GeoCorrelator
 
             self.use_real_modules = True
-            logger.info("Modulos reales detectados y disponibles")
+            logger.info("Modulos detectados y disponibles")
         except ImportError as e:
             self.use_real_modules = False
-            raise ImportError(
-                f"Modulos de hardware no encontrados: {e}. "
-                "Asegurate de que todos los drivers y dependencias esten instalados."
-            ) from e
+            logger.warning("Algunos modulos no disponibles: %s. Continuando en modo degradado.", e)
     
     def _initialize_hardware_components(self) -> dict:
         """Inicializa componentes de hardware reales."""

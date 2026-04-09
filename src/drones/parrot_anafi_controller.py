@@ -434,7 +434,7 @@ class ParrotAnafiController(BaseDrone):
                 self.current_position["altitude"] = gps_state["altitude"]
             
             # Obtener nivel de batería
-            battery_state = self.drone.get_state(level)
+            battery_state = self.drone.get_state(BatteryStateChanged)
             if battery_state:
                 self.battery_level = battery_state["percent"]
             

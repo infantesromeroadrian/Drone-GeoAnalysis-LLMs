@@ -246,15 +246,17 @@ function setupSimulation() {
                     <div class="mission-item-name">${p.name}</div>
                     <div class="mission-item-meta">${p.waypoints.length} waypoints</div>
                 </div>
-                <button class="btn btn-sm btn-primary" onclick="window._startSim('${p.id}')">Start</button>
+                <button class="btn btn-sm btn-primary" data-sim-id="${p.id}">Start</button>
             </div>
         `).join('');
-    });
 
-    window._startSim = async (id) => {
-        const r = await API.startSim(id);
-        showToast(r.success ? 'Simulation started' : `Error: ${r.error}`);
-    };
+        list.querySelectorAll('[data-sim-id]').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const r = await API.startSim(btn.dataset.simId);
+                showToast(r.success ? 'Simulation started' : `Error: ${r.error}`);
+            });
+        });
+    });
 }
 
 // Helpers
@@ -282,10 +284,15 @@ async function executeMission(missionId) {
     document.getElementById('exec-bar')?.classList.remove('hidden');
     startExecPolling();
 
-    onClick('btn-abort-exec', async () => {
-        const a = await API.abortExecution();
-        showToast(a.success ? 'Mission aborted' : a.error);
-    });
+    const abortBtn = document.getElementById('btn-abort-exec');
+    if (abortBtn) {
+        const newBtn = abortBtn.cloneNode(true);
+        abortBtn.parentNode.replaceChild(newBtn, abortBtn);
+        newBtn.addEventListener('click', async () => {
+            const a = await API.abortExecution();
+            showToast(a.success ? 'Mission aborted' : a.error);
+        });
+    }
 }
 
 function startExecPolling() {

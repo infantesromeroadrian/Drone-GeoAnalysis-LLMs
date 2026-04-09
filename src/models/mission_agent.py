@@ -12,6 +12,7 @@ Replaces the linear prompt-response pipeline with an agent that can:
 import json
 import logging
 import os
+import threading
 import uuid
 from datetime import datetime
 from typing import Annotated, Optional
@@ -39,10 +40,32 @@ from src.utils.config import get_groq_config
 
 logger = logging.getLogger(__name__)
 
-# Module-level references set by MissionPlannerAgent.__init__
-_cartography_manager: Optional[CartographyManager] = None
-_data_processor: Optional[MissionDataProcessor] = None
-_prompt_generator: Optional[PromptGenerator] = None
+
+class _DepsRegistry:
+    """Thread-safe singleton for tool dependencies. Avoids global mutable state."""
+    _lock = threading.Lock()
+    _cartography_manager: Optional[CartographyManager] = None
+    _data_processor: Optional[MissionDataProcessor] = None
+    _prompt_generator: Optional[PromptGenerator] = None
+
+    @classmethod
+    def set(cls, cm: CartographyManager, dp: MissionDataProcessor, pg: PromptGenerator):
+        with cls._lock:
+            cls._cartography_manager = cm
+            cls._data_processor = dp
+            cls._prompt_generator = pg
+
+    @classmethod
+    def get_cartography(cls) -> Optional[CartographyManager]:
+        return cls._cartography_manager
+
+    @classmethod
+    def get_processor(cls) -> Optional[MissionDataProcessor]:
+        return cls._data_processor
+
+    @classmethod
+    def get_prompt_gen(cls) -> Optional[PromptGenerator]:
+        return cls._prompt_generator
 
 
 class MissionPlannerState(TypedDict):
@@ -61,17 +84,18 @@ class MissionPlannerState(TypedDict):
 def load_area_info(area_name: str) -> str:
     """Load geographic area information including boundaries, POIs, and center coordinates.
     Use this before planning waypoints to know what is in the area."""
-    if not _cartography_manager:
+    if not _DepsRegistry.get_cartography():
         return "CartographyManager not available"
 
-    area = _cartography_manager.get_loaded_area(area_name)
+    area = _DepsRegistry.get_cartography().get_loaded_area(area_name)
     if not area:
-        available = list(_cartography_manager.get_loaded_areas().keys())
+        available = list(_DepsRegistry.get_cartography().get_loaded_areas().keys()) if _DepsRegistry.get_cartography() else []
         return f"Area '{area_name}' not loaded. Available areas: {available}"
 
     center = None
-    if _data_processor:
-        center = _data_processor.get_area_center_coordinates(area)
+    dp = _DepsRegistry.get_processor()
+    if dp:
+        center = dp.get_area_center_coordinates(area)
 
     info = {
         "name": area.name,
@@ -105,10 +129,10 @@ def generate_area_grid_waypoints(area_name: str, grid_spacing_meters: float = 10
                                   altitude: float = 50.0) -> str:
     """Generate a grid scan pattern of waypoints within a loaded area.
     Useful for 'scan the entire area' or 'patrol' commands."""
-    if not _cartography_manager:
+    if not _DepsRegistry.get_cartography():
         return "CartographyManager not available"
 
-    area = _cartography_manager.get_loaded_area(area_name)
+    area = _DepsRegistry.get_cartography().get_loaded_area(area_name)
     if not area:
         return f"Area '{area_name}' not loaded"
 
@@ -161,10 +185,9 @@ def finalize_mission(mission_json: str, natural_command: str,
         errors = "; ".join(err["msg"] for err in e.errors())
         return f"VALIDATION_ERROR: {errors}. Fix the mission and call finalize_mission again."
 
-    if _data_processor:
-        mission_dict["waypoints"] = _data_processor._deduplicate_waypoints(
-            mission_dict["waypoints"]
-        )
+    dp = _DepsRegistry.get_processor()
+    if dp:
+        mission_dict["waypoints"] = dp._deduplicate_waypoints(mission_dict["waypoints"])
 
     mission_dict["id"] = str(uuid.uuid4())
     mission_dict["created_at"] = datetime.now().isoformat()
@@ -174,8 +197,8 @@ def finalize_mission(mission_json: str, natural_command: str,
     mission_dict["llm_provider"] = "groq"
     mission_dict["llm_model"] = os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile")
 
-    if _data_processor:
-        _data_processor.save_mission(mission_dict)
+    if dp:
+        dp.save_mission(mission_dict)
 
     return json.dumps({"status": "SUCCESS", "mission_id": mission_dict["id"],
                         "waypoints_count": len(mission_dict["waypoints"])})
@@ -225,10 +248,7 @@ class MissionPlannerAgent:
     def __init__(self, cartography_manager: CartographyManager,
                  data_processor: MissionDataProcessor,
                  prompt_generator: PromptGenerator):
-        global _cartography_manager, _data_processor, _prompt_generator
-        _cartography_manager = cartography_manager
-        _data_processor = data_processor
-        _prompt_generator = prompt_generator
+        _DepsRegistry.set(cartography_manager, data_processor, prompt_generator)
 
         config = get_groq_config()
         self.llm = ChatGroq(
@@ -242,7 +262,7 @@ class MissionPlannerAgent:
 
     def plan_mission(self, natural_command: str,
                      area_name: Optional[str] = None) -> dict:
-        system_prompt = _prompt_generator.build_agent_system_prompt()
+        system_prompt = _DepsRegistry.get_prompt_gen().build_agent_system_prompt()
         user_msg = self._build_user_message(natural_command, area_name)
 
         initial_state: MissionPlannerState = {
@@ -288,9 +308,10 @@ class MissionPlannerAgent:
         raise RuntimeError("Agent did not produce a finalized mission")
 
     def _load_saved_mission(self, mission_id: str) -> dict:
-        if not _data_processor:
+        dp = _DepsRegistry.get_processor()
+        if not dp:
             raise RuntimeError("MissionDataProcessor not available")
-        missions_dir = _data_processor.missions_dir
+        missions_dir = dp.missions_dir
         path = os.path.join(missions_dir, f"mission_{mission_id}.json")
         with open(path, "r", encoding="utf-8") as f:
             return json.load(f)

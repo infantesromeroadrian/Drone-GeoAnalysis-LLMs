@@ -1,8 +1,11 @@
 import API from '../services/api.js';
 
 let sessionId = null;
+let initialized = false;
 
 export function initAnalysisView() {
+    if (initialized) return;
+    initialized = true;
     setupUpload();
     setupChat();
 }

@@ -53,15 +53,19 @@ class MissionDataProcessor:
         """
         # Parsear respuesta JSON
         mission_data = extract_json_from_response(response_content)
-        
+
+        # Deduplicar waypoints consecutivos con mismas coordenadas
+        if 'waypoints' in mission_data:
+            mission_data['waypoints'] = self._deduplicate_waypoints(mission_data['waypoints'])
+
         # Añadir metadatos
         self._add_metadata(mission_data, natural_command, area_name,
                           llm_provider, llm_model)
-        
+
         # Añadir coordenadas del centro si están disponibles
         if center_coordinates:
             self._add_center_coordinates(mission_data, center_coordinates)
-        
+
         return mission_data
     
     def _add_metadata(self, 
@@ -79,7 +83,25 @@ class MissionDataProcessor:
         mission_data['llm_provider'] = llm_provider
         mission_data['llm_model'] = llm_model
     
-    def _add_center_coordinates(self, 
+    def _deduplicate_waypoints(self, waypoints: List[Dict]) -> List[Dict]:
+        """Elimina waypoints consecutivos con coordenadas identicas."""
+        if not waypoints:
+            return waypoints
+        deduplicated = [waypoints[0]]
+        for wp in waypoints[1:]:
+            prev = deduplicated[-1]
+            same_lat = abs(wp.get('latitude', 0) - prev.get('latitude', 1)) < 1e-6
+            same_lng = abs(wp.get('longitude', 0) - prev.get('longitude', 1)) < 1e-6
+            if not (same_lat and same_lng):
+                deduplicated.append(wp)
+            else:
+                logger.warning("Waypoint duplicado eliminado: lat=%.6f, lng=%.6f",
+                             wp.get('latitude'), wp.get('longitude'))
+        if len(deduplicated) < len(waypoints):
+            logger.info("Waypoints deduplicados: %d -> %d", len(waypoints), len(deduplicated))
+        return deduplicated
+
+    def _add_center_coordinates(self,
                               mission_data: Dict,
                               center_coordinates: Tuple[float, float]) -> None:
         """Añade coordenadas del centro del área."""

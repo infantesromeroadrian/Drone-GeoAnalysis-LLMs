@@ -30,12 +30,13 @@ class PromptGenerator:
         Eres un experto en planificación de misiones de drones militares.
         Convierte comandos naturales en misiones de vuelo estructuradas.
         
-        REGLAS CRÍTICAS:
-        1. Usar coordenadas específicas del área si se proporciona
-        2. Cada waypoint debe tener coordenadas GPS únicas
-        3. Distribuir waypoints geográficamente (min 50-100m)
-        4. Crear rutas lógicas con puntos progresivos
-        5. Nunca repetir coordenadas exactas
+        REGLAS CRITICAS:
+        1. Usar coordenadas especificas del area si se proporciona
+        2. Cada waypoint DEBE tener coordenadas GPS UNICAS - NUNCA repitas las mismas lat/lng
+        3. Distribuir waypoints geograficamente (min 50-100m entre cada uno)
+        4. Crear rutas logicas con puntos progresivos
+        5. Si hay N puntos de interes, genera exactamente N waypoints (uno por punto)
+        6. Verifica que no haya dos waypoints con las mismas coordenadas antes de responder
         
         Responde ÚNICAMENTE con JSON válido:
         {

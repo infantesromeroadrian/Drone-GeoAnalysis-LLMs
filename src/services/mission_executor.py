@@ -11,8 +11,9 @@ from src.models.mission_utils import calculate_distance
 
 logger = logging.getLogger(__name__)
 
-SIMULATED_SPEED_MPS = 15.0
-INTERPOLATION_INTERVAL = 0.3
+SIMULATED_SPEED_MPS = 500.0  # Fast for demo -- covers km in seconds
+MAX_SEGMENT_DURATION = 5.0   # No segment takes longer than 5 seconds
+INTERPOLATION_INTERVAL = 0.15
 
 
 class MissionExecutor:
@@ -98,11 +99,11 @@ class MissionExecutor:
                 target = (wp["latitude"], wp["longitude"])
                 current = (self._position["latitude"], self._position["longitude"])
                 dist = calculate_distance(current, target)
-                travel_time = max(dist / SIMULATED_SPEED_MPS, 1.0)
+                travel_time = min(max(dist / SIMULATED_SPEED_MPS, 0.5), MAX_SEGMENT_DURATION)
 
                 self._eta_seconds = self._calculate_remaining_eta(waypoints, i)
 
-                steps = max(int(travel_time / INTERPOLATION_INTERVAL), 5)
+                steps = max(int(travel_time / INTERPOLATION_INTERVAL), 3)
                 start_lat, start_lng = current
                 end_lat, end_lng = target
                 start_alt = self._position["altitude"]
@@ -130,10 +131,8 @@ class MissionExecutor:
 
                 logger.info("Waypoint %d/%d reached: %s", i + 1, len(waypoints), wp.get("action", "navigate"))
 
-                # Execute waypoint action duration
-                action_time = wp.get("duration", 2)
-                if action_time > 0:
-                    time.sleep(min(action_time, 5))
+                # Brief pause at waypoint
+                time.sleep(0.5)
 
             self._status = "completed"
             self._eta_seconds = 0

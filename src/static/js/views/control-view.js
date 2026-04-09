@@ -47,10 +47,22 @@ async function setupMap() {
 
     droneMarker = L.marker([lat, lng], {
         icon: L.divIcon({
-            className: 'drone-icon',
-            html: '<div style="background:#3B82F6;width:24px;height:24px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.4)"></div>',
-            iconSize: [24, 24],
-            iconAnchor: [12, 12],
+            className: '',
+            html: `<div style="width:40px;height:40px;position:relative">
+                <svg viewBox="0 0 100 100" width="40" height="40" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5))">
+                    <circle cx="50" cy="50" r="18" fill="#3B82F6" stroke="white" stroke-width="4"/>
+                    <line x1="50" y1="32" x2="20" y2="15" stroke="white" stroke-width="4" stroke-linecap="round"/>
+                    <line x1="50" y1="32" x2="80" y2="15" stroke="white" stroke-width="4" stroke-linecap="round"/>
+                    <line x1="50" y1="68" x2="20" y2="85" stroke="white" stroke-width="4" stroke-linecap="round"/>
+                    <line x1="50" y1="68" x2="80" y2="85" stroke="white" stroke-width="4" stroke-linecap="round"/>
+                    <circle cx="20" cy="15" r="10" fill="none" stroke="#3B82F6" stroke-width="3" opacity="0.7"/>
+                    <circle cx="80" cy="15" r="10" fill="none" stroke="#3B82F6" stroke-width="3" opacity="0.7"/>
+                    <circle cx="20" cy="85" r="10" fill="none" stroke="#3B82F6" stroke-width="3" opacity="0.7"/>
+                    <circle cx="80" cy="85" r="10" fill="none" stroke="#3B82F6" stroke-width="3" opacity="0.7"/>
+                </svg>
+            </div>`,
+            iconSize: [40, 40],
+            iconAnchor: [20, 20],
         }),
     }).addTo(map).bindPopup('Drone');
 

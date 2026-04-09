@@ -32,53 +32,67 @@ class LLMMissionPlanner:
         self.mission_processor = MissionDataProcessor()
         self.prompt_generator = PromptGenerator()
         self.current_mission = None
-        
+        self.agent = self._init_agent()
+
         logger.info("LLMMissionPlanner inicializado")
-    
-    def create_mission_from_command(self, natural_command: str, 
-                                  area_name: Optional[str] = None) -> Optional[Dict]:
-        """
-        Crea una misión a partir de un comando en lenguaje natural.
-        
-        Args:
-            natural_command: Comando en lenguaje natural
-            area_name: Nombre del área cargada (opcional)
-            
-        Returns:
-            Dict: Misión generada o None si falla
-        """
+
+    def _init_agent(self):
+        """Intenta inicializar el agente LangGraph. Retorna None si no es posible."""
         try:
-            # Preparar información del área
+            from src.models.mission_agent import MissionPlannerAgent
+            agent = MissionPlannerAgent(
+                self.cartography_manager, self.mission_processor, self.prompt_generator
+            )
+            logger.info("LangGraph ReAct agent disponible")
+            return agent
+        except Exception as e:
+            logger.warning("LangGraph agent no disponible, usando pipeline legacy: %s", e)
+            return None
+    
+    def create_mission_from_command(self, natural_command: str,
+                                  area_name: Optional[str] = None) -> Optional[Dict]:
+        """Crea una mision usando el agente LangGraph o el pipeline legacy como fallback."""
+        if self.agent:
+            try:
+                mission_data = self.agent.plan_mission(natural_command, area_name)
+                self.current_mission = mission_data
+                logger.info("Mision creada via LangGraph agent: %s", mission_data.get("mission_name"))
+                return mission_data
+            except Exception as e:
+                logger.warning("Agent failed, falling back to legacy pipeline: %s", e)
+
+        return self._legacy_create_mission(natural_command, area_name)
+
+    def _legacy_create_mission(self, natural_command: str,
+                               area_name: Optional[str] = None) -> Optional[Dict]:
+        """Pipeline legacy de creacion de misiones (prompt-response directo)."""
+        try:
             area_info, center_coords = self._prepare_area_info(area_name)
-            
-            # Crear prompts
+
             system_prompt = self.prompt_generator.build_system_prompt()
             user_prompt = self.prompt_generator.build_user_prompt(
                 natural_command, area_info
             )
-            
-            # Obtener respuesta del LLM
+
             response_content = self.llm_client.create_chat_completion([
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
             ], temperature=0.3)
-            
-            # Procesar y enriquecer la misión
+
             provider_info = self.llm_client.get_provider_info()
             mission_data = self.mission_processor.process_mission_response(
                 response_content, natural_command, area_name, center_coords,
                 provider_info["provider"], provider_info["model"]
             )
-            
-            # Guardar misión
+
             self.mission_processor.save_mission(mission_data)
-            
+
             self.current_mission = mission_data
-            logger.info(f"Misión creada: {mission_data['mission_name']}")
+            logger.info("Mision creada via legacy pipeline: %s", mission_data["mission_name"])
             return mission_data
-            
+
         except Exception as e:
-            logger.error(f"Error creando misión: {e}")
+            logger.error("Error creando mision (legacy): %s", e)
             return None
     
 

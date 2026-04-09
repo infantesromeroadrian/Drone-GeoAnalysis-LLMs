@@ -1,0 +1,93 @@
+{
+  "mission_name": "Reconocimiento de Área de Test en Tokio",
+  "description": "Misión de reconocimiento que recorre puntos de interés en el área de test en Tokio a una altitud de 40 metros",
+  "estimated_duration": 120,
+  "waypoints": [
+    {
+      "latitude": 35.6612,
+      "longitude": 139.7664,
+      "altitude": 40,
+      "action": "hover",
+      "duration": 10,
+      "description": "Inspeccionar la Torre de Control Shiodome"
+    },
+    {
+      "latitude": 35.6592,
+      "longitude": 139.7594,
+      "altitude": 40,
+      "action": "navigate",
+      "duration": 5,
+      "description": "Dirigirse a la Plataforma de Aterrizaje A"
+    },
+    {
+      "latitude": 35.6592,
+      "longitude": 139.7594,
+      "altitude": 40,
+      "action": "hover",
+      "duration": 10,
+      "description": "Inspeccionar la Plataforma de Aterrizaje A"
+    },
+    {
+      "latitude": 35.6682,
+      "longitude": 139.7734,
+      "altitude": 40,
+      "action": "navigate",
+      "duration": 10,
+      "description": "Dirigirse al Puesto de Vigilancia Este"
+    },
+    {
+      "latitude": 35.6682,
+      "longitude": 139.7734,
+      "altitude": 40,
+      "action": "hover",
+      "duration": 10,
+      "description": "Inspeccionar el Puesto de Vigilancia Este"
+    },
+    {
+      "latitude": 35.6642,
+      "longitude": 139.7584,
+      "altitude": 40,
+      "action": "navigate",
+      "duration": 5,
+      "description": "Dirigirse a la Base de Respuesta de Emergencia"
+    },
+    {
+      "latitude": 35.6642,
+      "longitude": 139.7584,
+      "altitude": 40,
+      "action": "hover",
+      "duration": 10,
+      "description": "Inspeccionar la Base de Respuesta de Emergencia"
+    },
+    {
+      "latitude": 35.6642,
+      "longitude": 139.7634,
+      "altitude": 40,
+      "action": "land",
+      "duration": 10,
+      "description": "Aterrizaje final en el centro del área"
+    }
+  ],
+  "safety_considerations": [
+    "Evitar obstáculos en el área de vuelo",
+    "Mantener una distancia segura de los puntos de interés",
+    "Monitorear el clima y las condiciones de vuelo"
+  ],
+  "success_criteria": [
+    "Completar todos los waypoints sin incidentes",
+    "Recopilar información útil de los puntos de interés",
+    "Mantener la altitud y la velocidad dentro de los parámetros establecidos"
+  ],
+  "area_used": "test_tokyo",
+  "id": "576e1dd2-a286-42aa-9678-65d13d5945ea",
+  "created_at": "2026-04-09T16:30:31.009275",
+  "status": "planned",
+  "area_name": "test_tokyo",
+  "original_command": "Recorre todos los waypoints de uno en uno a 40 metros de altura",
+  "llm_provider": "groq",
+  "llm_model": "llama-3.3-70b-versatile",
+  "area_center": {
+    "latitude": 35.6642,
+    "longitude": 139.7634
+  }
+}

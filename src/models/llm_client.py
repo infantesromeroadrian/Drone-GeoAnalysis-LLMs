@@ -41,8 +41,14 @@ class LLMClient:
         elif self.provider == "openai":
             logger.info("OpenAI API configurada")
             self.client = openai.OpenAI(api_key=self.config["api_key"])
+        elif self.provider == "groq":
+            logger.info(f"Groq Model: {self.config['model']}")
+            self.client = openai.OpenAI(
+                base_url=self.config["base_url"],
+                api_key=self.config["api_key"]
+            )
         else:
-            raise ValueError(f"LLM provider no soportado: {self.provider}. Use 'docker' o 'openai'.")
+            raise ValueError(f"LLM provider no soportado: {self.provider}. Use 'docker', 'openai' o 'groq'.")
 
     def create_chat_completion(self, 
                              messages: List[ChatCompletionMessageParam],
@@ -65,6 +71,8 @@ class LLMClient:
                 response = self._create_docker_completion(messages, temp)
             elif self.provider == "openai":
                 response = self._create_openai_completion(messages, temp)
+            elif self.provider == "groq":
+                response = self._create_groq_completion(messages, temp)
             else:
                 raise ValueError(f"LLM provider no soportado: {self.provider}")
 
@@ -98,6 +106,18 @@ class LLMClient:
             max_tokens=self.config["max_tokens"]
         )
     
+    def _create_groq_completion(self,
+                               messages: List[ChatCompletionMessageParam],
+                               temperature: float):
+        """Crea completion usando Groq API."""
+        return self.client.chat.completions.create(
+            model=self.config["model"],
+            messages=messages,
+            temperature=temperature,
+            max_tokens=self.config["max_tokens"],
+            timeout=self.config.get("timeout", 60)
+        )
+
     def get_provider_info(self) -> dict:
         """Retorna información del proveedor configurado."""
         return {

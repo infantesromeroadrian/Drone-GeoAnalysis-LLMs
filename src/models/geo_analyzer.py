@@ -40,6 +40,13 @@ class GeoAnalyzer:
         elif self.provider == "openai":
             logger.info("Inicializando OpenAI API para análisis de imágenes")
             self.client = OpenAI(api_key=self.config["api_key"])
+        elif self.provider == "groq":
+            logger.info("Inicializando Groq API para analisis de imagenes con vision")
+            self.client = OpenAI(
+                base_url=self.config["base_url"],
+                api_key=self.config["api_key"]
+            )
+            self.config["model"] = self.config.get("vision_model", "meta-llama/llama-4-scout-17b-16e-instruct")
         else:
             self.client = None
             logger.warning("Proveedor LLM no soportado para vision: %s", self.provider)

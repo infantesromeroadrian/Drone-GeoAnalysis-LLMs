@@ -58,13 +58,25 @@ def get_docker_model_config():
         "timeout": 120,  # Modelos locales pueden tomar más tiempo
     }
 
+def get_groq_config():
+    """Obtiene la configuración para Groq API."""
+    return {
+        "base_url": "https://api.groq.com/openai/v1",
+        "api_key": os.environ.get("GROQ_API_KEY"),
+        "model": os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile"),
+        "vision_model": os.environ.get("GROQ_VISION_MODEL", "meta-llama/llama-4-scout-17b-16e-instruct"),
+        "temperature": 0.3,
+        "max_tokens": 2000,
+        "timeout": 60,
+    }
+
 def get_llm_config():
     """
     Obtiene la configuración del LLM según la variable de entorno LLM_PROVIDER.
     Por defecto usa Docker Models si está disponible, sino OpenAI.
     """
     provider = os.environ.get("LLM_PROVIDER", "docker").lower()
-    
+
     if provider == "docker":
         return {
             "provider": "docker",
@@ -72,11 +84,15 @@ def get_llm_config():
         }
     elif provider == "openai":
         return {
-            "provider": "openai", 
+            "provider": "openai",
             "config": get_openai_config()
         }
+    elif provider == "groq":
+        return {
+            "provider": "groq",
+            "config": get_groq_config()
+        }
     else:
-        # Por defecto intentar Docker Models
         return {
             "provider": "docker",
             "config": get_docker_model_config()

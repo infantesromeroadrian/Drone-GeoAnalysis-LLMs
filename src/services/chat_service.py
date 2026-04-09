@@ -10,7 +10,7 @@ import json
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 from openai import OpenAI
-from src.utils.config import get_openai_config
+from src.utils.config import get_llm_config
 
 logger = logging.getLogger(__name__)
 
@@ -25,15 +25,32 @@ class ChatService:
 
     def __init__(self):
         """Inicializa el servicio de chat."""
-        self.config = get_openai_config()
-        api_key = self.config.get("api_key")
-        if api_key:
-            self.client = OpenAI(api_key=api_key)
-        else:
-            self.client = None
-            logger.warning("OPENAI_API_KEY no disponible. Chat contextual deshabilitado.")
+        llm_config = get_llm_config()
+        self.provider = llm_config["provider"]
+        self.config = llm_config["config"]
+        self.client = self._setup_client()
         self.context_storage = {}
-        logger.info("Servicio de chat contextual inicializado")
+        logger.info("Servicio de chat contextual inicializado con provider: %s", self.provider)
+
+    def _setup_client(self) -> Optional[OpenAI]:
+        """Configura el cliente segun el proveedor."""
+        if self.provider == "groq":
+            vision_model = self.config.get("vision_model", "meta-llama/llama-4-scout-17b-16e-instruct")
+            self.config["model"] = vision_model
+            return OpenAI(base_url=self.config["base_url"], api_key=self.config["api_key"])
+        elif self.provider == "openai":
+            api_key = self.config.get("api_key")
+            if api_key:
+                return OpenAI(api_key=api_key)
+        elif self.provider == "docker":
+            import os
+            api_key = os.environ.get("OPENAI_API_KEY")
+            if api_key:
+                from src.utils.config import get_openai_config
+                self.config = get_openai_config()
+                return OpenAI(api_key=api_key)
+        logger.warning("Chat contextual no disponible para provider: %s", self.provider)
+        return None
 
     def store_analysis_context(self, session_id: str, analysis_results: Dict[str, Any],
                              yolo_results: Dict[str, Any], image_filename: str,

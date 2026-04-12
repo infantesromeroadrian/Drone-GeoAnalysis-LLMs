@@ -33,4 +33,4 @@ Thumbs.db
 *.swo
 
 # Archivos de jupyter notebook
-.ipynb_checkpoints 
+.ipynb_checkpoints .env

@@ -1,316 +1,143 @@
-# �� Drone Geo Analysis - Sistema Avanzado de Análisis Geográfico
+# Drone Geo Analysis
 
-**Sistema empresarial de análisis geográfico con drones para operaciones de inteligencia, vigilancia y reconocimiento (ISR) con capacidades de misiones autónomas basadas en IA.**
+Enterprise ISR platform: drone control, geospatial analysis, real-time video processing, and LLM-powered autonomous missions.
 
-## 🎯 Descripción del Proyecto
+![Dashboard](docs/screenshots/dashboard.png)
 
-Drone Geo Analysis es una plataforma integral que combina tecnologías de drones, análisis geográfico avanzado, procesamiento de video en tiempo real y inteligencia artificial para crear un sistema completo de análisis territorial y operaciones autónomas.
+## Screenshots
 
-### 🚀 Capacidades Principales
+### Mission Control -- Satellite Map + AI Mission Planner
+![Mission Control](docs/screenshots/mission-control.png)
 
-- **🎮 Control Avanzado de Drones**: Gestión completa de drones Parrot ANAFI con telemetría en tiempo real usando Olympe SDK
-- **🗺️ Análisis Geográfico**: Triangulación, correlación geográfica y detección de cambios
-- **📹 Procesamiento de Video**: Análisis de frames, detección de objetos y cambios temporales
-- **🤖 Misiones Inteligentes**: Generación automática de misiones usando LLM (Llama 3.2/GPT-4)
-- **🎯 Planificación de Misiones**: Sistema adaptativo con decisiones inteligentes
-- **📊 Cartografía GeoJSON**: Manejo completo de mapas y operaciones geográficas
-- **🔍 Análisis OSINT**: Análisis de imágenes para determinación de ubicaciones geográficas
+### Image Analysis -- YOLO Object Detection
+![Analysis](docs/screenshots/analysis.png)
 
-## 🏗️ Arquitectura del Sistema
+### Missions Library -- 52 Planned Operations
+![Missions](docs/screenshots/missions.png)
 
-### 📦 Módulos Principales
+## How It Works
 
 ```
-🏢 ARQUITECTURA EMPRESARIAL
-├── 🎮 drones/              # Control de drones
-│   ├── base_drone.py       # Interfaz base de drones
-│   └── parrot_anafi_controller.py   # Controlador específico Parrot ANAFI
-├── 🗺️ geo/                 # Análisis geográfico
-│   ├── geo_correlator.py   # Correlación geográfica
-│   └── geo_triangulation.py # Triangulación avanzada
-├── 🧠 models/              # Modelos de análisis
-│   ├── geo_analyzer.py     # Analizador geográfico
-│   └── mission_planner.py  # Planificador de misiones
-├── ⚙️ processors/          # Procesamiento de datos
-│   ├── change_detector.py  # Detección de cambios
-│   └── video_processor.py  # Procesamiento de video
-├── 🏢 services/            # Servicios empresariales
-│   ├── analysis_service.py # Servicio de análisis
-│   ├── drone_service.py    # Servicio de drones
-│   ├── geo_service.py      # Servicio geográfico
-│   └── mission_service.py  # Servicio de misiones
-└── 🌐 templates/           # Interfaz web
-    ├── drone_control.html  # Control de drones
-    └── mission_instructions.html # Instrucciones de misión
+Natural Language Command -> LLM Mission Planner -> GPS Waypoints + Actions
+                                                         |
+Drone (Parrot ANAFI) <- Telemetry Streaming <- Mission Execution Engine
+         |
+    Video Feed -> YOLO Detection -> Geo Correlation -> Change Detection
 ```
 
-### 🔧 Servicios Empresariales
+The operator describes a mission in natural language. The LLM (Groq/Llama or OpenAI) generates GPS waypoints, altitudes, actions, and safety constraints. The drone executes the mission while streaming video processed by YOLO for real-time object detection and geographic change analysis.
 
-#### 🔬 AnalysisService
-- Procesamiento de imágenes con metadatos
-- Análisis de confianza automatizado
-- Gestión de resultados y archivos
-- Codificación base64 y serving de archivos
+## Features
 
-#### 🚁 DroneService  
-- Control de vuelo completo (conexión, despegue, aterrizaje)
-- Streaming de video con procesamiento integrado
-- Adquisición de datos de telemetría
-- 3 rutas de simulación predefinidas
-- Validación de altitud (120m máximo)
+- **Mission Control**: Satellite map (Mapbox), real-time telemetry, LLM-powered mission planning from natural language
+- **YOLO Detection**: YOLOv11 object detection on drone imagery
+- **Geo Analysis**: Triangulation, geographic correlation, change detection
+- **52 Missions**: Library of planned ISR operations (perimeter patrols, base surveillance, reconnaissance)
+- **Parrot ANAFI**: Full drone control via Olympe SDK (connect, takeoff, waypoints, land)
+- **Multi-LLM**: Groq (Llama 4 Scout), OpenAI, Docker Model Runner (local/offline)
+- **Cartography**: GeoJSON area management with POIs and security boundaries
+- **Chat Interface**: LangGraph ReAct agent for querying analysis results
 
-#### 🗺️ GeoService
-- Triangulación avanzada (real vs simulada)
-- Detección de cambios usando correlación geográfica
-- Gestión de objetivos y estados
-- Operaciones CRUD de imágenes de referencia
-- Cálculos geográficos con precisión configurable
+## Tech Stack
 
-#### 🎯 MissionService
-- Creación de misiones LLM desde comandos de lenguaje natural
-- Control adaptativo con decisiones inteligentes
-- Carga y validación de cartografía GeoJSON
-- Gestión de áreas con límites y POIs
-- Validación de seguridad con alertas automáticas
+| Layer | Technology |
+|-------|-----------|
+| Backend | Flask + Waitress (production WSGI) |
+| LLM | Groq API (Llama 4 Scout) / OpenAI / Docker Model Runner |
+| Object Detection | YOLOv11 (Ultralytics 8.3) + PyTorch 2.5 |
+| Drone SDK | Parrot Olympe 7.7.5 (ANAFI control) |
+| Maps | Leaflet + Mapbox (satellite/dark tiles) |
+| Geo | GeoJSON, triangulation, correlation |
+| Agent | LangGraph ReAct (mission planning + Q&A) |
+| Deploy | Docker Compose (4GB limit, health checks) |
 
-## 🚀 Instalación y Configuración
+## Architecture
 
-### Prerrequisitos
-
-- **Docker Desktop 4.40+** con Model Runner habilitado
-- **Modelo Llama 3.2** descargado: `docker model pull ai/llama3.2:latest`
-- **OpenAI API Key** (opcional, para fallback)
-
-### Opción 1: Docker Model Runner (Recomendado) 🐳
-
-1. **Verificar Docker Model Runner:**
-```bash
-docker model status
-# Debe mostrar: "Docker Model Runner is running"
-
-docker model ls
-# Debe mostrar: ai/llama3.2:latest
+```
+src/
+  controllers/          # Flask blueprints (API routes)
+    analysis_controller.py    # Image upload, YOLO, chat
+    drone_controller.py       # Drone connect/takeoff/land
+    geo_controller.py         # Triangulation, change detection
+    mission_controller.py     # Mission CRUD, LLM planning
+  services/             # Business logic
+    analysis_service.py       # Image processing pipeline
+    drone_service.py          # Parrot ANAFI integration
+    geo_service.py            # Geographic calculations
+    mission_service.py        # Mission orchestration
+    chat_service.py           # LangGraph ReAct agent
+  models/               # Domain models
+    geo_analyzer.py           # Geographic analysis engine
+    mission_planner.py        # LLM mission generation
+    yolo_object_detector.py   # YOLOv11 inference
+  drones/               # Hardware abstraction
+    base_drone.py             # Abstract drone interface
+    parrot_anafi_controller.py # Parrot ANAFI implementation
+  geo/                  # Geospatial primitives
+  processors/           # Data processing (change detection, video)
+  templates/            # Jinja2 HTML (SPA dashboard)
+  static/               # CSS, JS, assets
+tests/                  # 107 tests, 95.3% success rate
+cartography/            # GeoJSON area definitions
+missions/               # Saved mission files
 ```
 
-2. **Configurar variables de entorno:**
-```bash
-# Crear archivo .env
-LLM_PROVIDER=docker
-DOCKER_MODEL_NAME=ai/llama3.2:latest
-OPENAI_API_KEY=tu_clave_api_backup  # Opcional
-```
-
-### Opción 2: OpenAI API (Alternativa)
+## Quick Start
 
 ```bash
-# Configurar .env
-LLM_PROVIDER=openai
-OPENAI_API_KEY=tu_clave_api_aqui
-```
+git clone https://github.com/infantesromeroadrian/Drone-GeoAnalysis-LLMs.git
+cd Drone-GeoAnalysis-LLMs
+cp .env.example .env
+# Edit .env with your API keys (Groq, Mapbox)
 
-## 🔄 Ejecución del Sistema
-
-### Desarrollo
-```bash
-# Construir e iniciar todo el sistema
 docker-compose up --build
-
-# Acceder a la interfaz web
-http://localhost:5000
-
-# Panel de control de drones
-http://localhost:5000/drone_control
+# Open http://localhost:4001
 ```
 
-### Producción
-```bash
-# Iniciar en modo producción
-docker-compose -f docker-compose.prod.yml up --build -d
-
-# Detener el sistema
-docker-compose -f docker-compose.prod.yml down
-```
-
-## 🎮 Ejemplos de Uso
-
-### 🤖 Misiones Inteligentes con LLM
+### Local (without Docker)
 
 ```bash
-# Comando de ejemplo:
-"Patrulla el perímetro norte de la base a 50 metros de altura, busca vehículos sospechosos"
-
-# El LLM generará automáticamente:
-✅ Waypoints GPS específicos
-✅ Altitudes apropiadas 
-✅ Acciones para cada punto
-✅ Consideraciones de seguridad
-✅ Criterios de éxito
+pip install -r requirements.txt
+python src/main.py
+# Open http://localhost:5000
 ```
 
-### 🗺️ Análisis Geográfico
+## Environment Variables
 
-```python
-# Triangulación de objetivos
-target_location = geo_service.triangulate_position(
-    observations=[obs1, obs2, obs3],
-    method='advanced'
-)
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `LLM_PROVIDER` | `groq`, `openai`, or `docker` | Yes |
+| `GROQ_API_KEY` | Groq API key | If provider=groq |
+| `OPENAI_API_KEY` | OpenAI API key | If provider=openai |
+| `SECRET_KEY` | Flask session key | Yes |
+| `MAPBOX_TOKEN` | Mapbox public token (satellite tiles) | Optional |
 
-# Detección de cambios
-changes = geo_service.detect_changes(
-    reference_image="base_2024.jpg",
-    current_image="current.jpg"
-)
-```
-
-### 📹 Procesamiento de Video
-
-```python
-# Análisis de video en tiempo real
-processor = VideoProcessor()
-changes = processor.detect_changes(
-    video_path="drone_footage.mp4",
-    reference_frame="reference.jpg"
-)
-```
-
-## 🧪 Sistema de Testing Empresarial
-
-### 📊 Cobertura de Tests
-
-**Calidad Empresarial: 95.3% de Éxito**
-
-| Módulo | Tests | Éxito | Cobertura |
-|--------|-------|-------|-----------|
-| 🥇 GeoService | 31 | 100.0% | Completa |
-| 🥈 DroneService | 32 | 96.9% | Excelente |
-| 🥉 MissionService | 29 | 96.6% | Excelente |
-| 🔬 AnalysisService | 15 | 80.0% | Buena |
-| **Total** | **107** | **95.3%** | **Enterprise** |
-
-### 🚀 Comandos de Testing
+## Testing
 
 ```bash
-# Sistema completo de testing
-docker-compose exec drone-geo-app python tests/services_test/run_services_tests.py
+# Full test suite (107 tests)
+python tests/services_test/run_services_tests.py
 
-# Tests por servicio individual
-docker-compose exec drone-geo-app python tests/services_test/run_services_tests.py geo_service
-docker-compose exec drone-geo-app python tests/services_test/run_services_tests.py drone_service
-docker-compose exec drone-geo-app python tests/services_test/run_services_tests.py mission_service
-docker-compose exec drone-geo-app python tests/services_test/run_services_tests.py analysis_service
-
-# Tests de otros módulos
-docker-compose exec drone-geo-app python tests/controllers_test/run_controllers_tests.py
-docker-compose exec drone-geo-app python tests/drones_test/run_drones_tests.py
-docker-compose exec drone-geo-app python tests/geo_test/run_geo_tests.py
-docker-compose exec drone-geo-app python tests/models_test/run_models_tests.py
-docker-compose exec drone-geo-app python tests/processors_test/run_processors_tests.py
+# Individual services
+python tests/services_test/run_services_tests.py geo_service
+python tests/services_test/run_services_tests.py drone_service
+python tests/services_test/run_services_tests.py mission_service
 ```
 
-## 🔒 Ventajas del Sistema
+| Module | Tests | Success |
+|--------|-------|---------|
+| GeoService | 31 | 100% |
+| DroneService | 32 | 96.9% |
+| MissionService | 29 | 96.6% |
+| AnalysisService | 15 | 80% |
+| **Total** | **107** | **95.3%** |
 
-- **🔒 Privacidad Total**: Los datos nunca salen de tu infraestructura
-- **💰 Sin Costos por Token**: Uso ilimitado con modelos locales
-- **⚡ Baja Latencia**: Sin llamadas a APIs externas
-- **🛠️ Personalizable**: Modelos específicos para tu dominio
-- **📡 Funciona Offline**: Operación completamente autónoma
-- **🏢 Grado Empresarial**: Testing exhaustivo y arquitectura robusta
+## License
 
-## 📁 Estructura de Archivos
+Copyright (c) 2025-2026 Adrian Infantes Romero. **All rights reserved.**
 
-```
-drone-geo-analysis/
-├── 📱 src/                    # Código fuente principal
-│   ├── app.py                 # Aplicación Flask principal
-│   ├── drones/                # Módulo de control de drones
-│   ├── geo/                   # Módulo de análisis geográfico
-│   ├── models/                # Modelos de análisis
-│   ├── processors/            # Procesadores de datos
-│   ├── services/              # Servicios empresariales
-│   ├── templates/             # Templates web
-│   └── utils/                 # Utilidades del sistema
-├── 🧪 tests/                  # Sistema de testing completo
-│   ├── services_test/         # Tests de servicios (107 tests)
-│   ├── controllers_test/      # Tests de controladores
-│   ├── drones_test/           # Tests de drones
-│   ├── geo_test/              # Tests geográficos
-│   ├── models_test/           # Tests de modelos
-│   └── processors_test/       # Tests de procesadores
-├── 📊 results/                # Resultados de análisis
-├── 🗺️ cartography/            # Archivos cartográficos GeoJSON
-├── 🎯 missions/               # Misiones guardadas
-├── 📚 docs/                   # Documentación técnica
-├── 🐳 docker-compose.yml      # Configuración Docker
-├── 🐳 Dockerfile              # Imagen Docker
-└── 📋 requirements.txt        # Dependencias Python
-```
-
-## 🎯 Casos de Uso
-
-### 🛡️ Seguridad y Vigilancia
-- Patrullaje autónomo de perímetros
-- Detección de intrusos y actividades sospechosas
-- Análisis de cambios en infraestructura crítica
-
-### 🌍 Análisis Geográfico
-- Mapeo de territorios y reconocimiento
-- Análisis de cambios temporales en paisajes
-- Identificación de ubicaciones por características visuales
-
-### 🔍 Inteligencia y Reconocimiento
-- Misiones OSINT automatizadas
-- Análisis de imágenes para geolocalización
-- Correlación de datos geográficos múltiples
-
-### 🏢 Operaciones Empresariales
-- Inspección de infraestructura
-- Monitoreo de activos remotos
-- Análisis de riesgos geográficos
-
-## 🛠️ Desarrollo y Contribución
-
-### Arquitectura Modular
-El sistema sigue principios de **Single Responsibility** y **Clean Architecture**:
-
-- **Separación de responsabilidades** por módulos
-- **Interfaces claras** entre componentes
-- **Testing exhaustivo** con >95% de cobertura
-- **Documentación completa** de cada módulo
-
-### Estándares de Código
-- **PEP 8** estricto para Python
-- **Type hints** en todas las funciones
-- **Docstrings** completas para documentación
-- **Error handling** robusto en todos los módulos
-
-## 📞 Soporte y Documentación
-
-### Documentación Técnica
-- `docs/MODULO_DRONES.md` - Documentación del módulo de drones
-- `docs/MODULO_GEO.md` - Documentación del módulo geográfico
-- `docs/MODULO_MODELS.md` - Documentación de modelos
-- `docs/MODULO_PROCESSORS.md` - Documentación de procesadores
-
-### Logs y Debugging
-- Logs detallados en `logs/`
-- Resultados de análisis en `results/`
-- Misiones guardadas en `missions/`
-
-## ⚖️ Uso Responsable
-
-Este sistema está diseñado para **uso legítimo en operaciones de inteligencia, vigilancia y reconocimiento**. Utilice esta tecnología de manera **ética y legal**, respetando la privacidad, las regulaciones de aviación civil y las leyes aplicables en su jurisdicción.
-
-## 🏆 Logros del Sistema
-
-- **107 tests automatizados** con 95.3% de éxito
-- **Arquitectura empresarial** con 8 módulos principales
-- **Soporte multi-LLM** (Local + OpenAI)
-- **Procesamiento en tiempo real** de video y telemetría
-- **Interfaz web moderna** con control intuitivo
-- **Operación offline completa** con modelos locales
+This software is proprietary. See [LICENSE](LICENSE) for full terms.
 
 ---
 
-**Drone Geo Analysis** - *Sistema Avanzado de Análisis Geográfico con Drones*  
-*Enterprise-Grade Geographical Analysis & Autonomous Drone Operations*
+Built by [Adrian Infantes](https://github.com/infantesromeroadrian)

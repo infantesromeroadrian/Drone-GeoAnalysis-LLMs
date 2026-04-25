@@ -266,6 +266,142 @@ def test_store_drops_oversized_encoded_image(store: ChatSessionStore, caplog) ->
     assert any("exceeds" in record.message for record in caplog.records)
 
 
+def test_cleanup_expired_rejects_negative_ttl(tmp_path) -> None:
+    """``cleanup_expired`` must reject negative TTL to prevent accidental wipe.
+
+    With ``ttl_hours=-1`` the cutoff arithmetic ``now - (-1) * 3600`` resolves
+    to a timestamp in the future, so ``DELETE WHERE updated_at < cutoff``
+    matches every row. The guard raises ``ValueError`` before that branch
+    executes — defense in depth against caller bugs even when upstream
+    config validation should have caught the negative value first.
+    """
+    db_path = tmp_path / "ttl_neg.db"
+    store = ChatSessionStore(db_path=str(db_path))
+    try:
+        # Seed a row so a missing guard would manifest as a deletion count
+        # > 0 rather than an empty-table no-op.
+        store.store("victim", image_filename="v.jpg", chat_history=[])
+
+        with pytest.raises(ValueError, match="ttl_hours"):
+            store.cleanup_expired(-1.0)
+
+        # Row must still be present — the guard short-circuits before any
+        # SQL runs.
+        assert store.get("victim") is not None
+
+        # ``ttl_hours == 0`` is allowed (delete everything older than now);
+        # only strictly negative values are rejected.
+        store.cleanup_expired(0.0)
+    finally:
+        store.close()
+
+
+def test_sanitize_floats_handles_numpy_and_decimal(tmp_path) -> None:
+    """``_sanitize_floats`` must reject non-finite numpy floats and Decimal NaN.
+
+    Upstream callers (e.g. ``yolo_result_formatter``) coerce known numeric
+    fields to Python ``float`` before they reach the store, but the
+    sanitiser is the last line of defense before ``json.dumps(allow_nan=False)``
+    rejects the payload. Coverage must include numpy scalars, Decimals,
+    and any object exposing ``__float__`` — not only the ``float`` type
+    that the original implementation matched against ``isinstance``.
+    """
+    sanitize = _store_module.ChatSessionStore._sanitize_floats
+    import math as _math
+    from decimal import Decimal
+
+    # Python float baseline.
+    assert sanitize(float("nan")) is None
+    assert sanitize(float("inf")) is None
+    assert sanitize(float("-inf")) is None
+    assert sanitize(1.5) == 1.5
+    assert sanitize(0.0) == 0.0
+
+    # ``bool`` must be preserved as-is (subclass of int but never non-finite).
+    assert sanitize(True) is True
+    assert sanitize(False) is False
+
+    # ``int`` is finite — the sanitiser returns it unchanged.
+    assert sanitize(0) == 0
+    assert sanitize(42) == 42
+
+    # Numpy floats — only test if numpy is available (the store itself
+    # has no hard numpy dependency, so guard on ImportError).
+    try:
+        import numpy as np
+    except ImportError:
+        np = None  # type: ignore[assignment]
+
+    if np is not None:
+        assert sanitize(np.float32("nan")) is None
+        assert sanitize(np.float64("inf")) is None
+        assert sanitize(np.float16("nan")) is None
+        assert sanitize(np.float64("-inf")) is None
+        # Finite numpy floats are preserved (type may or may not be
+        # narrowed; the contract is "non-finite → None, otherwise round-trip").
+        finite = sanitize(np.float32(2.5))
+        assert finite is not None
+        assert _math.isfinite(float(finite))
+
+    # ``decimal.Decimal`` — covers the analytics-pipeline case where
+    # arbitrary-precision arithmetic produces NaN/Infinity sentinels.
+    assert sanitize(Decimal("NaN")) is None
+    assert sanitize(Decimal("Infinity")) is None
+    assert sanitize(Decimal("-Infinity")) is None
+    assert sanitize(Decimal("3.14")) is not None
+
+    # Nested structures — the recursive contract must hold across dict,
+    # list and tuple branches.
+    nested = {
+        "a": float("nan"),
+        "b": [1.0, float("inf"), 3.0],
+        "c": (float("-inf"), 2.0),
+        "d": {"deep": float("nan"), "ok": 7.5},
+    }
+    cleaned = sanitize(nested)
+    assert cleaned["a"] is None
+    assert cleaned["b"][0] == 1.0
+    assert cleaned["b"][1] is None
+    assert cleaned["b"][2] == 3.0
+    # Tuple is normalised to list per the existing sanitisation contract.
+    assert isinstance(cleaned["c"], list)
+    assert cleaned["c"][0] is None
+    assert cleaned["c"][1] == 2.0
+    assert cleaned["d"]["deep"] is None
+    assert cleaned["d"]["ok"] == 7.5
+
+    # Strings are not numeric and must pass through untouched even if their
+    # textual content looks like ``"nan"``.
+    assert sanitize("nan") == "nan"
+    assert sanitize("inf") == "inf"
+
+    # Integration: a payload containing only sanitised non-finite Python
+    # floats round-trips cleanly through ``store`` (json.dumps with
+    # allow_nan=False). Decimal/numpy serialisability is intentionally out
+    # of scope for this ticket — upstream callers coerce to Python float.
+    store = ChatSessionStore(db_path=str(tmp_path / "sanitize_int.db"))
+    try:
+        payload = {
+            "score": float("nan"),  # will be sanitised to None
+            "loss": 0.01,
+            "nested": {"deep": float("inf")},  # also sanitised
+        }
+        store.store(
+            "san-1",
+            image_filename="x.jpg",
+            geographic_analysis=payload,
+            yolo_detection={},
+        )
+        fetched = store.get("san-1")
+        assert fetched is not None
+        ga = fetched["geographic_analysis"]
+        assert ga["score"] is None
+        assert ga["loss"] == 0.01
+        assert ga["nested"]["deep"] is None
+    finally:
+        store.close()
+
+
 def test_concurrent_append_same_session(tmp_path) -> None:
     """Caller-level read-modify-write race on the SAME ``session_id``.
 
@@ -340,17 +476,59 @@ def test_concurrent_append_same_session(tmp_path) -> None:
             for msg in final_history
         ), f"Corrupted entries in history: {final_history!r}"
 
-        # Guarantee 2: at least one append survived. With caller-level
-        # serialisation the answer would be exactly ``n_threads``; without
-        # it, lost messages are accepted as documented.
-        assert 1 <= len(final_history) <= n_threads
+        # Guarantee 2: hard bounds. At least one append must survive — zero
+        # survivors signals BEGIN IMMEDIATE atomicity is broken (the write
+        # lock should serialise at minimum the *last* writer's commit). Cap
+        # at ``n_threads`` to catch the inverse pathology (duplicate writes,
+        # leaked state across tests).
+        assert len(final_history) >= 1, (
+            f"Full data loss: 0/{n_threads} writes survived. BEGIN IMMEDIATE "
+            f"is broken or the write lock is not serialising correctly."
+        )
+        assert len(final_history) <= n_threads, (
+            f"More entries than threads ({len(final_history)} > {n_threads}); "
+            f"either a duplicate write slipped in or the test setup leaked."
+        )
+
+        # Guarantee 3: empirical regression band — diagnostic only.
+        #
+        # The race is documented at the caller level (ChatService must
+        # serialise per ``session_id`` externally — see T9-future). The
+        # per-row write uses BEGIN IMMEDIATE under ``_write_lock``, so the
+        # failure mode here is read-then-write overwrite, NOT corruption.
+        #
+        # Empirical observations across 3 runs on the engineering machine:
+        # ``n_threads=20`` → 2/20, 4/20, 4/20 survivors. The variance is
+        # driven by how the OS scheduler interleaves the 20 reads vs the
+        # 20 lock acquisitions; without caller-level serialisation the
+        # *deterministic* lower bound is 1 (the last writer always wins).
+        #
+        # We therefore CANNOT assert a tight survivor count without flake
+        # — anything > 2 has been observed to fail in the wild. Instead,
+        # we surface a diagnostic when survivors drop below ``n_threads // 4``
+        # (=5) so a regression in BEGIN IMMEDIATE shows up in the test
+        # output without breaking CI. Closing this assertion-vs-flake
+        # tension requires fixing the caller-level race (T9-future); only
+        # then can we tighten to a strict survivor count.
+        soft_threshold = max(1, n_threads // 4)
+        regression_warning = (
+            len(final_history) < soft_threshold
+        )
 
         # Diagnostic: visible under ``pytest -v -s``. Quantifies the race
         # in this run so a future caller-level fix can verify it closes
-        # the gap.
+        # the gap. The regression-warning suffix flags runs below the soft
+        # threshold (``n_threads // 4``) as a signal to investigate without
+        # failing CI.
+        suffix = (
+            f" [REGRESSION-WATCH: below soft threshold of {soft_threshold}]"
+            if regression_warning
+            else ""
+        )
         print(
             f"\n[T8] Final history len: {len(final_history)}/{n_threads} appends. "
             f"Lost: {n_threads - len(final_history)} (caller-level race, documented)."
+            f"{suffix}"
         )
     finally:
         store.close()

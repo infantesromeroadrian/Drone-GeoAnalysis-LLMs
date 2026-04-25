@@ -160,25 +160,65 @@ class ChatSessionStore:
     # ------------------------------------------------------------------
     @staticmethod
     def _sanitize_floats(obj: Any) -> Any:
-        """Recursively replace NaN/Inf/-Inf with ``None``.
+        """Recursively replace non-finite numerics (NaN/Inf/-Inf) with ``None``.
 
         RFC 8259 forbids non-finite float literals in JSON. Python's
         ``json.dumps`` accepts them by default (emitting ``NaN``,
         ``Infinity``) which produces output that strict parsers (browsers,
         most third-party libraries) refuse to load. LLM-emitted payloads
-        occasionally contain non-finite floats — sanitising to ``None``
-        keeps the round-trip safe at the cost of losing the offending
-        value, which is preferable to a corrupted column.
+        and downstream numeric pipelines occasionally contain non-finite
+        floats — sanitising to ``None`` keeps the round-trip safe at the
+        cost of losing the offending value, which is preferable to a
+        corrupted column.
+
+        Coverage:
+            - Python ``float`` (NaN, +Inf, -Inf) → ``None``.
+            - Numpy floats (``np.float16``, ``np.float32``, ``np.float64``,
+              and any ``np.floating`` subclass) when non-finite → ``None``.
+              Note: ``np.float32`` is a subclass of ``float`` only on some
+              platforms; we route through ``__float__`` coercion to be
+              robust to that variability.
+            - ``decimal.Decimal('NaN')`` / ``Decimal('Infinity')`` → ``None``.
+            - Any object exposing ``__float__`` whose coerced value is
+              non-finite → ``None``.
+            - ``bool`` is excluded explicitly: ``True``/``False`` are
+              ``int`` subclasses but never non-finite, and silently
+              coercing them via ``float()`` would obscure type intent.
+
+        Defense in depth: callers in this codebase already coerce known
+        numeric fields to ``float`` upstream (see ``yolo_result_formatter``).
+        This guard catches anything they miss before it reaches
+        ``json.dumps(allow_nan=False)``.
         """
-        if isinstance(obj, float):
-            if not math.isfinite(obj):
-                return None
+        # ``bool`` is a subclass of ``int`` — exclude it before the numeric
+        # branch so that ``isinstance(True, int)`` doesn't drag booleans
+        # into the float coercion path.
+        if isinstance(obj, bool):
             return obj
+        # Detect numeric-like inputs via duck typing on ``__float__``. This
+        # covers Python int/float, numpy scalars, Decimal, fractions, and
+        # any third-party numeric type. ``str`` defines ``__float__`` only
+        # transitively (via ``float(str)``) but does NOT have ``__float__``
+        # as an attribute, so strings are not swept up here.
+        if isinstance(obj, (int, float)) or hasattr(obj, "__float__"):
+            try:
+                f = float(obj)
+            except (TypeError, ValueError, OverflowError):
+                # Not coercible to a finite float (e.g. some custom types
+                # raise on overflow). Fall through to the container
+                # branches; if it isn't a container either, return as-is.
+                pass
+            else:
+                if not math.isfinite(f):
+                    return None
+                # Preserve the original object so downstream code keeps
+                # the exact numeric type (e.g. ``Decimal`` precision,
+                # ``np.float32`` width). The non-finite check is the only
+                # mutation we make.
+                return obj
         if isinstance(obj, dict):
             return {k: ChatSessionStore._sanitize_floats(v) for k, v in obj.items()}
-        if isinstance(obj, list):
-            return [ChatSessionStore._sanitize_floats(v) for v in obj]
-        if isinstance(obj, tuple):
+        if isinstance(obj, (list, tuple)):
             # Tuples round-trip through JSON as lists anyway; preserve the
             # sanitisation contract without changing the semantic shape.
             return [ChatSessionStore._sanitize_floats(v) for v in obj]
@@ -376,11 +416,22 @@ class ChatSessionStore:
 
         Args:
             ttl_hours: Inactivity threshold in hours. Sessions with
-                updated_at < (now - ttl_hours) are deleted.
+                updated_at < (now - ttl_hours) are deleted. Must be
+                non-negative; a negative value would invert the cutoff
+                arithmetic (cutoff > now) and wipe every active session.
 
         Returns:
             Number of sessions deleted.
+
+        Raises:
+            ValueError: If ``ttl_hours`` is negative. Defense in depth
+                against caller bugs that would otherwise cause silent
+                mass deletion.
         """
+        if ttl_hours < 0:
+            raise ValueError(
+                f"ttl_hours must be >= 0, got {ttl_hours}"
+            )
         cutoff = time.time() - ttl_hours * 3600.0
         with self._write_lock:
             conn = self._connection()

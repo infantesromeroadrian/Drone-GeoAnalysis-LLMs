@@ -271,6 +271,120 @@ class TestAnalysisService(unittest.TestCase):
                             f"Expected results dir, got: {call_args[0]}")
 
         print("✓ test_serve_result_file: EXITOSO")
+
+    def test_serve_result_file_rejects_parent_dir_traversal(self):
+        """Path traversal payload using '..' must be rejected with 404."""
+        from werkzeug.exceptions import NotFound
+
+        app = flask.Flask(__name__)
+        with patch('src.services.analysis_service.send_from_directory') as mock_send:
+            with app.app_context():
+                with self.assertRaises(NotFound):
+                    self.service.serve_result_file('../../etc/passwd')
+            mock_send.assert_not_called()
+
+    def test_serve_result_file_rejects_absolute_path(self):
+        """Absolute paths starting with '/' must be rejected with 404."""
+        from werkzeug.exceptions import NotFound
+
+        app = flask.Flask(__name__)
+        with patch('src.services.analysis_service.send_from_directory') as mock_send:
+            with app.app_context():
+                with self.assertRaises(NotFound):
+                    self.service.serve_result_file('/etc/passwd')
+            mock_send.assert_not_called()
+
+    def test_serve_result_file_rejects_backslash_traversal(self):
+        """Backslash-prefixed paths (Windows-style) must be rejected with 404."""
+        from werkzeug.exceptions import NotFound
+
+        app = flask.Flask(__name__)
+        with patch('src.services.analysis_service.send_from_directory') as mock_send:
+            with app.app_context():
+                with self.assertRaises(NotFound):
+                    self.service.serve_result_file('\\windows\\system32\\config')
+            mock_send.assert_not_called()
+
+    def test_serve_result_file_rejects_null_byte(self):
+        """Null-byte injection must be rejected with 404."""
+        from werkzeug.exceptions import NotFound
+
+        app = flask.Flask(__name__)
+        with patch('src.services.analysis_service.send_from_directory') as mock_send:
+            with app.app_context():
+                with self.assertRaises(NotFound):
+                    self.service.serve_result_file('result.json\x00.png')
+            mock_send.assert_not_called()
+
+    def test_serve_result_file_rejects_empty_filename(self):
+        """Empty filename must be rejected with 404."""
+        from werkzeug.exceptions import NotFound
+
+        app = flask.Flask(__name__)
+        with patch('src.services.analysis_service.send_from_directory') as mock_send:
+            with app.app_context():
+                with self.assertRaises(NotFound):
+                    self.service.serve_result_file('')
+            mock_send.assert_not_called()
+
+    def test_serve_result_file_symlink_escape(self):
+        """Regression: symlink inside results_dir pointing OUTSIDE must 404.
+
+        An attacker with FS write to results/ could plant a symlink (e.g.
+        results/evil.json -> /etc/passwd). os.path.abspath() does NOT resolve
+        symlinks, so the gate-3 anchoring check would have let this through.
+        The fix uses os.path.realpath() to resolve symlinks and reject any
+        file whose true target escapes results_dir.
+        """
+        from werkzeug.exceptions import NotFound
+
+        # Compute the real results_dir the service uses (derived from its
+        # own __file__) so the symlink we plant is exactly in that folder.
+        from src.services import analysis_service as svc_module
+        results_dir = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.dirname(
+                os.path.abspath(svc_module.__file__)
+            ))),
+            "results",
+        )
+        os.makedirs(results_dir, exist_ok=True)
+
+        # Create a target file OUTSIDE results_dir using a tmpdir.
+        outside_dir = tempfile.mkdtemp(prefix="symlink_target_")
+        outside_target = os.path.join(outside_dir, "secret.txt")
+        with open(outside_target, "w", encoding="utf-8") as fh:
+            fh.write("CONFIDENTIAL")
+
+        # Plant a symlink inside results_dir pointing to the outside file.
+        symlink_name = "regression_symlink_escape.json"
+        symlink_path = os.path.join(results_dir, symlink_name)
+        # Ensure clean state in case of leftover from a previous run.
+        if os.path.lexists(symlink_path):
+            os.remove(symlink_path)
+
+        try:
+            os.symlink(outside_target, symlink_path)
+        except (OSError, NotImplementedError) as exc:
+            # Some filesystems (e.g. exFAT, certain CI envs without privileges)
+            # do not support symlinks. Skip rather than false-positive.
+            self.skipTest(f"Filesystem does not support symlinks: {exc}")
+
+        try:
+            app = flask.Flask(__name__)
+            with patch('src.services.analysis_service.send_from_directory') as mock_send:
+                with app.app_context():
+                    with self.assertRaises(NotFound):
+                        self.service.serve_result_file(symlink_name)
+                # Critical: the file must NEVER reach send_from_directory.
+                mock_send.assert_not_called()
+        finally:
+            # Cleanup symlink + outside fixture regardless of test outcome.
+            if os.path.lexists(symlink_path):
+                os.remove(symlink_path)
+            if os.path.exists(outside_target):
+                os.remove(outside_target)
+            if os.path.isdir(outside_dir):
+                os.rmdir(outside_dir)
     
     def test_get_analysis_status(self):
         """Test: Obtener estado de análisis."""

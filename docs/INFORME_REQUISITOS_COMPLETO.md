@@ -347,28 +347,25 @@ Este informe documenta **TODOS** los requisitos solicitados durante el desarroll
 
 #### **REQ-038: Página Principal Moderna**
 - **Estado:** ✅ **COMPLETADO**
-- **Implementación:** `src/templates/index.html` (989 líneas)
+- **Implementación:** `src/templates/dashboard.html` (funcionalidad integrada)
 - **Características:**
   - Diseño empresarial con gradientes
   - Cards de características animadas
   - Navegación fluida entre secciones
   - Responsive design completo
+  - *Nota histórica: Refactorizado desde `index.html` legacy en commit 0d4fa87*
 
 #### **REQ-039: Panel de Control de Drones**
 - **Estado:** ✅ **COMPLETADO** 
-- **Implementación:** `src/templates/drone_control.html` (3860 líneas) - **CRÍTICO**
+- **Implementación:** `src/templates/dashboard.html` (funcionalidad integrada) - **CRÍTICO**
 - **Módulos implementados:**
 
 ##### **REQ-039a: Sistema de Telemetría Avanzado**
-```javascript
-updateTelemetryDisplay(telemetry) {
-    // Batería con indicador visual y colores
-    // Altitud con gráfico de tiempo real
-    // Velocidad con gauge circular animado
-    // GPS con precisión y coordenadas
-    // Señal con barras animadas
-}
-```
+- Batería con indicador visual y colores
+- Altitud con gráfico de tiempo real
+- Velocidad con gauge circular animado
+- GPS con precisión y coordenadas
+- Señal con barras animadas
 
 ##### **REQ-039b: Mapa Interactivo 3D**
 - Dron animado con efectos hover y rotación
@@ -378,14 +375,10 @@ updateTelemetryDisplay(telemetry) {
 - Zoom y pan fluidos
 
 ##### **REQ-039c: Control de Misiones LLM**
-```javascript
-function startLLMMission(missionId) {
-    const missionData = getLLMMissionById(missionId);
-    startLLMSimulation(missionData);
-    // Animación automática de ruta
-    // Progreso visual en tiempo real
-}
-```
+- Creación de misiones con lenguaje natural
+- Animación automática de rutas
+- Progreso visual en tiempo real
+- Detección automática de misiones LLM vs tradicionales
 
 ##### **REQ-039d: Upload de Cartografía**
 - Drag & drop para archivos GeoJSON
@@ -393,23 +386,27 @@ function startLLMMission(missionId) {
 - Visualización inmediata en mapa
 - Gestión de áreas cargadas
 
+*Nota histórica: Refactorizado desde `drone_control.html` legacy (3860 líneas) en commit 0d4fa87*
+
 #### **REQ-040: Interfaz de Análisis Rápido**
 - **Estado:** ✅ **COMPLETADO**
-- **Implementación:** `src/templates/web_index.html` (856 líneas)
+- **Implementación:** `src/templates/dashboard.html` (modo análisis rápido)
 - **Características:**
   - Upload inmediato de imágenes
   - Resultados estructurados y legibles
   - Integración con panel completo
   - Diseño limpio y eficiente
+  - *Nota histórica: Refactorizado desde `web_index.html` legacy en commit 0d4fa87*
 
 #### **REQ-041: Documentación Interactiva**
 - **Estado:** ✅ **COMPLETADO**
-- **Implementación:** `src/templates/mission_instructions.html` (308 líneas)
+- **Implementación:** Documentación integrada en `src/templates/dashboard.html` y archivos `docs/`
 - **Contenido:**
   - Guía paso a paso para misiones LLM
   - Ejemplos de comandos naturales
   - Soluciones a problemas comunes
   - Enlaces a funcionalidades
+  - *Nota histórica: Refactorizado desde `mission_instructions.html` legacy en commit 0d4fa87*
 
 #### **REQ-042: Integración Leaflet.js**
 - **Estado:** ✅ **COMPLETADO**

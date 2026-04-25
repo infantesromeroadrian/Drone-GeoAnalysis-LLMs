@@ -40,10 +40,7 @@ src/
 │   ├── change_detector.py    # Detección de cambios (174 líneas)
 │   └── video_processor.py    # Procesamiento de video (198 líneas)
 ├── templates/                # Interfaces web profesionales
-│   ├── index.html           # Página principal (989 líneas)
-│   ├── drone_control.html   # Panel de control (3860 líneas)
-│   ├── web_index.html       # Análisis rápido (856 líneas)
-│   └── mission_instructions.html # Documentación (308 líneas)
+│   └── dashboard.html        # Panel de control unificado (refactorizado en commit 0d4fa87)
 └── utils/                    # Utilidades
     ├── config.py            # Configuración del sistema (83 líneas)
     └── helpers.py           # Funciones auxiliares (194 líneas)
@@ -197,64 +194,34 @@ src/
 
 ### FASE 7: Interfaces Web Profesionales (Semanas 13-16)
 
-#### 7.1 Página Principal
-- **Archivo:** `src/templates/index.html`
-- **Diseño:** Landing page empresarial
-- **Características:**
-  - Gradientes animados
-  - Cards de características
-  - Upload drag & drop
-  - Navegación fluida
+#### 7.1 Interfaces Web Unificadas
+- **Archivo:** `src/templates/dashboard.html`
+- **Tecnología:** Leaflet Maps + Mapbox Satellite Tiles + WebSockets
+- **Funcionalidad integrada:**
 
-#### 7.2 Panel de Control Principal
-- **Archivo:** `src/templates/drone_control.html` (3860 líneas)
-- **Tecnología:** Leaflet Maps + WebRTC + WebSockets simulados
-- **Módulos implementados:**
+##### 7.1.1 Página Principal
+- Gradientes animados
+- Cards de características
+- Upload drag & drop
+- Navegación fluida
 
-##### 7.2.1 Sistema de Telemetría Avanzado
-```javascript
-// Telemetría en tiempo real con gráficos
-updateTelemetryDisplay(telemetry) {
-    // Batería con indicador visual
-    // Altitud con gráfico de tiempo real
-    // Velocidad con gauge circular
-    // GPS con precisión
-    // Señal con barras animadas
-}
-```
+##### 7.1.2 Panel de Control Principal
+- Sistema de Telemetría Avanzado (batería, altitud, velocidad, GPS, señal)
+- Control de Misiones LLM (creación con lenguaje natural, detección automática)
+- Mapa Interactivo 3D (dron animado, rutas, waypoints, estela de vuelo)
+- Upload de Cartografía (GeoJSON, validación frontend, visualización inmediata)
 
-##### 7.2.2 Control de Misiones LLM
-```javascript
-// Sistema unificado de misiones
-function startLLMMission(missionId) {
-    const missionData = getLLMMissionById(missionId);
-    startLLMSimulation(missionData);
-    // Animación de ruta en mapa
-    // Progreso visual en tiempo real
-}
-```
+##### 7.1.3 Análisis Rápido
+- Interfaz simplificada para análisis de imagen única
+- Upload inmediato, resultados estructurados
+- Diseño responsive, integración con panel completo
 
-##### 7.2.3 Mapa Interactivo 3D
-- **Dron animado:** Efectos de hover, rotación, propellers
-- **Rutas de vuelo:** Líneas animadas con dash-array
-- **Waypoints:** Marcadores pulsantes con tooltips
-- **Estela de vuelo:** Trail temporal del dron
+##### 7.1.4 Documentación Interactiva
+- Guía paso a paso para misiones LLM
+- Ejemplos de comandos naturales
+- Soluciones a problemas comunes
 
-#### 7.3 Análisis Rápido
-- **Archivo:** `src/templates/web_index.html`
-- **Propósito:** Interfaz simplificada para análisis único
-- **Características:**
-  - Upload inmediato
-  - Resultados estructurados
-  - Diseño responsive
-  - Integración con panel completo
-
-#### 7.4 Documentación Interactiva
-- **Archivo:** `src/templates/mission_instructions.html`
-- **Contenido:** Guía paso a paso para misiones LLM
-- **Soluciones documentadas:**
-  - Problema: Botón "Iniciar Misión" no funcionaba
-  - Solución: Sistema unificado de detección LLM/tradicional
+*Nota histórica: Las versiones previas (`index.html`, `drone_control.html`, `web_index.html`, `mission_instructions.html`) fueron consolidadas en una única interfaz unificada en commit 0d4fa87. Esta refactorización redujo complejidad y mejoró mantenibilidad.*
 
 ### FASE 8: Aplicación Flask Unificada (Semanas 17-18)
 

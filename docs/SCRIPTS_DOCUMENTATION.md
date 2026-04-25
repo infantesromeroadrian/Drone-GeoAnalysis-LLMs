@@ -83,7 +83,7 @@ Los controladores implementan **Flask Blueprints** para manejar rutas HTTP espec
 #### 🔗 Relaciones:
 - **Usa**: `DroneService` para lógica de negocio
 - **Conectado a**: `src/drones/` para hardware de drones
-- **Frontend**: Panel de control en `templates/drone_control.html`
+- **Frontend**: Panel de control en `templates/dashboard.html`
 
 #### ⚙️ Características:
 - Validación de altitud (máximo 120m por regulaciones)
@@ -540,58 +540,27 @@ Los servicios implementan la **lógica de negocio** principal y actúan como int
 
 ## 📁 `/src/templates/` - Interfaces Web
 
-### 📄 `drone_control.html`
+### 📄 `dashboard.html`
 
-**Propósito**: Panel de control principal completo para operaciones de drones.
+**Propósito**: Panel de control unificado para todas las operaciones del sistema.
 
-#### 🎯 Funcionalidad:
+#### 🎯 Funcionalidad (Consolidada):
 - **Control de Drones**: Interfaz completa para operaciones de vuelo
 - **Misiones LLM**: Creación de misiones con lenguaje natural
 - **Geolocalización**: Tools de triangulación y correlación
 - **Análisis Visual**: Upload y procesamiento de imágenes
 - **Simulación**: Testing de rutas de vuelo
+- **Landing Page**: Overview de capacidades del sistema
+- **Análisis Rápido**: Upload simplificado para análisis de imagen única
+- **Documentación**: Guía paso a paso y solución de problemas
 
 #### 🔗 Características Frontend:
-- **Mapa Interactivo**: Leaflet.js para visualización geográfica
+- **Mapa Interactivo**: Leaflet.js + Mapbox Satellite Tiles para visualización geográfica
 - **Telemetría 3D**: Indicadores visuales avanzados (dron 3D, brújula, gauges)
 - **Real-time**: Actualización de datos en tiempo real
 - **Responsive**: Adaptativo para diferentes dispositivos
 
----
-
-### 📄 `index.html`
-
-**Propósito**: Página principal del sistema con overview de capacidades.
-
-#### 🎯 Funcionalidad:
-- **Landing Page**: Presentación profesional del sistema
-- **Upload Básico**: Análisis rápido de imágenes
-- **Navegación**: Links a herramientas especializadas
-- **Demo**: Funcionalidad de prueba integrada
-
----
-
-### 📄 `mission_instructions.html`
-
-**Propósito**: Documentación y guía de uso para misiones LLM.
-
-#### 🎯 Funcionalidad:
-- **Tutorial Step-by-Step**: Guía completa de uso
-- **Solución de Problemas**: Debugging y troubleshooting
-- **Ejemplos**: Comandos de ejemplo para misiones
-- **Funciones Debug**: Tools para desarrolladores
-
----
-
-### 📄 `web_index.html`
-
-**Propósito**: Interfaz optimizada para análisis rápido de imágenes.
-
-#### 🎯 Funcionalidad:
-- **Upload Simplificado**: Drag & drop para imágenes
-- **Análisis Instantáneo**: Resultados inmediatos con IA
-- **Resultados Estructurados**: Presentación clara de datos
-- **Responsive**: Optimizado para uso móvil
+*Nota histórica: Las versiones previas (`index.html`, `drone_control.html`, `web_index.html`, `mission_instructions.html`) fueron consolidadas en esta interfaz unificada en commit 0d4fa87.*
 
 ---
 

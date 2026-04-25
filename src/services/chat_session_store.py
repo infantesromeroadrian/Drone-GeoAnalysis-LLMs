@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import json
 import logging
+import math
 import os
 import sqlite3
 import threading
@@ -104,11 +105,13 @@ class ChatSessionStore:
 
         # Initialise schema once via the bootstrap connection. The
         # connection is left for reuse by the calling thread.
+        # Note: ``executescript`` issues its own implicit COMMIT, so we
+        # do not wrap it in BEGIN IMMEDIATE — the index creation that
+        # follows is idempotent and benign in autocommit mode.
         with self._write_lock:
             conn = self._connection()
             conn.executescript(self._SCHEMA)
             conn.execute(self._INDEX)
-            conn.commit()
         logger.info("ChatSessionStore initialised at %s", self.db_path)
 
     # ------------------------------------------------------------------
@@ -150,12 +153,57 @@ class ChatSessionStore:
     # Helpers
     # ------------------------------------------------------------------
     @staticmethod
+    def _sanitize_floats(obj: Any) -> Any:
+        """Recursively replace NaN/Inf/-Inf with ``None``.
+
+        RFC 8259 forbids non-finite float literals in JSON. Python's
+        ``json.dumps`` accepts them by default (emitting ``NaN``,
+        ``Infinity``) which produces output that strict parsers (browsers,
+        most third-party libraries) refuse to load. LLM-emitted payloads
+        occasionally contain non-finite floats — sanitising to ``None``
+        keeps the round-trip safe at the cost of losing the offending
+        value, which is preferable to a corrupted column.
+        """
+        if isinstance(obj, float):
+            if not math.isfinite(obj):
+                return None
+            return obj
+        if isinstance(obj, dict):
+            return {k: ChatSessionStore._sanitize_floats(v) for k, v in obj.items()}
+        if isinstance(obj, list):
+            return [ChatSessionStore._sanitize_floats(v) for v in obj]
+        if isinstance(obj, tuple):
+            # Tuples round-trip through JSON as lists anyway; preserve the
+            # sanitisation contract without changing the semantic shape.
+            return [ChatSessionStore._sanitize_floats(v) for v in obj]
+        return obj
+
+    @staticmethod
     def _encode(field: str, value: Any) -> Any:
-        """Serialise ``value`` to TEXT if the column stores JSON."""
+        """Serialise ``value`` to TEXT if the column stores JSON.
+
+        Uses ``allow_nan=False`` to reject non-RFC8259 literals up front.
+        On ``ValueError`` the payload is recursively sanitised (non-finite
+        floats coerced to ``None``) and re-encoded. The sanitisation event
+        is logged so unexpected upstream values are diagnosable instead of
+        silently corrupting state.
+        """
         if value is None:
             return None
         if field in _JSON_FIELDS:
-            return json.dumps(value, ensure_ascii=False)
+            try:
+                return json.dumps(value, ensure_ascii=False, allow_nan=False)
+            except ValueError as exc:
+                logger.warning(
+                    "Non-finite float in field=%s, sanitising to None: %s",
+                    field,
+                    exc,
+                )
+                return json.dumps(
+                    ChatSessionStore._sanitize_floats(value),
+                    ensure_ascii=False,
+                    allow_nan=False,
+                )
         return value
 
     @staticmethod
@@ -216,37 +264,52 @@ class ChatSessionStore:
         now = time.time()
         encoded = {k: self._encode(k, v) for k, v in fields.items()}
 
+        # The connection runs in autocommit (``isolation_level=None``), so
+        # the SELECT+INSERT/UPDATE compound has no implicit transaction
+        # wrapping it. ``_write_lock`` already serialises writers within
+        # this process, but we still demarcate the work with
+        # ``BEGIN IMMEDIATE`` so that:
+        #   1. The SQLite write-lock is acquired up front (not lazily on
+        #      the first write), preventing a "SQLITE_BUSY" surprise from
+        #      external writers if the lock invariant is ever broken.
+        #   2. Both statements commit or rollback as one atomic unit at
+        #      the database level, not just at the Python lock level.
         with self._write_lock:
             conn = self._connection()
-            existing = conn.execute(
-                "SELECT 1 FROM chat_sessions WHERE session_id = ?",
-                (session_id,),
-            ).fetchone()
+            conn.execute("BEGIN IMMEDIATE")
+            try:
+                existing = conn.execute(
+                    "SELECT 1 FROM chat_sessions WHERE session_id = ?",
+                    (session_id,),
+                ).fetchone()
 
-            if existing is None:
-                # Build full INSERT, defaulting unspecified writable
-                # fields to NULL (or '[]' for chat_history via column
-                # default). Placeholders mirror the column order.
-                columns = ["session_id", "created_at", "updated_at"] + list(encoded.keys())
-                placeholders = ",".join("?" * len(columns))
-                values: list[Any] = [session_id, now, now] + list(encoded.values())
-                conn.execute(
-                    f"INSERT INTO chat_sessions ({','.join(columns)}) VALUES ({placeholders})",
-                    values,
-                )
-            else:
-                # Patch only the supplied fields plus updated_at. Avoid
-                # rewriting columns the caller did not mention.
-                set_clause = ", ".join(f"{name} = ?" for name in encoded.keys())
-                set_clause = (
-                    f"updated_at = ?{', ' + set_clause if set_clause else ''}"
-                )
-                values = [now] + list(encoded.values()) + [session_id]
-                conn.execute(
-                    f"UPDATE chat_sessions SET {set_clause} WHERE session_id = ?",
-                    values,
-                )
-            conn.commit()
+                if existing is None:
+                    # Build full INSERT, defaulting unspecified writable
+                    # fields to NULL (or '[]' for chat_history via column
+                    # default). Placeholders mirror the column order.
+                    columns = ["session_id", "created_at", "updated_at"] + list(encoded.keys())
+                    placeholders = ",".join("?" * len(columns))
+                    values: list[Any] = [session_id, now, now] + list(encoded.values())
+                    conn.execute(
+                        f"INSERT INTO chat_sessions ({','.join(columns)}) VALUES ({placeholders})",
+                        values,
+                    )
+                else:
+                    # Patch only the supplied fields plus updated_at. Avoid
+                    # rewriting columns the caller did not mention.
+                    set_clause = ", ".join(f"{name} = ?" for name in encoded.keys())
+                    set_clause = (
+                        f"updated_at = ?{', ' + set_clause if set_clause else ''}"
+                    )
+                    values = [now] + list(encoded.values()) + [session_id]
+                    conn.execute(
+                        f"UPDATE chat_sessions SET {set_clause} WHERE session_id = ?",
+                        values,
+                    )
+                conn.commit()
+            except Exception:
+                conn.rollback()
+                raise
         logger.debug("Session %s stored (fields=%s)", session_id, sorted(fields))
 
     def get(self, session_id: str) -> dict[str, Any] | None:
@@ -262,12 +325,17 @@ class ChatSessionStore:
         """Remove a session. Returns True if a row was deleted."""
         with self._write_lock:
             conn = self._connection()
-            cur = conn.execute(
-                "DELETE FROM chat_sessions WHERE session_id = ?",
-                (session_id,),
-            )
-            conn.commit()
-            return cur.rowcount > 0
+            conn.execute("BEGIN IMMEDIATE")
+            try:
+                cur = conn.execute(
+                    "DELETE FROM chat_sessions WHERE session_id = ?",
+                    (session_id,),
+                )
+                conn.commit()
+                return cur.rowcount > 0
+            except Exception:
+                conn.rollback()
+                raise
 
     def cleanup_expired(self, ttl_hours: float) -> int:
         """Delete sessions older than ``ttl_hours``.
@@ -277,12 +345,17 @@ class ChatSessionStore:
         cutoff = time.time() - ttl_hours * 3600.0
         with self._write_lock:
             conn = self._connection()
-            cur = conn.execute(
-                "DELETE FROM chat_sessions WHERE updated_at < ?",
-                (cutoff,),
-            )
-            conn.commit()
-            removed = cur.rowcount
+            conn.execute("BEGIN IMMEDIATE")
+            try:
+                cur = conn.execute(
+                    "DELETE FROM chat_sessions WHERE updated_at < ?",
+                    (cutoff,),
+                )
+                conn.commit()
+                removed = cur.rowcount
+            except Exception:
+                conn.rollback()
+                raise
         if removed:
             logger.info("Cleanup removed %d expired chat session(s)", removed)
         return removed
@@ -299,25 +372,31 @@ class ChatSessionStore:
 
         with self._write_lock:
             conn = self._connection()
-            total = conn.execute(
-                "SELECT COUNT(*) FROM chat_sessions"
-            ).fetchone()[0]
-            if total <= max_n:
-                return 0
-            to_remove = total - max_n
-            cur = conn.execute(
-                """
-                DELETE FROM chat_sessions
-                WHERE session_id IN (
-                    SELECT session_id FROM chat_sessions
-                    ORDER BY updated_at ASC
-                    LIMIT ?
+            conn.execute("BEGIN IMMEDIATE")
+            try:
+                total = conn.execute(
+                    "SELECT COUNT(*) FROM chat_sessions"
+                ).fetchone()[0]
+                if total <= max_n:
+                    conn.commit()
+                    return 0
+                to_remove = total - max_n
+                cur = conn.execute(
+                    """
+                    DELETE FROM chat_sessions
+                    WHERE session_id IN (
+                        SELECT session_id FROM chat_sessions
+                        ORDER BY updated_at ASC
+                        LIMIT ?
+                    )
+                    """,
+                    (to_remove,),
                 )
-                """,
-                (to_remove,),
-            )
-            conn.commit()
-            removed = cur.rowcount
+                conn.commit()
+                removed = cur.rowcount
+            except Exception:
+                conn.rollback()
+                raise
         logger.info("LRU enforcement removed %d session(s) (max=%d)", removed, max_n)
         return removed
 
@@ -332,8 +411,9 @@ class ChatSessionStore:
 
         Used for chat-history append flows where the caller has read
         the current list, mutated it, and wants to write it back. The
-        compound read-modify-write is the caller's responsibility; this
-        method only guarantees the write itself is atomic and bumps
+        compound read-modify-write at the *caller* level is the caller's
+        responsibility; this method only guarantees the write itself is
+        atomic at the database level (BEGIN IMMEDIATE + COMMIT) and bumps
         ``updated_at``.
 
         Returns ``True`` if a row was updated, ``False`` if the session
@@ -343,14 +423,25 @@ class ChatSessionStore:
             raise ValueError(f"Field {field!r} is not writable")
         encoded = self._encode(field, value)
         now = time.time()
+        # Single UPDATE is already atomic in SQLite, but we wrap it in an
+        # explicit transaction for two reasons: (1) consistency with the
+        # rest of the writer surface (``store``, ``cleanup_expired``,
+        # ``enforce_max_sessions``) so the invariant "every mutation goes
+        # through BEGIN IMMEDIATE under ``_write_lock``" holds for the
+        # whole class; (2) explicit rollback path on unexpected failures.
         with self._write_lock:
             conn = self._connection()
-            cur = conn.execute(
-                f"UPDATE chat_sessions SET {field} = ?, updated_at = ? WHERE session_id = ?",
-                (encoded, now, session_id),
-            )
-            conn.commit()
-            return cur.rowcount > 0
+            conn.execute("BEGIN IMMEDIATE")
+            try:
+                cur = conn.execute(
+                    f"UPDATE chat_sessions SET {field} = ?, updated_at = ? WHERE session_id = ?",
+                    (encoded, now, session_id),
+                )
+                conn.commit()
+                return cur.rowcount > 0
+            except Exception:
+                conn.rollback()
+                raise
 
     def __contains__(self, session_id: object) -> bool:
         """Allow ``session_id in store`` for ergonomic checks."""

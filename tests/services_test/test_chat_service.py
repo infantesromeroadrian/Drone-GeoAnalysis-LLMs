@@ -237,3 +237,93 @@ def test_concurrent_access_thread_safe(db_path: str) -> None:
             assert row["chat_history"][0]["question"] == f"q{i}"
     finally:
         store.close()
+
+
+def test_concurrent_append_same_session(tmp_path) -> None:
+    """Caller-level read-modify-write race on the SAME ``session_id``.
+
+    The previous concurrency test exercised DISTINCT session_ids, where
+    each writer touches its own row. The interesting failure mode that
+    test does NOT cover is the TOCTOU race that happens in real use
+    (e.g. user double-clicks "send"): two threads each execute
+
+        history = store.get(sid)["chat_history"]   # read length N
+        history.append(new_msg)
+        store.update_field(sid, "chat_history", history)  # write N+1
+
+    Without external serialisation per ``session_id`` at the caller, the
+    second writer overwrites the first: the final history has N+1
+    instead of N+2 messages. Individual ``store`` operations are atomic
+    (``BEGIN IMMEDIATE`` + UPDATE), but the read-then-write at the caller
+    is NOT — the store cannot, by API design, know that the two
+    ``update_field`` calls are logically dependent.
+
+    This test pins down the *current* behaviour:
+    - No corruption (every entry is well-formed JSON, parsable).
+    - No exceptions raised by any thread.
+    - Final history length is between 1 and N (lost messages allowed).
+
+    Lost messages are documented as caller responsibility; ``ChatService``
+    must serialise per-session_id externally if exact-once semantics are
+    required (e.g. a per-session lock, or a ticket: T9-future).
+    """
+    db_path = tmp_path / "race_test.db"
+    store = ChatSessionStore(db_path=str(db_path))
+
+    try:
+        # Seed a session with empty history.
+        store.store("shared_sid", image_filename="test.jpg", chat_history=[])
+
+        n_threads = 20
+        barrier = threading.Barrier(n_threads)
+        errors: list[BaseException] = []
+
+        def append_message(idx: int) -> None:
+            try:
+                barrier.wait(timeout=5.0)
+                current = store.get("shared_sid")
+                assert current is not None
+                history = list(current.get("chat_history") or [])
+                history.append({"q": f"Q{idx}", "a": f"A{idx}"})
+                store.update_field("shared_sid", "chat_history", history)
+            except BaseException as exc:  # noqa: BLE001
+                errors.append(exc)
+
+        threads = [
+            threading.Thread(target=append_message, args=(i,))
+            for i in range(n_threads)
+        ]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join(timeout=10.0)
+
+        assert not errors, f"Thread errors: {errors!r}"
+
+        final = store.get("shared_sid")
+        assert final is not None
+        final_history = final["chat_history"]
+
+        # Guarantee 1: no corruption. Every entry must be a well-formed
+        # dict with the keys we wrote — no partial JSON, no truncated
+        # values, no None entries.
+        assert isinstance(final_history, list)
+        assert all(
+            isinstance(msg, dict) and "q" in msg and "a" in msg
+            for msg in final_history
+        ), f"Corrupted entries in history: {final_history!r}"
+
+        # Guarantee 2: at least one append survived. With caller-level
+        # serialisation the answer would be exactly ``n_threads``; without
+        # it, lost messages are accepted as documented.
+        assert 1 <= len(final_history) <= n_threads
+
+        # Diagnostic: visible under ``pytest -v -s``. Quantifies the race
+        # in this run so a future caller-level fix can verify it closes
+        # the gap.
+        print(
+            f"\n[T8] Final history len: {len(final_history)}/{n_threads} appends. "
+            f"Lost: {n_threads - len(final_history)} (caller-level race, documented)."
+        )
+    finally:
+        store.close()

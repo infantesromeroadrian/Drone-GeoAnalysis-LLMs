@@ -1,6 +1,10 @@
 # Directorios de datos
 logs/
 results/
+# SQLite databases used by ChatSessionStore — persisted via volume mount, never baked into the image
+data/*.db
+data/*.db-shm
+data/*.db-wal
 
 # Archivos de entorno
 .env

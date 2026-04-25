@@ -23,10 +23,11 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-RUN useradd --create-home --shell /bin/bash appuser && \
+# Fixed UID 1000 to match typical host user, ensuring volume mount permissions work in CI
+RUN useradd --create-home --shell /bin/bash --uid 1000 appuser && \
     mkdir -p /home/appuser/.cache/ultralytics && \
     chown -R appuser:appuser /home/appuser/.cache && \
-    mkdir -p logs results missions && \
+    mkdir -p logs results missions data && \
     chown -R appuser:appuser /app
 
 ENV PYTHONPATH=/app

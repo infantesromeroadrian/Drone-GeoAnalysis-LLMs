@@ -15,7 +15,7 @@ class TestDJIDroneController:
         return DJIDroneController(simulation_mode=True)
 
     def test_init_without_simulation_raises(self):
-        """Default instantiation must fail loudly — see ADR-003."""
+        """Default instantiation must fail loudly -- see ADR-003."""
         with pytest.raises(NotImplementedError, match="DJI SDK"):
             DJIDroneController()
 
@@ -56,3 +56,15 @@ class TestDJIDroneController:
         drone.simulation_mode = False
         with pytest.raises(NotImplementedError):
             drone.connect()
+
+    def test_update_position_real_mode_raises(self, drone):
+        """update_position must respect _ensure_simulation guard like other public methods."""
+        drone.simulation_mode = False
+        with pytest.raises(NotImplementedError):
+            drone.update_position(40.0, -3.0)
+
+    def test_update_position_simulation_mode_succeeds(self, drone):
+        """In simulation mode, update_position mutates current_position without raising."""
+        drone.update_position(41.3851, 2.1734)
+        assert drone.current_position["latitude"] == 41.3851
+        assert drone.current_position["longitude"] == 2.1734

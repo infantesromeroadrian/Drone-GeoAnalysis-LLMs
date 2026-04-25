@@ -4,7 +4,7 @@
 Tests básicos para GeoCorrelator del proyecto Drone Geo Analysis.
 
 After ADR-002, the correlation pipeline is explicitly marked as
-NotImplemented. These tests assert the new (safe) behavior — no hardcoded
+NotImplemented. These tests assert the new (safe) behavior -- no hardcoded
 confidence values, no invented coordinate offsets.
 """
 

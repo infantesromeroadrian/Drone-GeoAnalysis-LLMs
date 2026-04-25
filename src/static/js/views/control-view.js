@@ -358,10 +358,25 @@ function setupGeoTab() {
  *
  * ADR-002 mandates this banner when backend returns error: "correlation_not_implemented".
  *
+ * Security: both inputs are treated as untrusted even though current callers
+ * pass static literals. Defense in depth for future backend-sourced data.
+ * - message rendered via textContent (browser escapes all HTML).
+ * - adrLink validated against allowlist; javascript:/data: URLs fall back to '#'.
+ * - DOM built with createElement + setAttribute; no innerHTML interpolation.
+ *
  * @param {string} message  - Human-readable explanation shown inside the banner.
  * @param {string} adrLink  - URL to the relevant ADR (opens in new tab).
  */
 function showStubBanner(message, adrLink) {
+    // Reject javascript: / data: URLs as defense in depth.
+    // Modern browsers block javascript: in href context, but data: URLs in
+    // <a target=_blank> can still execute in some configurations.
+    const safeUrlPattern = /^(https?:\/\/|\/|#)/i;
+    if (typeof adrLink !== 'string' || !safeUrlPattern.test(adrLink)) {
+        console.warn('showStubBanner: rejecting unsafe adrLink', adrLink);
+        adrLink = '#';  // fallback to safe no-op
+    }
+
     let banner = document.getElementById('stub-banner');
 
     if (!banner) {
@@ -373,20 +388,40 @@ function showStubBanner(message, adrLink) {
         document.body.appendChild(banner);
     }
 
-    banner.innerHTML = `
-        <div class="stub-banner-content">
-            <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
-            <span class="stub-banner-message">${message}</span>
-            <a href="${adrLink}" target="_blank" rel="noopener noreferrer" class="stub-banner-link">See ADR</a>
-            <button class="stub-banner-close" aria-label="Dismiss stub banner">&times;</button>
-        </div>
-    `;
+    // replaceChildren() wipes previous content before re-populating,
+    // making the function idempotent and preventing DOM node leaks on re-call.
+    banner.replaceChildren();
+
+    const content = document.createElement('div');
+    content.className = 'stub-banner-content';
+
+    const icon = document.createElement('i');
+    icon.className = 'fas fa-exclamation-triangle';
+    icon.setAttribute('aria-hidden', 'true');
+
+    const messageEl = document.createElement('span');
+    messageEl.className = 'stub-banner-message';
+    messageEl.textContent = message;  // SAFE: textContent escapes all HTML
+
+    const link = document.createElement('a');
+    link.className = 'stub-banner-link';
+    link.href = adrLink;  // URL-validated above; browser parser also rejects malformed hrefs
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.textContent = 'See ADR';
+
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'stub-banner-close';
+    closeBtn.setAttribute('aria-label', 'Dismiss stub banner');
+    closeBtn.textContent = '×';  // Unicode multiplication sign (×); no HTML entity needed
+
+    content.append(icon, messageEl, link, closeBtn);
+    banner.append(content);
 
     banner.classList.add('active');
 
-    // Re-bind dismiss each time the banner is shown (guards against stale listeners
-    // if the banner was previously dismissed and is now re-rendered).
-    banner.querySelector('.stub-banner-close').addEventListener('click', () => {
+    // closeBtn referenced directly — avoids redundant querySelector on the DOM.
+    closeBtn.addEventListener('click', () => {
         banner.classList.remove('active');
     }, { once: true });
 }

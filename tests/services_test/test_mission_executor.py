@@ -2,45 +2,10 @@
 
 import json
 import os
-import time
 import pytest
 from unittest.mock import MagicMock
 from src.services.mission_executor import MissionExecutor
-
-
-# ---------------------------------------------------------------------------
-# Polling helpers — replace blind time.sleep with bounded active waits.
-# All use 50ms ticks so they resolve within one interpolation cycle.
-# ---------------------------------------------------------------------------
-
-def _wait_for_status(executor: MissionExecutor, expected_status: str, timeout: float = 30.0) -> bool:
-    """Poll executor.get_status until status matches expected_status or timeout expires."""
-    deadline = time.monotonic() + timeout
-    while time.monotonic() < deadline:
-        if executor.get_status()["status"] == expected_status:
-            return True
-        time.sleep(0.05)
-    return False
-
-
-def _wait_for_waypoint(executor: MissionExecutor, waypoint_n: int, timeout: float = 30.0) -> bool:
-    """Poll until current_waypoint reaches waypoint_n or timeout expires."""
-    deadline = time.monotonic() + timeout
-    while time.monotonic() < deadline:
-        if executor.get_status()["current_waypoint"] >= waypoint_n:
-            return True
-        time.sleep(0.05)
-    return False
-
-
-def _wait_for_call_count(mock_method: MagicMock, expected_count: int, timeout: float = 30.0) -> bool:
-    """Poll until mock_method.call_count reaches expected_count or timeout expires."""
-    deadline = time.monotonic() + timeout
-    while time.monotonic() < deadline:
-        if mock_method.call_count >= expected_count:
-            return True
-        time.sleep(0.05)
-    return False
+from tests.conftest import wait_for_status, wait_for_waypoint, wait_for_call_count
 
 
 # ---------------------------------------------------------------------------
@@ -130,7 +95,7 @@ class TestMissionExecutorStatus:
         ])
         executor.start(mid)
         # Wait until the executor is actually running rather than sleeping a fixed interval.
-        assert _wait_for_status(executor, "flying", timeout=2.0), "executor did not reach 'flying' in time"
+        assert wait_for_status(executor, "flying", timeout=2.0), "executor did not reach 'flying' in time"
         status = executor.get_status()
         assert status["status"] in ("flying", "completed")
         assert status["total_waypoints"] == 2
@@ -141,7 +106,7 @@ class TestMissionExecutorStatus:
             {"latitude": 40.01, "longitude": -74.01, "altitude": 10, "action": "navigate", "duration": 0},
         ])
         executor.start(mid)
-        assert _wait_for_status(executor, "completed", timeout=10.0), "mission did not complete in time"
+        assert wait_for_status(executor, "completed", timeout=10.0), "mission did not complete in time"
         status = executor.get_status()
         assert status["status"] == "completed"
         assert status["progress_pct"] == 100.0
@@ -164,10 +129,10 @@ class TestMissionExecutorAbort:
             {"latitude": -80.0, "longitude": 170.0, "altitude": 50, "action": "navigate", "duration": 0},
         ])
         executor.start(mid)
-        assert _wait_for_status(executor, "flying", timeout=2.0), "executor did not reach 'flying' before abort"
+        assert wait_for_status(executor, "flying", timeout=2.0), "executor did not reach 'flying' before abort"
         result = executor.abort()
         assert result["success"] is True
-        assert _wait_for_status(executor, "aborted", timeout=5.0), "executor did not reach 'aborted' in time"
+        assert wait_for_status(executor, "aborted", timeout=5.0), "executor did not reach 'aborted' in time"
         assert executor.get_status()["status"] == "aborted"
 
 
@@ -183,7 +148,7 @@ class TestMissionExecutorDroneInteraction:
             {"latitude": 40.2, "longitude": -74.2, "altitude": 40, "action": "navigate", "duration": 0},
         ])
         executor.start(mid)
-        assert _wait_for_call_count(mock_drone.move_to, 2, timeout=20.0), (
+        assert wait_for_call_count(mock_drone.move_to, 2, timeout=20.0), (
             f"move_to not called twice; got {mock_drone.move_to.call_count}"
         )
         assert mock_drone.move_to.call_count == 2
@@ -194,7 +159,7 @@ class TestMissionExecutorDroneInteraction:
         ])
         executor.start(mid)
         # Wait until executor is running so position has been updated at least once.
-        assert _wait_for_status(executor, "flying", timeout=5.0), "executor did not reach 'flying' in time"
+        assert wait_for_status(executor, "flying", timeout=5.0), "executor did not reach 'flying' in time"
         status = executor.get_status()
         pos = status["position"]
         assert pos["latitude"] != 40.0 or pos["longitude"] != -74.0

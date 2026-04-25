@@ -1,10 +1,11 @@
 """Tests for mission_executor.py -- background mission execution engine."""
 
 import json
+import logging
 import os
 import time
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 from src.services.mission_executor import MissionExecutor
 
 
@@ -23,7 +24,8 @@ def missions_dir(tmp_path):
 
 @pytest.fixture
 def executor(mock_drone, missions_dir):
-    return MissionExecutor(mock_drone, missions_dir)
+    """Demo_mode for fast test execution; realistic speeds tested separately."""
+    return MissionExecutor(mock_drone, missions_dir, demo_mode=True)
 
 
 def _create_mission(missions_dir, mission_id, waypoints):
@@ -77,9 +79,10 @@ class TestMissionExecutorStatus:
         assert status["status"] == "idle"
 
     def test_status_during_flight(self, executor, missions_dir):
+        # Short hops keep total flight time bounded after MAX_SEGMENT_DURATION cap removal.
         mid = _create_mission(missions_dir, "status1", [
-            {"latitude": 41.0, "longitude": -75.0, "altitude": 50, "action": "navigate", "duration": 0},
-            {"latitude": 42.0, "longitude": -76.0, "altitude": 50, "action": "navigate", "duration": 0},
+            {"latitude": 40.05, "longitude": -74.05, "altitude": 50, "action": "navigate", "duration": 0},
+            {"latitude": 40.10, "longitude": -74.10, "altitude": 50, "action": "navigate", "duration": 0},
         ])
         executor.start(mid)
         time.sleep(0.5)
@@ -107,9 +110,10 @@ class TestMissionExecutorAbort:
         assert result["success"] is False
 
     def test_abort_during_flight(self, executor, missions_dir):
+        # Short hops avoid blowing flight time without the old MAX_SEGMENT_DURATION cap.
         mid = _create_mission(missions_dir, "abort1", [
-            {"latitude": 80.0, "longitude": -170.0, "altitude": 50, "action": "navigate", "duration": 0},
-            {"latitude": -80.0, "longitude": 170.0, "altitude": 50, "action": "navigate", "duration": 0},
+            {"latitude": 40.05, "longitude": -74.05, "altitude": 50, "action": "navigate", "duration": 0},
+            {"latitude": 40.10, "longitude": -74.10, "altitude": 50, "action": "navigate", "duration": 0},
         ])
         executor.start(mid)
         time.sleep(0.3)
@@ -155,9 +159,10 @@ class TestMissionExecutorPathTraversal:
 class TestMissionExecutorDroneInteraction:
 
     def test_move_to_called_for_each_waypoint(self, executor, missions_dir, mock_drone):
+        # Sub-km hops keep total flight under sleep budget after MAX_SEGMENT_DURATION removal.
         mid = _create_mission(missions_dir, "move1", [
-            {"latitude": 40.1, "longitude": -74.1, "altitude": 30, "action": "navigate", "duration": 0},
-            {"latitude": 40.2, "longitude": -74.2, "altitude": 40, "action": "navigate", "duration": 0},
+            {"latitude": 40.005, "longitude": -74.005, "altitude": 30, "action": "navigate", "duration": 0},
+            {"latitude": 40.010, "longitude": -74.010, "altitude": 40, "action": "navigate", "duration": 0},
         ])
         executor.start(mid)
         time.sleep(15)
@@ -165,10 +170,29 @@ class TestMissionExecutorDroneInteraction:
 
     def test_position_interpolation(self, executor, missions_dir):
         mid = _create_mission(missions_dir, "interp1", [
-            {"latitude": 41.0, "longitude": -75.0, "altitude": 50, "action": "navigate", "duration": 0},
+            {"latitude": 40.05, "longitude": -74.05, "altitude": 50, "action": "navigate", "duration": 0},
         ])
         executor.start(mid)
         time.sleep(0.5)
         status = executor.get_status()
         pos = status["position"]
         assert pos["latitude"] != 40.0 or pos["longitude"] != -74.0
+
+
+class TestMissionExecutorSpeedValidation:
+
+    def test_speed_mps_zero_raises(self, mock_drone, missions_dir):
+        with pytest.raises(ValueError):
+            MissionExecutor(mock_drone, missions_dir, speed_mps=0)
+
+    def test_speed_mps_negative_raises(self, mock_drone, missions_dir):
+        with pytest.raises(ValueError):
+            MissionExecutor(mock_drone, missions_dir, speed_mps=-5.0)
+
+    def test_demo_mode_logs_warning(self, mock_drone, missions_dir, caplog):
+        with caplog.at_level(logging.WARNING, logger="src.services.mission_executor"):
+            MissionExecutor(mock_drone, missions_dir, demo_mode=True)
+        assert any(
+            "DEMO mode" in rec.message and "not realistic" in rec.message
+            for rec in caplog.records
+        )

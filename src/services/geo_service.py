@@ -200,7 +200,11 @@ class GeoService:
         
         if 'error' in correlation_result:
             return {'success': False, 'error': correlation_result['error']}
-        
+
+        # NOTE: The block below is reserved for the post-ADR-002 implementation.
+        # Currently unreachable because correlate_drone_image always returns
+        # error="correlation_not_implemented" until satellite API integration ships.
+        # See docs/adr/ADR-002-geo-correlator-stub.md
         # Determinar cambios basándose en la correlación
         confidence = correlation_result.get('confidence', 0)
         has_changes = confidence < 0.8

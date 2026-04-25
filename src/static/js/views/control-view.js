@@ -388,6 +388,14 @@ function showStubBanner(message, adrLink) {
         document.body.appendChild(banner);
     }
 
+    // A4 (partial fix, code-critic ciclo 1): screen readers re-announce
+    // aria-live regions only when content changes inside a live region that
+    // is already in the DOM. On a dismiss + re-show cycle the content may be
+    // identical, so the SR skips the announcement. Removing the attribute
+    // before rebuilding content and re-adding it on the next frame forces the
+    // SR to treat the region as fresh and announce it again.
+    banner.removeAttribute('aria-live');
+
     // replaceChildren() wipes previous content before re-populating,
     // making the function idempotent and preventing DOM node leaks on re-call.
     banner.replaceChildren();
@@ -420,9 +428,23 @@ function showStubBanner(message, adrLink) {
 
     banner.classList.add('active');
 
+    // A3 (code-critic ciclo 1): add body class so CSS can push .app grid
+    // below the fixed banner, keeping .topbar (battery, GPS, altitude) visible.
+    document.body.classList.add('has-stub-banner');
+
+    // A4 (code-critic ciclo 1): re-add aria-live on the next frame so the
+    // screen reader treats the fully-populated region as a new announcement.
+    // requestAnimationFrame fires after paint, ensuring content is stable.
+    requestAnimationFrame(() => {
+        banner.setAttribute('aria-live', 'polite');
+    });
+
     // closeBtn referenced directly — avoids redundant querySelector on the DOM.
     closeBtn.addEventListener('click', () => {
         banner.classList.remove('active');
+        // A3: remove body class when banner is dismissed so the layout
+        // returns to its normal position without the top offset.
+        document.body.classList.remove('has-stub-banner');
     }, { once: true });
 }
 

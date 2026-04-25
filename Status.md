@@ -109,7 +109,7 @@ Commits: 25ec6d8, 9894859
 | T11 | P2 | Cap encoded_image size SQLite | chat_session_store.py | S2 |
 | T12 | P3 | 14 menciones legacy templates en docs | docs/ | S4 |
 | T13 | P3 | Guard _ensure_simulation() update_position | dji_controller.py | S3 |
-| T15 | P2 | Hook worktree-isolation-enforcer.sh | .claude/hooks/ | S2 |
+| T15 | P2 | Hook worktree-isolation-enforcer.sh | .claude/hooks/ | CLOSED (2026-04-25) |
 | T16 | P2 | Re-onboarding ai-engineer worktree workflow | docs/ONBOARDING.md | S2 |
 | T17 | P3 | Smoke test prompt LLM post emoji→[TAG] | test_geo_analyzer.py | S3 |
 
@@ -121,7 +121,7 @@ Commits: 25ec6d8, 9894859
 
 **Resolución**: Auditoría post-facto vía `@math-critic` + `@code-critic` (ambos commits approve), sin revert necesario. Código sólido, proceso violado.
 
-**Lección**: Hook `worktree-isolation-enforcer.sh` (PreToolUse:Bash) registrado en T15. Implementar en S2.
+**Lección**: Hook `worktree-isolation-enforcer.sh` (PreToolUse:Bash) implementado y registrado (T15 CLOSED 2026-04-25). Hook instalado en `~/.claude/hooks/worktree-isolation-enforcer.sh`, activo en modo DRY-RUN por defecto. Activar enforcement con `export ARCA_WORKTREE_ISOLATION_ENFORCE=1`. Ver `docs/process/T15-worktree-isolation-hook.md` para detalles.
 
 **Incidente 2**: Local Python 3.14 incompatible con torch==2.5.1 (max 3.13). Tests delegados a CI (Python 3.11).
 
@@ -135,7 +135,7 @@ Commits: 25ec6d8, 9894859
 
 2. **Post-Lote 3**:
    - Push a origin (requiere autorización CTO)
-   - Sprint planning para deuda P2 (T2, T3, T5, T7, T8, T9, T11, T15, T16)
+   - Sprint planning para deuda P2 (T2, T3, T5, T7, T8, T9, T11, T16) — T15 CERRADO
 
 3. **Backlog futuro**:
    - ADR-005: Sentinel/Google Earth geo_correlator integration (C3 ML pipeline)

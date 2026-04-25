@@ -3,11 +3,15 @@
 import json
 import logging
 import os
-import time
 import pytest
 from unittest.mock import MagicMock
 from src.services.mission_executor import MissionExecutor
+from tests.conftest import wait_for_status, wait_for_waypoint, wait_for_call_count
 
+
+# ---------------------------------------------------------------------------
+# Fixtures
+# ---------------------------------------------------------------------------
 
 @pytest.fixture
 def mock_drone():
@@ -28,7 +32,7 @@ def executor(mock_drone, missions_dir):
     return MissionExecutor(mock_drone, missions_dir, demo_mode=True)
 
 
-def _create_mission(missions_dir, mission_id, waypoints):
+def _create_mission(missions_dir: str, mission_id: str, waypoints: list) -> str:
     mission = {
         "id": mission_id,
         "mission_name": "Test Mission",
@@ -39,6 +43,10 @@ def _create_mission(missions_dir, mission_id, waypoints):
         json.dump(mission, f)
     return mission_id
 
+
+# ---------------------------------------------------------------------------
+# TestMissionExecutorStart
+# ---------------------------------------------------------------------------
 
 class TestMissionExecutorStart:
 
@@ -72,6 +80,10 @@ class TestMissionExecutorStart:
         assert "already in progress" in result["error"]
 
 
+# ---------------------------------------------------------------------------
+# TestMissionExecutorStatus
+# ---------------------------------------------------------------------------
+
 class TestMissionExecutorStatus:
 
     def test_initial_status_idle(self, executor):
@@ -85,7 +97,8 @@ class TestMissionExecutorStatus:
             {"latitude": 40.10, "longitude": -74.10, "altitude": 50, "action": "navigate", "duration": 0},
         ])
         executor.start(mid)
-        time.sleep(0.5)
+        # Wait until the executor is actually running rather than sleeping a fixed interval.
+        assert wait_for_status(executor, "flying", timeout=2.0), "executor did not reach 'flying' in time"
         status = executor.get_status()
         assert status["status"] in ("flying", "completed")
         assert status["total_waypoints"] == 2
@@ -96,12 +109,16 @@ class TestMissionExecutorStatus:
             {"latitude": 40.01, "longitude": -74.01, "altitude": 10, "action": "navigate", "duration": 0},
         ])
         executor.start(mid)
-        time.sleep(8)
+        assert wait_for_status(executor, "completed", timeout=10.0), "mission did not complete in time"
         status = executor.get_status()
         assert status["status"] == "completed"
         assert status["progress_pct"] == 100.0
         assert status["current_waypoint"] == 1
 
+
+# ---------------------------------------------------------------------------
+# TestMissionExecutorAbort
+# ---------------------------------------------------------------------------
 
 class TestMissionExecutorAbort:
 
@@ -116,13 +133,16 @@ class TestMissionExecutorAbort:
             {"latitude": 40.10, "longitude": -74.10, "altitude": 50, "action": "navigate", "duration": 0},
         ])
         executor.start(mid)
-        time.sleep(0.3)
+        assert wait_for_status(executor, "flying", timeout=2.0), "executor did not reach 'flying' before abort"
         result = executor.abort()
         assert result["success"] is True
-        time.sleep(1)
-        status = executor.get_status()
-        assert status["status"] == "aborted"
+        assert wait_for_status(executor, "aborted", timeout=5.0), "executor did not reach 'aborted' in time"
+        assert executor.get_status()["status"] == "aborted"
 
+
+# ---------------------------------------------------------------------------
+# TestMissionExecutorPathTraversal
+# ---------------------------------------------------------------------------
 
 class TestMissionExecutorPathTraversal:
     """Sanitisation of client-supplied mission_id in _load_mission."""
@@ -156,6 +176,10 @@ class TestMissionExecutorPathTraversal:
         assert "not found" in result["error"]
 
 
+# ---------------------------------------------------------------------------
+# TestMissionExecutorDroneInteraction
+# ---------------------------------------------------------------------------
+
 class TestMissionExecutorDroneInteraction:
 
     def test_move_to_called_for_each_waypoint(self, executor, missions_dir, mock_drone):
@@ -165,7 +189,9 @@ class TestMissionExecutorDroneInteraction:
             {"latitude": 40.010, "longitude": -74.010, "altitude": 40, "action": "navigate", "duration": 0},
         ])
         executor.start(mid)
-        time.sleep(15)
+        assert wait_for_call_count(mock_drone.move_to, 2, timeout=20.0), (
+            f"move_to not called twice; got {mock_drone.move_to.call_count}"
+        )
         assert mock_drone.move_to.call_count == 2
 
     def test_position_interpolation(self, executor, missions_dir):
@@ -173,7 +199,8 @@ class TestMissionExecutorDroneInteraction:
             {"latitude": 40.05, "longitude": -74.05, "altitude": 50, "action": "navigate", "duration": 0},
         ])
         executor.start(mid)
-        time.sleep(0.5)
+        # Wait until executor is running so position has been updated at least once.
+        assert wait_for_status(executor, "flying", timeout=5.0), "executor did not reach 'flying' in time"
         status = executor.get_status()
         pos = status["position"]
         assert pos["latitude"] != 40.0 or pos["longitude"] != -74.0

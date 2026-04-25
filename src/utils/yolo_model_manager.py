@@ -44,32 +44,32 @@ class YoloModelManager:
             # Importar ultralytics
             from ultralytics import YOLO  # type: ignore
             
-            logger.info("🔄 Inicializando YOLO 11n...")
-            
+            logger.info("Initializing YOLO 11n...")
+
             # Buscar modelo en ubicaciones conocidas
             model_path = self._find_model_path()
-            
+
             if not model_path:
-                logger.error("❌ No se encontró el modelo YOLO 11n")
+                logger.error("YOLO 11n model not found")
                 return False
-            
+
             # Cargar modelo
             self.model = YOLO(model_path)
             self.class_names = self.model.names
             self.is_initialized = True
-            
-            logger.info(f"✅ Modelo cargado desde: {model_path}")
-            logger.info(f"📋 Clases disponibles: {len(self.class_names)}")
-            
+
+            logger.info("Model loaded from: %s", model_path)
+            logger.info("Available classes: %d", len(self.class_names))
+
             return True
-            
+
         except ImportError as e:
-            logger.error(f"❌ Ultralytics no disponible: {e}")
-            logger.error("💡 Instala con: pip install ultralytics")
+            logger.error("Ultralytics unavailable: %s", e)
+            logger.error("Install with: pip install ultralytics")
             return False
-            
+
         except Exception as e:
-            logger.error(f"❌ Error inicializando modelo: {e}")
+            logger.error("Error initializing model: %s", e)
             return self._try_auto_download()
     
     def _find_model_path(self) -> Optional[str]:
@@ -81,11 +81,11 @@ class YoloModelManager:
         """
         for path in self.MODEL_PATHS:
             if os.path.exists(path):
-                logger.info(f"📁 Modelo encontrado en: {path}")
+                logger.info("Model found at: %s", path)
                 return path
-        
+
         # Si no se encuentra, usar el nombre por defecto (auto-descarga)
-        logger.info("🌐 Usando descarga automática")
+        logger.info("Using auto-download")
         return self.DEFAULT_MODEL_NAME
     
     def _try_auto_download(self) -> bool:
@@ -98,19 +98,19 @@ class YoloModelManager:
         try:
             from ultralytics import YOLO  # type: ignore
             
-            logger.info("🌐 Descargando modelo YOLO 11n...")
-            
+            logger.info("Downloading YOLO 11n model...")
+
             # Descargar modelo
             self.model = YOLO(self.DEFAULT_MODEL_NAME)
             self.class_names = self.model.names
             self.is_initialized = True
-            
-            logger.info("✅ Modelo descargado e inicializado")
+
+            logger.info("Model downloaded and initialized")
             return True
-            
+
         except Exception as e:
-            logger.error(f"❌ Error descargando modelo: {e}")
-            logger.error("💡 Verifica conexión a internet")
+            logger.error("Error downloading model: %s", e)
+            logger.error("Check internet connection")
             return False
     
     def predict(self, image, confidence_threshold: float = 0.5, 

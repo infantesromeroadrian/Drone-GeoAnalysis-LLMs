@@ -393,26 +393,60 @@ class TestGeoService(unittest.TestCase):
         self.assertIn('Status error', result['error'])
         print("✓ test_get_targets_status_exception: EXITOSO")
     
+    @unittest.skip("Pre-stub contract; reactivate after ADR-002 implementation")
     @patch.object(GeoService, '_get_mock_telemetry')
-    def test_detect_changes_real_success(self, mock_telemetry):
-        """Test: Detección de cambios real exitosa."""
+    def test_detect_changes_real_success_DEPRECATED_pre_stub(self, mock_telemetry):
+        """DEPRECATED: validates pre-stub contract. Will be reactivated when
+        correlate_drone_image returns real correlation data (post-ADR-002).
+        Marked skip with reason for now."""
         mock_telemetry.return_value = {
             'gps': {'latitude': 40.0, 'longitude': -3.0},
             'timestamp': 1234567890
         }
-        
+
         self.mock_geo_correlator.correlate_drone_image.return_value = {
             'confidence': 0.75,
             'correlation_data': 'test_data'
         }
-        
+
         result = self.service._detect_changes_real()
-        
+
         self.assertTrue(result['success'])
         self.assertTrue(result['has_changes'])  # confidence < 0.8
         self.assertEqual(result['change_percentage'], 25.0)  # (1 - 0.75) * 100
         self.assertEqual(result['correlation_confidence'], 0.75)
-        print("✓ test_detect_changes_real_success: EXITOSO")
+        print("✓ test_detect_changes_real_success_DEPRECATED_pre_stub: SKIPPED")
+
+    @patch.object(GeoService, '_get_mock_telemetry')
+    def test_detect_changes_real_returns_stub_marker_today(self, mock_telemetry):
+        """Validates current stub behavior: correlate_drone_image returns
+        error='correlation_not_implemented' and the service surfaces it.
+        This test PROTECTS against silent fallback to false success path."""
+        mock_telemetry.return_value = {
+            'gps': {'latitude': 40.0, 'longitude': -3.0},
+            'timestamp': 1234567890
+        }
+
+        self.mock_geo_correlator.correlate_drone_image.return_value = {
+            "error": "correlation_not_implemented",
+            "implemented": False,
+            "message": "stub mode",
+            "original_coordinates": {"latitude": 40.0, "longitude": -3.0}
+        }
+        self.mock_geo_manager.current_reference_image = 'ref_001'
+        # Force the real path (setUp uses MagicMock which auto-flags as mock).
+        self.service.is_mock_correlator = False
+
+        result = self.service.detect_changes()
+
+        self.assertFalse(result['success'])
+        self.assertEqual(result['error'], 'correlation_not_implemented')
+        # ENSURE: NO confidence/has_changes/change_percentage in response
+        self.assertNotIn('confidence', result)
+        self.assertNotIn('has_changes', result)
+        self.assertNotIn('change_percentage', result)
+        self.assertNotIn('correlation_confidence', result)
+        print("✓ test_detect_changes_real_returns_stub_marker_today: EXITOSO")
     
     @patch.object(GeoService, '_get_mock_telemetry')
     def test_detect_changes_real_error(self, mock_telemetry):

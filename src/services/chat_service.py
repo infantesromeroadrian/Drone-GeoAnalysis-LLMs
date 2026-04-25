@@ -497,14 +497,14 @@ class ChatService:
         enhanced_response = f"""
         {visual_response}
 
-        🔍 **Análisis Visual Específico Completado**
+        **Análisis Visual Específico Completado**
 
         Esta información se basa en:
         • **Análisis visual directo** de la imagen usando GPT-4 Vision
         • **Contexto geográfico**: {geo_analysis.get('country', 'No determinado')}, {geo_analysis.get('city', 'No determinado')}
         • **Objetos detectados**: {yolo_detection.get('total_objects', 0)} objetos identificados
 
-        💡 *Tip*: Puedes hacer más preguntas específicas sobre colores, formas o características visuales de cualquier elemento en la imagen.
+        *Tip*: Puedes hacer más preguntas específicas sobre colores, formas o características visuales de cualquier elemento en la imagen.
         """
 
         return enhanced_response.strip()

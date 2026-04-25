@@ -314,6 +314,14 @@ function setupGeoTab() {
         try {
             const response = await API.detectChanges();
 
+            // Defensive: API.post may return undefined on network failure paths
+            // not currently caught by api.js. Treat it as a generic error so the
+            // user never sees silent inaction.
+            if (!response) {
+                showToast('Error: empty response from server');
+                return;
+            }
+
             if (response.error === 'correlation_not_implemented') {
                 // Stub state: persistent banner per ADR-002, not a transient toast
                 showStubBanner(
@@ -323,12 +331,17 @@ function setupGeoTab() {
                 return;
             }
 
-            if (response.error) {
-                showToast(`Error: ${response.error}`);
+            if (response.error || response.success === false) {
+                showToast(`Error: ${response.error || 'unknown'}`);
                 return;
             }
 
             showToast('Change detection complete');
+        } catch (e) {
+            // fetch can throw on network-level failures (CORS, DNS, offline)
+            // before api.js wraps the response. Surface the failure so the
+            // operator does not assume the click was lost.
+            showToast(`Error: ${e.message || 'network failure'}`);
         } finally {
             if (btn) {
                 btn.disabled = false;

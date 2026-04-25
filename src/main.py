@@ -133,9 +133,25 @@ class DroneGeoApp:
         # Crear executor de misiones
         from src.services.mission_executor import MissionExecutor
         from src.utils.helpers import get_missions_directory
+
+        demo_mode = os.environ.get("MISSION_EXECUTOR_DEMO_MODE", "false").strip().lower() in {"true", "1", "yes"}
+        speed_mps: float | None = None
+        raw_speed = os.environ.get("DRONE_SPEED_MPS")
+        if raw_speed is not None and raw_speed.strip():
+            try:
+                speed_mps = float(raw_speed)
+            except ValueError:
+                logger.warning(
+                    "Invalid DRONE_SPEED_MPS=%r, falling back to default realistic speed",
+                    raw_speed,
+                )
+                speed_mps = None
+
         mission_executor = MissionExecutor(
             hardware_components['drone_controller'],
-            get_missions_directory()
+            get_missions_directory(),
+            speed_mps=speed_mps,
+            demo_mode=demo_mode,
         )
 
         # Crear servicios

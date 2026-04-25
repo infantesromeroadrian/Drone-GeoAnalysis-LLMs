@@ -5,35 +5,70 @@ import logging
 import os
 import threading
 import time
-from typing import Dict, Any, Optional
+from typing import Any
 
 from src.models.mission_utils import calculate_distance
 
 logger = logging.getLogger(__name__)
 
-SIMULATED_SPEED_MPS = 500.0  # Fast for demo -- covers km in seconds
-MAX_SEGMENT_DURATION = 5.0   # No segment takes longer than 5 seconds
+# Realistic Parrot ANAFI cruise speed. Used as default when caller does not override.
+DEFAULT_DRONE_SPEED_MPS = 15.0
+# Preserved for explicit demo mode where simulated time-to-waypoint must be near-instant.
+DEMO_SPEED_MPS = 500.0
+# Position interpolation tick. Drives both UI smoothness and minimum segment duration.
 INTERPOLATION_INTERVAL = 0.15
 
 
 class MissionExecutor:
 
-    def __init__(self, drone_controller, missions_dir: str):
+    def __init__(
+        self,
+        drone_controller: Any,
+        missions_dir: str,
+        speed_mps: float | None = None,
+        demo_mode: bool = False,
+    ) -> None:
+        # Resolve effective speed. demo_mode wins over explicit speed_mps to avoid silent overrides.
+        if demo_mode:
+            if speed_mps is not None:
+                logger.warning(
+                    "MissionExecutor: demo_mode=True overrides speed_mps=%s with DEMO_SPEED_MPS=%s",
+                    speed_mps,
+                    DEMO_SPEED_MPS,
+                )
+            self._speed_mps = DEMO_SPEED_MPS
+            logger.warning(
+                "MissionExecutor running in DEMO mode -- speeds are not realistic"
+            )
+        else:
+            if speed_mps is None:
+                self._speed_mps = DEFAULT_DRONE_SPEED_MPS
+            else:
+                if speed_mps <= 0:
+                    raise ValueError(
+                        f"speed_mps must be > 0, got {speed_mps}"
+                    )
+                self._speed_mps = float(speed_mps)
+
         self._drone = drone_controller
         self._missions_dir = missions_dir
-        self._thread: Optional[threading.Thread] = None
+        self._thread: threading.Thread | None = None
         self._abort_flag = False
         self._status = "idle"
-        self._mission_id: Optional[str] = None
+        self._mission_id: str | None = None
         self._current_waypoint = 0
         self._total_waypoints = 0
         self._position = {"latitude": 0.0, "longitude": 0.0, "altitude": 0.0}
-        self._started_at: Optional[float] = None
+        self._started_at: float | None = None
         self._eta_seconds = 0.0
         self._lock = threading.Lock()
-        logger.info("MissionExecutor initialized")
+        logger.info(
+            "MissionExecutor initialized (speed_mps=%s, demo_mode=%s)",
+            self._speed_mps,
+            demo_mode,
+        )
 
-    def start(self, mission_id: str) -> Dict[str, Any]:
+    def start(self, mission_id: str) -> dict[str, Any]:
         if self._status == "flying":
             return {"success": False, "error": "A mission is already in progress"}
 
@@ -62,14 +97,14 @@ class MissionExecutor:
         logger.info("Mission execution started: %s (%d waypoints)", mission_id, len(waypoints))
         return {"success": True, "mission_id": mission_id, "waypoints": len(waypoints)}
 
-    def abort(self) -> Dict[str, Any]:
+    def abort(self) -> dict[str, Any]:
         if self._status != "flying":
             return {"success": False, "error": "No mission in progress"}
         self._abort_flag = True
         logger.info("Mission abort requested")
         return {"success": True, "message": "Abort signal sent"}
 
-    def get_status(self) -> Dict[str, Any]:
+    def get_status(self) -> dict[str, Any]:
         with self._lock:
             progress = 0.0
             if self._total_waypoints > 0:
@@ -87,7 +122,7 @@ class MissionExecutor:
                 "elapsed_seconds": round(time.time() - self._started_at, 1) if self._started_at else 0,
             }
 
-    def _execute(self, mission_data: Dict[str, Any]) -> None:
+    def _execute(self, mission_data: dict[str, Any]) -> None:
         waypoints = mission_data.get("waypoints", [])
         try:
             for i, wp in enumerate(waypoints):
@@ -100,7 +135,8 @@ class MissionExecutor:
                 target = (wp["latitude"], wp["longitude"])
                 current = (self._position["latitude"], self._position["longitude"])
                 dist = calculate_distance(current, target)
-                travel_time = min(max(dist / SIMULATED_SPEED_MPS, 0.5), MAX_SEGMENT_DURATION)
+                # Real-world travel time gated by interpolation tick to keep minimum animation cadence.
+                travel_time = max(dist / self._speed_mps, INTERPOLATION_INTERVAL)
 
                 self._eta_seconds = self._calculate_remaining_eta(waypoints, i)
 
@@ -143,7 +179,7 @@ class MissionExecutor:
         except Exception as e:
             with self._lock:
                 self._status = "error"
-            logger.error("Mission execution error: %s", e)
+            logger.exception("Mission execution error: %s", e)
 
     def _calculate_remaining_eta(self, waypoints: list, current_idx: int) -> float:
         total_dist = 0.0
@@ -152,9 +188,9 @@ class MissionExecutor:
             target = (wp["latitude"], wp["longitude"])
             total_dist += calculate_distance(pos, target)
             pos = target
-        return total_dist / SIMULATED_SPEED_MPS
+        return total_dist / self._speed_mps
 
-    def _load_mission(self, mission_id: str) -> Optional[Dict]:
+    def _load_mission(self, mission_id: str) -> dict | None:
         path = os.path.join(self._missions_dir, f"mission_{mission_id}.json")
         if not os.path.exists(path):
             return None

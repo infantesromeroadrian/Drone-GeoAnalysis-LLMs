@@ -97,7 +97,7 @@ class ChatService:
         Implementation note: ``_session_locks_lock`` is held only for the
         dict membership check + insert (microseconds). The returned lock
         is acquired by the caller AFTER ``_session_locks_lock`` is
-        released, so the two locks are never nested — no deadlock possible.
+        released, so the two locks are never nested -- no deadlock possible.
         """
         with self._session_locks_lock:
             lock = self._session_locks.get(session_id)
@@ -168,7 +168,7 @@ class ChatService:
 
         Lock GC is best-effort: we only delete a per-session lock when
         the corresponding row no longer exists in the store. We never
-        block on the per-session lock during cleanup — if some other
+        block on the per-session lock during cleanup -- if some other
         thread is mid-append for that session, the lock entry stays and
         will be GC'd on the next cleanup pass. This keeps cleanup itself
         non-blocking and free of lock-order concerns.

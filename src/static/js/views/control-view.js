@@ -318,7 +318,10 @@ function setupGeoTab() {
             // not currently caught by api.js. Treat it as a generic error so the
             // user never sees silent inaction.
             if (!response) {
-                showToast('Error: empty response from server');
+                // A6 (code-critic ciclo 1): actionable message so the operator
+                // knows to check the network tab or server logs, not just retry.
+                showToast('Error: invalid server response (empty or unreachable). Check console for details.');
+                console.warn('[detectChanges] Received empty/null response from /api/geo/changes/detect — likely network or server issue');
                 return;
             }
 
@@ -439,13 +442,30 @@ function showStubBanner(message, adrLink) {
         banner.setAttribute('aria-live', 'polite');
     });
 
-    // closeBtn referenced directly — avoids redundant querySelector on the DOM.
-    closeBtn.addEventListener('click', () => {
+    // A5 (code-critic ciclo 1): dismiss on Escape key. The listener is
+    // registered each time the banner becomes active and cleaned up on both
+    // dismiss paths (Escape and click-X) to avoid accumulating stale handlers
+    // across multiple show/hide cycles.
+    const dismissBanner = () => {
         banner.classList.remove('active');
         // A3: remove body class when banner is dismissed so the layout
         // returns to its normal position without the top offset.
         document.body.classList.remove('has-stub-banner');
-    }, { once: true });
+        document.removeEventListener('keydown', onEscape);
+    };
+
+    const onEscape = (e) => {
+        if (e.key === 'Escape') {
+            dismissBanner();
+        }
+    };
+
+    document.addEventListener('keydown', onEscape);
+
+    // closeBtn referenced directly — avoids redundant querySelector on the DOM.
+    // Both dismiss paths (Escape + click-X) delegate to dismissBanner() to
+    // guarantee the keydown listener is always cleaned up.
+    closeBtn.addEventListener('click', dismissBanner, { once: true });
 }
 
 // Helpers

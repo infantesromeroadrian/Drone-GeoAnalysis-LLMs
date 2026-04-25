@@ -237,3 +237,30 @@ def test_concurrent_access_thread_safe(db_path: str) -> None:
             assert row["chat_history"][0]["question"] == f"q{i}"
     finally:
         store.close()
+
+
+# ----------------------------------------------------------------------
+# Image size validation
+# ----------------------------------------------------------------------
+def test_store_drops_oversized_encoded_image(store: ChatSessionStore, caplog) -> None:
+    """Images exceeding MAX_ENCODED_IMAGE_BYTES are dropped with warning,
+    session still stored without image.
+    """
+    MAX_ENCODED_IMAGE_BYTES = _store_module.MAX_ENCODED_IMAGE_BYTES
+
+    oversized = "A" * (MAX_ENCODED_IMAGE_BYTES + 1)  # 1 byte over cap
+
+    with caplog.at_level("WARNING"):
+        store.store(
+            "sid_big",
+            image_filename="huge.jpg",
+            encoded_image=oversized,
+            geographic_analysis={},
+            yolo_detection={},
+        )
+
+    result = store.get("sid_big")
+    assert result is not None
+    assert result.get("encoded_image") is None  # dropped
+    assert result.get("image_filename") == "huge.jpg"  # other fields preserved
+    assert any("exceeds" in record.message for record in caplog.records)

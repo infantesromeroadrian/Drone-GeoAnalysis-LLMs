@@ -34,3 +34,9 @@ Thumbs.db
 
 # Archivos de jupyter notebook
 .ipynb_checkpoints .env
+
+# Coverage reports
+.coverage
+coverage.xml
+htmlcov/
+.pytest_cache/

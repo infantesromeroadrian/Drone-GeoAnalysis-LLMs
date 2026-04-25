@@ -19,6 +19,7 @@ export async function initControlView() {
         setupCartography();
         setupLLMMission();
         setupSimulation();
+        setupGeoTab();
         loadMissions();
     }
     if (map) setTimeout(() => map.invalidateSize(), 100);
@@ -298,6 +299,83 @@ function setupSimulation() {
             });
         });
     });
+}
+
+// ---- Geo Tab ----
+
+function setupGeoTab() {
+    onClick('btn-detect-changes', async () => {
+        const btn = document.getElementById('btn-detect-changes');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<div class="spinner" style="width:14px;height:14px;border-width:2px"></div> Detecting...';
+        }
+
+        try {
+            const response = await API.detectChanges();
+
+            if (response.error === 'correlation_not_implemented') {
+                // Stub state: persistent banner per ADR-002, not a transient toast
+                showStubBanner(
+                    'Geo correlation module is in stub mode. Real implementation pending (Sentinel-2 / OpenCV).',
+                    'https://github.com/infantesromeroadrian/Drone-GeoAnalysis-LLMs/blob/main/docs/adr/ADR-002-geo-correlator-stub.md'
+                );
+                return;
+            }
+
+            if (response.error) {
+                showToast(`Error: ${response.error}`);
+                return;
+            }
+
+            showToast('Change detection complete');
+        } finally {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-search-plus"></i> Detect Changes';
+            }
+        }
+    });
+}
+
+/**
+ * Renders a persistent top banner for known stub/not-implemented states.
+ * Distinguishes from transient toasts: banner stays until the user explicitly
+ * dismisses it, so operators cannot miss the module-offline signal.
+ *
+ * ADR-002 mandates this banner when backend returns error: "correlation_not_implemented".
+ *
+ * @param {string} message  - Human-readable explanation shown inside the banner.
+ * @param {string} adrLink  - URL to the relevant ADR (opens in new tab).
+ */
+function showStubBanner(message, adrLink) {
+    let banner = document.getElementById('stub-banner');
+
+    if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'stub-banner';
+        banner.className = 'stub-banner';
+        banner.setAttribute('role', 'status');
+        banner.setAttribute('aria-live', 'polite');
+        document.body.appendChild(banner);
+    }
+
+    banner.innerHTML = `
+        <div class="stub-banner-content">
+            <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
+            <span class="stub-banner-message">${message}</span>
+            <a href="${adrLink}" target="_blank" rel="noopener noreferrer" class="stub-banner-link">See ADR</a>
+            <button class="stub-banner-close" aria-label="Dismiss stub banner">&times;</button>
+        </div>
+    `;
+
+    banner.classList.add('active');
+
+    // Re-bind dismiss each time the banner is shown (guards against stale listeners
+    // if the banner was previously dismissed and is now re-rendered).
+    banner.querySelector('.stub-banner-close').addEventListener('click', () => {
+        banner.classList.remove('active');
+    }, { once: true });
 }
 
 // Helpers

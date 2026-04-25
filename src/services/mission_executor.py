@@ -155,7 +155,28 @@ class MissionExecutor:
         return total_dist / SIMULATED_SPEED_MPS
 
     def _load_mission(self, mission_id: str) -> Optional[Dict]:
-        path = os.path.join(self._missions_dir, f"mission_{mission_id}.json")
+        # mission_id is client-supplied: strip path separators and parent
+        # references before composing the filesystem path. Mirrors the
+        # sanitisation pattern already used in src/models/mission_agent.py.
+        if not mission_id:
+            return None
+        safe_id = mission_id.replace("/", "").replace("..", "").replace("\\", "")
+        if not safe_id:
+            logger.warning(
+                "Mission load rejected: mission_id became empty after sanitisation: %r",
+                mission_id,
+            )
+            return None
+
+        path = os.path.join(self._missions_dir, f"mission_{safe_id}.json")
+        missions_root = os.path.abspath(self._missions_dir) + os.sep
+        if not os.path.abspath(path).startswith(missions_root):
+            logger.warning(
+                "Mission load rejected: path traversal detected for mission_id=%r",
+                mission_id,
+            )
+            return None
+
         if not os.path.exists(path):
             return None
         with open(path, "r", encoding="utf-8") as f:

@@ -665,3 +665,58 @@ select.form-control {
         width: 100%;
     }
 }
+
+/*
+ * A3 — Topbar overlap fix (code-critic ciclo 1).
+ *
+ * When the stub banner is active, position:fixed top:0 would normally
+ * obscure the .topbar (battery, GPS, altitude — critical operator info).
+ * We solve this with a body class approach (Option C) rather than a sibling
+ * combinator: the banner is appended via document.body.appendChild(), so it
+ * appears AFTER .app in the DOM, making ~ and + combinators targeting .app
+ * from .stub-banner unreliable.
+ *
+ * JS (showStubBanner) adds/removes body.has-stub-banner in sync with
+ * banner.classList.add/remove('active'). CSS then nudges .topbar and
+ * .main-content down by --banner-height so the grid content shifts below
+ * the fixed overlay. The .app grid itself stays at top:0; only the rows
+ * inside it are offset.
+ *
+ * --banner-height: computed from padding (12px * 2) + line-height (~28px) =
+ * ~52px. Mobile (max-width:640px) can wrap to two lines (~80px) — handled
+ * by the responsive override below.
+ */
+:root {
+    --banner-height: 52px;
+}
+
+body.has-stub-banner .app {
+    /* Push the entire app grid below the fixed banner so topbar is visible */
+    margin-top: var(--banner-height);
+    /* Compensate for the pushed height so the grid still fills the viewport */
+    height: calc(100vh - var(--banner-height));
+}
+
+@media (max-width: 640px) {
+    /* Banner wraps to 2 lines on mobile — increase offset accordingly */
+    :root { --banner-height: 80px; }
+}
+
+/*
+ * A2 — prefers-reduced-motion (code-critic ciclo 1).
+ *
+ * Users who request reduced motion (vestibular / neurological) must not
+ * experience the translateY slide-in. With this query active, the banner
+ * bypasses the transition and snaps to its final position immediately.
+ * WCAG 2.1 SC 2.3.3 (AAA) and widely considered AA-expected in practice.
+ */
+@media (prefers-reduced-motion: reduce) {
+    .stub-banner {
+        transition: none;
+    }
+
+    .stub-banner.active {
+        /* Instant placement — no slide animation */
+        transform: translateY(0);
+    }
+}

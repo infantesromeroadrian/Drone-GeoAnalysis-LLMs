@@ -51,6 +51,12 @@ _WRITABLE_FIELDS: frozenset[str] = frozenset(
     }
 )
 
+# Max size for encoded_image field (base64 string).
+# Drone 4K imagery base64-encoded is ~10MB; cap at 5MB to:
+#   - prevent disk-full scenarios with MAX_SESSIONS=50 (~250MB worst case)
+#   - keep individual rows under SQLite default page-cache friendly size
+MAX_ENCODED_IMAGE_BYTES = 5 * 1024 * 1024  # 5 MB
+
 
 class ChatSessionStore:
     """SQLite-backed persistent store for chat sessions.
@@ -208,10 +214,30 @@ class ChatSessionStore:
         Unknown keyword arguments are rejected to keep the schema
         contract explicit. Fields not provided on update keep their
         previous value (UPSERT semantics, not full overwrite).
+
+        Oversized ``encoded_image`` fields (exceeding MAX_ENCODED_IMAGE_BYTES)
+        are dropped with a warning to prevent disk-full scenarios.
         """
         unknown = set(fields).difference(_WRITABLE_FIELDS)
         if unknown:
             raise ValueError(f"Unknown fields for ChatSessionStore.store: {sorted(unknown)}")
+
+        # Validate encoded_image size. If oversized, drop the field and log.
+        if "encoded_image" in fields and fields["encoded_image"] is not None:
+            img_data = fields["encoded_image"]
+            img_size = (
+                len(img_data.encode("utf-8"))
+                if isinstance(img_data, str)
+                else len(img_data)
+            )
+            if img_size > MAX_ENCODED_IMAGE_BYTES:
+                logger.warning(
+                    "encoded_image exceeds %d bytes (got %d), dropping field for session %s",
+                    MAX_ENCODED_IMAGE_BYTES,
+                    img_size,
+                    session_id,
+                )
+                fields["encoded_image"] = None
 
         now = time.time()
         encoded = {k: self._encode(k, v) for k, v in fields.items()}
@@ -270,9 +296,22 @@ class ChatSessionStore:
             return cur.rowcount > 0
 
     def cleanup_expired(self, ttl_hours: float) -> int:
-        """Delete sessions older than ``ttl_hours``.
+        """Delete sessions whose last activity exceeds ttl_hours.
 
-        Returns the number of rows removed (useful for logging).
+        SEMANTICS: TTL is measured against `updated_at` (last write), NOT
+        `created_at`. Active conversations (with frequent appends) extend
+        their lifetime indefinitely. Inactive sessions expire after
+        ttl_hours of silence.
+
+        This differs from the pre-SQLite in-memory dict implementation,
+        which used `created_at` (fixed expiration from session start).
+
+        Args:
+            ttl_hours: Inactivity threshold in hours. Sessions with
+                updated_at < (now - ttl_hours) are deleted.
+
+        Returns:
+            Number of sessions deleted.
         """
         cutoff = time.time() - ttl_hours * 3600.0
         with self._write_lock:

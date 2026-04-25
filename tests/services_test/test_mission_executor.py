@@ -120,6 +120,38 @@ class TestMissionExecutorAbort:
         assert status["status"] == "aborted"
 
 
+class TestMissionExecutorPathTraversal:
+    """Sanitisation of client-supplied mission_id in _load_mission."""
+
+    def test_load_mission_rejects_parent_dir(self, executor, missions_dir, tmp_path):
+        # Create a sibling file the attacker would try to reach via traversal.
+        sibling = tmp_path.parent / "secret.json"
+        sibling.write_text(json.dumps({"waypoints": [{"latitude": 0, "longitude": 0, "altitude": 0}]}))
+        # All four equivalent traversal payloads must resolve to None (not loaded).
+        for payload in ["../secret", "..%2Fsecret", "..\\secret", "/etc/passwd"]:
+            assert executor._load_mission(payload) is None
+
+    def test_load_mission_rejects_empty_after_sanitise(self, executor):
+        # Pure traversal characters collapse to empty string and must be rejected.
+        assert executor._load_mission("../") is None
+        assert executor._load_mission("..") is None
+        assert executor._load_mission("") is None
+
+    def test_load_mission_accepts_clean_id(self, executor, missions_dir):
+        mid = _create_mission(missions_dir, "clean_abc", [
+            {"latitude": 1.0, "longitude": 2.0, "altitude": 10, "action": "navigate", "duration": 0},
+        ])
+        loaded = executor._load_mission(mid)
+        assert loaded is not None
+        assert loaded["id"] == "clean_abc"
+
+    def test_start_returns_not_found_for_traversal(self, executor):
+        # Public surface must not leak whether the file exists outside missions_dir.
+        result = executor.start("../../etc/passwd")
+        assert result["success"] is False
+        assert "not found" in result["error"]
+
+
 class TestMissionExecutorDroneInteraction:
 
     def test_move_to_called_for_each_waypoint(self, executor, missions_dir, mock_drone):

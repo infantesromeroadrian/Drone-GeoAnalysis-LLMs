@@ -9,8 +9,9 @@ import logging
 import os
 import tempfile
 from datetime import datetime
-from flask import send_from_directory
+from flask import abort, send_from_directory
 from typing import Dict, Any, Optional, List
+from werkzeug.security import safe_join
 from werkzeug.utils import secure_filename
 
 from src.utils.helpers import get_image_metadata, save_analysis_results_with_filename
@@ -161,18 +162,62 @@ class AnalysisService:
     
     def serve_result_file(self, filename: str):
         """
-        Sirve archivos de resultados guardados.
-        
+        Serve a saved result file from the results directory.
+
+        Hardened against path traversal: rejects names containing parent-dir
+        markers, absolute paths or backslashes, and double-checks the resolved
+        absolute path stays within ``results_dir`` before delegating to
+        ``send_from_directory``.
+
         Args:
-            filename: Nombre del archivo a servir
-            
+            filename: Untrusted filename coming from the URL converter.
+
         Returns:
-            Respuesta Flask con el archivo
+            Flask response with the requested file, or aborts 404 on traversal.
         """
         results_dir = os.path.join(
             os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
             "results"
         )
+
+        # First gate: reject obvious traversal payloads before touching the FS.
+        if (
+            not filename
+            or ".." in filename
+            or filename.startswith("/")
+            or filename.startswith("\\")
+            or "\x00" in filename
+        ):
+            logger.warning(
+                "Path traversal attempt rejected on /results: filename=%r", filename
+            )
+            abort(404)
+
+        # Second gate: safe_join refuses to escape results_dir even with
+        # crafted segments. Returns None when the join is unsafe.
+        safe_path = safe_join(results_dir, filename)
+        if safe_path is None:
+            logger.warning(
+                "safe_join rejected suspicious path on /results: filename=%r", filename
+            )
+            abort(404)
+
+        # Third gate: defence in depth, verify the resolved real path is
+        # still anchored under results_dir. We use realpath (not abspath) so
+        # that any symlink inside results_dir pointing OUTSIDE the directory
+        # (e.g. results/evil -> /etc/passwd) is resolved to its true target
+        # and rejected. abspath does NOT resolve symlinks and would let an
+        # attacker with FS write to results/ escape the sandbox.
+        resolved = os.path.realpath(safe_path)
+        results_root = os.path.realpath(results_dir) + os.sep
+        if not (resolved == os.path.realpath(results_dir) or resolved.startswith(results_root)):
+            logger.warning(
+                "Resolved path escapes results_dir: filename=%r resolved=%r",
+                filename,
+                resolved,
+            )
+            abort(404)
+
         return send_from_directory(results_dir, filename)
     
     def get_analysis_status(self, analysis_id: str) -> Dict[str, Any]:

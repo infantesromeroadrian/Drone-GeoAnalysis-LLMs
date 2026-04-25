@@ -88,6 +88,51 @@ class DroneGeoApp:
             raise RuntimeError(
                 "OPENAI_API_KEY requerida cuando LLM_PROVIDER=openai. Agregala al archivo .env"
             )
+
+    def _is_production_context(self) -> bool:
+        """
+        Decide whether the runtime should be treated as production-like.
+
+        Triggers:
+          - FLASK_ENV=production (canonical Flask signal)
+          - LLM_PROVIDER pointing to a hosted provider (groq, openai), which
+            implies real API keys / real users -- never local dev.
+        """
+        flask_env = os.environ.get("FLASK_ENV", "").strip().lower()
+        if flask_env == "production":
+            return True
+
+        provider = os.environ.get("LLM_PROVIDER", "docker").strip().lower()
+        # docker == local model runner (development default); everything else
+        # is a hosted, billable provider where session continuity matters.
+        return provider in {"openai", "groq"}
+
+    def _resolve_secret_key(self) -> str:
+        """
+        Resolve Flask SECRET_KEY with environment-aware enforcement.
+
+        In production-like contexts (see ``_is_production_context``) a missing
+        SECRET_KEY is fatal: silently regenerating it on each restart would
+        invalidate every active session and break CSRF/sign-cookie guarantees.
+
+        In development we fall back to a random key but log at ERROR level so
+        the gap is impossible to miss.
+        """
+        secret_key = os.environ.get("SECRET_KEY")
+        if secret_key:
+            return secret_key
+
+        if self._is_production_context():
+            raise RuntimeError(
+                "SECRET_KEY is required in production. Set the SECRET_KEY environment "
+                "variable (see .env.example) before starting the service."
+            )
+
+        logger.error(
+            "SECRET_KEY not configured. Falling back to a random key for development; "
+            "sessions will NOT survive a restart. Set SECRET_KEY in .env to fix this."
+        )
+        return os.urandom(32).hex()
     
     def _create_flask_app(self) -> Flask:
         """Crea la instancia básica de Flask."""
@@ -97,11 +142,7 @@ class DroneGeoApp:
 
         # Configuración básica
         app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB máximo
-        secret_key = os.environ.get('SECRET_KEY')
-        if not secret_key:
-            secret_key = os.urandom(32).hex()
-            logger.warning("SECRET_KEY no configurada. Usando clave aleatoria (sesiones no persistiran entre reinicios)")
-        app.config['SECRET_KEY'] = secret_key
+        app.config['SECRET_KEY'] = self._resolve_secret_key()
 
         # Configurar CORS
         CORS(app, origins=os.environ.get('CORS_ORIGINS', 'http://localhost:4001').split(','))

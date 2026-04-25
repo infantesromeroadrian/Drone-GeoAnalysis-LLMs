@@ -9,6 +9,7 @@ import logging
 import uuid
 from flask import Blueprint, request, jsonify, send_from_directory, session
 from typing import Dict, Any
+from werkzeug.exceptions import HTTPException
 
 logger = logging.getLogger(__name__)
 
@@ -76,15 +77,19 @@ def analyze():
 
 @analysis_blueprint.route('/results/<path:filename>')
 def results(filename):
-    """Sirve archivos de resultados guardados."""
+    """Serve saved analysis result files; traversal attempts are rejected upstream."""
     try:
         if not analysis_service:
             return jsonify({'error': 'Servicio no inicializado'}), 500
-            
+
         return analysis_service.serve_result_file(filename)
-        
+
+    except HTTPException:
+        # Let abort(404) and friends propagate so traversal attempts surface as 404,
+        # not as a generic 500 with a leaked stack trace.
+        raise
     except Exception as e:
-        logger.error(f"Error sirviendo archivo: {str(e)}")
+        logger.error("Error sirviendo archivo: %s", e)
         return jsonify({'error': str(e)}), 500
 
 @analysis_blueprint.route('/api/analysis/status', methods=['GET'])

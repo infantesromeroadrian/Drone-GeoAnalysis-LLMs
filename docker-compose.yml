@@ -9,6 +9,7 @@ services:
       - ./results:/app/results
       - ./logs:/app/logs
       - ./cartography:/app/cartography
+      - ./data:/app/data
     env_file:
       - .env
     ports:

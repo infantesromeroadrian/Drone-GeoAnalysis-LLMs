@@ -7,6 +7,11 @@ logs/
 # Directorio de resultados
 results/
 
+# Persistent chat session DB (SQLite + WAL/SHM sidecars)
+data/*.db
+data/*.db-wal
+data/*.db-shm
+
 # Archivos de caché de Python
 __pycache__/
 *.py[cod]

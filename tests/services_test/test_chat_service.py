@@ -266,6 +266,226 @@ def test_store_drops_oversized_encoded_image(store: ChatSessionStore, caplog) ->
     assert any("exceeds" in record.message for record in caplog.records)
 
 
+# ----------------------------------------------------------------------
+# T9: caller-level fix in ChatService — per-session_id lock
+# ----------------------------------------------------------------------
+def _load_chat_service():
+    """Load ``ChatService`` with heavy package init bypassed.
+
+    ``src/services/__init__.py`` imports ``cv2`` / ``ultralytics`` /
+    ``torch`` which are unrelated to the concurrency contract under test.
+    We import the module by path with its real name so that
+    ``from src.services.chat_session_store import ChatSessionStore`` inside
+    the module is satisfied without going through the package __init__.
+    """
+    here = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.abspath(os.path.join(here, os.pardir, os.pardir))
+    if project_root not in sys.path:
+        sys.path.insert(0, project_root)
+
+    # Pre-stub heavy package init so ``src.services`` imports cheaply.
+    import types
+
+    services_pkg = types.ModuleType("src.services")
+    services_pkg.__path__ = [os.path.join(project_root, "src", "services")]
+    sys.modules.setdefault("src", types.ModuleType("src"))
+    sys.modules["src"].__path__ = [os.path.join(project_root, "src")]
+    sys.modules.setdefault("src.services", services_pkg)
+
+    # Minimal stub for ``src.utils.config.get_llm_config`` so we can
+    # construct ChatService without env vars or real provider config.
+    utils_pkg = types.ModuleType("src.utils")
+    utils_pkg.__path__ = [os.path.join(project_root, "src", "utils")]
+    sys.modules.setdefault("src.utils", utils_pkg)
+
+    config_stub = types.ModuleType("src.utils.config")
+
+    def _stub_get_llm_config():
+        return {"provider": "openai", "config": {"api_key": None, "model": "stub"}}
+
+    def _stub_get_openai_config():
+        return {"model": "stub"}
+
+    config_stub.get_llm_config = _stub_get_llm_config
+    config_stub.get_openai_config = _stub_get_openai_config
+    sys.modules["src.utils.config"] = config_stub
+
+    # Stub ``openai.OpenAI`` to avoid network/credentials at import time.
+    openai_stub = types.ModuleType("openai")
+
+    class _StubOpenAI:
+        def __init__(self, *_args, **_kwargs) -> None:
+            pass
+
+    openai_stub.OpenAI = _StubOpenAI
+    sys.modules.setdefault("openai", openai_stub)
+
+    # Now load the chat_session_store first (needed by chat_service).
+    store_path = os.path.join(project_root, "src", "services", "chat_session_store.py")
+    spec = importlib.util.spec_from_file_location(
+        "src.services.chat_session_store", store_path
+    )
+    if spec is None or spec.loader is None:
+        raise ImportError(f"Cannot load store spec for {store_path}")
+    store_mod = importlib.util.module_from_spec(spec)
+    sys.modules["src.services.chat_session_store"] = store_mod
+    spec.loader.exec_module(store_mod)
+
+    # Finally load chat_service itself.
+    cs_path = os.path.join(project_root, "src", "services", "chat_service.py")
+    spec = importlib.util.spec_from_file_location("src.services.chat_service", cs_path)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"Cannot load chat_service spec for {cs_path}")
+    cs_mod = importlib.util.module_from_spec(spec)
+    sys.modules["src.services.chat_service"] = cs_mod
+    spec.loader.exec_module(cs_mod)
+    return cs_mod
+
+
+class _FakeLLMResponse:
+    """Minimal duck-type for ``client.chat.completions.create`` return."""
+
+    def __init__(self, content: str) -> None:
+        self.choices = [
+            type("Choice", (), {"message": type("Msg", (), {"content": content})()})()
+        ]
+
+
+class _FakeLLMClient:
+    """Stand-in for the OpenAI client whose ``create`` sleeps then returns.
+
+    The sleep is the whole point: it widens the window between the
+    pre-LLM read and the post-LLM append, which is exactly the gap where
+    the T8 race manifests in production. A correct ``ChatService`` with
+    a per-session lock must serialise the appends so no message is lost.
+    """
+
+    def __init__(self, latency_seconds: float) -> None:
+        self._latency = latency_seconds
+        self.chat = self  # ``client.chat.completions.create``
+        self.completions = self
+        self._counter = 0
+        self._counter_lock = threading.Lock()
+
+    def create(self, *, model, messages, temperature, max_tokens):  # noqa: ARG002
+        with self._counter_lock:
+            self._counter += 1
+            n = self._counter
+        time.sleep(self._latency)
+        return _FakeLLMResponse(f"answer-{n}")
+
+
+def test_ask_question_concurrent_same_session_no_message_loss(tmp_path) -> None:
+    """T9 fix: ``ChatService.ask_question`` must NOT lose messages when
+    called concurrently on the same ``session_id``.
+
+    This exercises the exact failure mode T8 documented at the store
+    level. With the per-session lock in ``_append_history``, every append
+    re-reads the latest persisted history inside the critical section,
+    so concurrent appends serialise into a strict order and the final
+    history contains all ``n_threads`` entries.
+
+    We deliberately use a non-trivial LLM latency so the pre-LLM context
+    snapshot is stale by construction when each thread reaches the
+    append step. If the lock were absent, this test would fail the same
+    way T8 does (lost messages).
+    """
+    cs_mod = _load_chat_service()
+    ChatService = cs_mod.ChatService
+
+    db_path = str(tmp_path / "chat_t9.db")
+    service = ChatService(db_path=db_path)
+
+    # Inject a fake LLM client so we don't need credentials. Latency is
+    # small but non-zero — enough to interleave threads reliably.
+    service.client = _FakeLLMClient(latency_seconds=0.05)
+    service.config = {"model": "stub"}
+
+    # Seed a session so ``ask_question`` has context to load.
+    service.store_analysis_context(
+        session_id="t9_shared",
+        analysis_results={"country": "ES"},
+        yolo_results={"total_objects": 0, "object_summary": {}},
+        image_filename="t9.jpg",
+    )
+
+    n_threads = 10
+    barrier = threading.Barrier(n_threads)
+    errors: list[BaseException] = []
+
+    def worker(idx: int) -> None:
+        try:
+            barrier.wait(timeout=5.0)
+            result = service.ask_question("t9_shared", question=f"Q{idx}")
+            assert result.get("status") == "success", result
+        except BaseException as exc:  # noqa: BLE001
+            errors.append(exc)
+
+    threads = [threading.Thread(target=worker, args=(i,)) for i in range(n_threads)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join(timeout=15.0)
+
+    assert not errors, f"Worker errors: {errors!r}"
+
+    history = service.get_chat_history("t9_shared")
+    assert isinstance(history, list)
+    assert all(
+        isinstance(entry, dict) and "question" in entry and "response" in entry
+        for entry in history
+    ), f"Corrupt history: {history!r}"
+    # The whole point of the fix: every append survives.
+    assert len(history) == n_threads, (
+        f"Lost messages despite per-session lock: got {len(history)}/{n_threads}. "
+        f"History: {history!r}"
+    )
+    # Every question Q0..Q(n-1) must appear exactly once.
+    questions = sorted(entry["question"] for entry in history)
+    assert questions == sorted(f"Q{i}" for i in range(n_threads))
+
+
+def test_session_lock_gc_drops_stale_locks(tmp_path) -> None:
+    """``_cleanup_expired_sessions`` must drop locks for evicted sessions.
+
+    Without GC the ``_session_locks`` dict grows monotonically with the
+    number of distinct ``session_id``s ever seen — a memory leak under
+    long-running services. The cleanup pass should remove only locks
+    whose store row is gone; live sessions keep theirs.
+    """
+    cs_mod = _load_chat_service()
+    ChatService = cs_mod.ChatService
+
+    db_path = str(tmp_path / "chat_t9_gc.db")
+    service = ChatService(db_path=db_path)
+    service.client = _FakeLLMClient(latency_seconds=0.0)
+    service.config = {"model": "stub"}
+
+    # Touch lock for a session that we never store: the lock entry should
+    # be GC'd because the store has no matching row.
+    service._get_session_lock("ghost")
+    assert "ghost" in service._session_locks
+
+    # Real session: store + touch lock. Must survive GC.
+    service.store_analysis_context(
+        session_id="alive",
+        analysis_results={},
+        yolo_results={},
+        image_filename="a.jpg",
+    )
+    service._get_session_lock("alive")
+    assert "alive" in service._session_locks
+
+    service._cleanup_expired_sessions()
+
+    assert "ghost" not in service._session_locks, (
+        "Stale lock for non-existent session must be GC'd"
+    )
+    assert "alive" in service._session_locks, (
+        "Lock for live session must NOT be GC'd"
+    )
+
+
 def test_concurrent_append_same_session(tmp_path) -> None:
     """Caller-level read-modify-write race on the SAME ``session_id``.
 

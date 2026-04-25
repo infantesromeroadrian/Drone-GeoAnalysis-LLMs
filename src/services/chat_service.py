@@ -16,6 +16,7 @@ defecto ``./data/chat_sessions.db`` relativo al CWD).
 import json
 import logging
 import os
+import threading
 from datetime import datetime
 from typing import Any
 
@@ -67,11 +68,43 @@ class ChatService:
         self.config = llm_config["config"]
         self.client: OpenAI | None = self._setup_client()
         self.store = ChatSessionStore(db_path or _default_db_path())
+        # T9: per-session_id locks serialise read-modify-write on
+        # ``chat_history`` so two concurrent ``ask_question`` calls on the
+        # same session do not lose messages (TOCTOU caller-level race
+        # documented in T8). The store is atomic per UPDATE; the caller
+        # (this service) is responsible for compound-operation atomicity.
+        # ``_session_locks_lock`` only protects the dict during lazy
+        # creation/removal; it is never held while the per-session lock
+        # is held to avoid lock-order inversion. LLM calls happen OUTSIDE
+        # the per-session lock to keep concurrent sessions independent and
+        # to keep same-session throughput acceptable on long generations.
+        self._session_locks: dict[str, threading.Lock] = {}
+        self._session_locks_lock = threading.Lock()
         logger.info(
             "Servicio de chat contextual inicializado con provider: %s (db=%s)",
             self.provider,
             self.store.db_path,
         )
+
+    def _get_session_lock(self, session_id: str) -> threading.Lock:
+        """Return (or lazily create) the per-session mutation lock.
+
+        The lock guards the read-modify-write of ``chat_history`` so a
+        concurrent ``ask_question`` on the same ``session_id`` cannot
+        overwrite another caller's appended turn. Distinct ``session_id``s
+        get distinct locks and never block each other.
+
+        Implementation note: ``_session_locks_lock`` is held only for the
+        dict membership check + insert (microseconds). The returned lock
+        is acquired by the caller AFTER ``_session_locks_lock`` is
+        released, so the two locks are never nested — no deadlock possible.
+        """
+        with self._session_locks_lock:
+            lock = self._session_locks.get(session_id)
+            if lock is None:
+                lock = threading.Lock()
+                self._session_locks[session_id] = lock
+            return lock
 
     def _setup_client(self) -> OpenAI | None:
         """Configura el cliente segun el proveedor."""
@@ -131,11 +164,41 @@ class ChatService:
         logger.info("Contexto almacenado para sesion: %s", session_id)
 
     def _cleanup_expired_sessions(self) -> None:
-        """Elimina sesiones expiradas y aplica el límite máximo (LRU)."""
+        """Drop expired sessions, enforce LRU cap, and GC stale locks.
+
+        Lock GC is best-effort: we only delete a per-session lock when
+        the corresponding row no longer exists in the store. We never
+        block on the per-session lock during cleanup — if some other
+        thread is mid-append for that session, the lock entry stays and
+        will be GC'd on the next cleanup pass. This keeps cleanup itself
+        non-blocking and free of lock-order concerns.
+        """
         self.store.cleanup_expired(self.SESSION_TTL_HOURS)
         # ``-1`` because we are about to insert one more row; keeping
         # the cap below MAX_SESSIONS avoids breaching it momentarily.
         self.store.enforce_max_sessions(max(1, self.MAX_SESSIONS - 1))
+
+        # Garbage-collect locks for sessions that no longer exist. We
+        # snapshot the keys under ``_session_locks_lock`` to avoid
+        # iterating a mutating dict, then drop entries whose session row
+        # is gone. The store lookup happens outside ``_session_locks_lock``
+        # to keep that critical section as short as possible.
+        with self._session_locks_lock:
+            tracked_sids = list(self._session_locks.keys())
+        stale: list[str] = [
+            sid for sid in tracked_sids if self.store.get(sid) is None
+        ]
+        if stale:
+            with self._session_locks_lock:
+                for sid in stale:
+                    # Re-check membership: another thread may have
+                    # recreated the session and the lock between the
+                    # snapshot and now. Cheap defensive check.
+                    if (
+                        sid in self._session_locks
+                        and self.store.get(sid) is None
+                    ):
+                        del self._session_locks[sid]
 
     def ask_question(self, session_id: str, question: str) -> dict[str, Any]:
         """
@@ -228,8 +291,19 @@ class ChatService:
         return context.get("chat_history", []) or []
 
     def clear_chat_history(self, session_id: str) -> bool:
-        """Limpia el historial de chat para una sesión."""
-        return self.store.update_field(session_id, "chat_history", [])
+        """Clear the chat history for a session under the per-session lock.
+
+        Without the lock, a ``clear`` arriving in the gap between an
+        ``ask_question`` LLM call and its subsequent append would be
+        silently undone (the append re-reads, sees the cleared history,
+        and persists ``[entry]``). Holding the same lock used by
+        ``_append_history`` makes clear-vs-append a strict serial order:
+        either clear wins and the next append starts from ``[]``, or the
+        in-flight append commits first and ``clear`` then wipes both.
+        """
+        lock = self._get_session_lock(session_id)
+        with lock:
+            return self.store.update_field(session_id, "chat_history", [])
 
     def get_context_summary(self, session_id: str) -> dict[str, Any]:
         """Obtiene un resumen del contexto de análisis."""
@@ -265,16 +339,41 @@ class ChatService:
         context: dict[str, Any],
         entry: dict[str, Any],
     ) -> None:
-        """Append a chat entry and persist the new history list.
+        """Append a chat entry and persist the new history list atomically.
 
-        ``context`` is the dict snapshot already loaded by the caller;
-        we mutate it in place so any downstream logic in the same call
-        sees the appended turn without a second SELECT.
+        T9 fix for the T8-documented caller-level TOCTOU race:
+        we acquire the per-session_id lock and **re-read** ``chat_history``
+        from the store inside the critical section. The ``context``
+        argument is the pre-LLM snapshot; another concurrent
+        ``ask_question`` on the same session may have appended a turn
+        while this caller's LLM call was in flight, so the snapshot is
+        stale by definition. Re-reading inside the lock guarantees we
+        append on top of the latest persisted state.
+
+        ``context`` is still mutated in place for any downstream caller
+        in this same request that wants to see the new entry without a
+        second SELECT.
         """
-        history = list(context.get("chat_history") or [])
-        history.append(entry)
-        context["chat_history"] = history
-        self.store.update_field(session_id, "chat_history", history)
+        lock = self._get_session_lock(session_id)
+        with lock:
+            current = self.store.get(session_id)
+            if current is None:
+                # Session expired / evicted between LLM call and append.
+                # Refuse to recreate it implicitly; that would resurrect a
+                # session the TTL/LRU policy already retired. Log and let
+                # the caller's response succeed without persisting (the
+                # answer was already returned to the user).
+                logger.warning(
+                    "Session %s gone before append; entry dropped.", session_id
+                )
+                return
+            history = list(current.get("chat_history") or [])
+            history.append(entry)
+            self.store.update_field(session_id, "chat_history", history)
+            # Reflect the latest state into the caller-supplied snapshot
+            # so downstream logic in this request sees the merged history,
+            # including any concurrent append we just merged on top of.
+            context["chat_history"] = history
 
     def _build_chat_system_prompt(self, context: dict[str, Any]) -> str:
         """Construye el prompt de sistema para el chat."""

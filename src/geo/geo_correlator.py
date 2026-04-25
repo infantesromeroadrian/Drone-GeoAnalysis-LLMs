@@ -77,7 +77,7 @@ class GeoCorrelator:
 
             # NOT IMPLEMENTED: Real satellite API integration pending. See ADR-002 (TODO).
             logger.warning(
-                "get_satellite_image is a stub — no real satellite API integrated. "
+                "get_satellite_image is a stub -- no real satellite API integrated. "
                 "Returning None."
             )
             logger.info(
@@ -131,7 +131,7 @@ class GeoCorrelator:
                 gps_data["latitude"], gps_data["longitude"]
             )
 
-            # Realizar correlación (raises NotImplementedError — stub)
+            # Realizar correlación (raises NotImplementedError -- stub)
             correlation_result = self._perform_correlation(
                 drone_image, satellite_image, gps_data, drone_telemetry
             )

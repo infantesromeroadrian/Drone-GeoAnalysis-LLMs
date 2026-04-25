@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-DJI drone controller — STUB / NOT IMPLEMENTED.
+DJI drone controller -- STUB / NOT IMPLEMENTED.
 
 This file declares the BaseDrone interface for DJI hardware but DOES NOT
 integrate with any real DJI SDK. All methods are mocks that log and return
 success values without controlling actual hardware.
 
 Real integration requires:
-- DJI Mobile SDK (Android/iOS only — no native Python binding)
-- DJI Onboard SDK (drones with payload computer support — Matrice 300, M30)
+- DJI Mobile SDK (Android/iOS only -- no native Python binding)
+- DJI Onboard SDK (drones with payload computer support -- Matrice 300, M30)
 - DJI Cloud API (for fleet management)
 
 Until integration is complete, instantiating this controller for non-test
@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 
 class DJIDroneController(BaseDrone):
-    """DJI drone controller — simulation-only stub (no real SDK integration).
+    """DJI drone controller -- simulation-only stub (no real SDK integration).
 
     Instantiation requires ``simulation_mode=True`` explicitly. Calling with
     the default ``simulation_mode=False`` raises ``NotImplementedError`` to
@@ -66,7 +66,7 @@ class DJIDroneController(BaseDrone):
             "longitude": -74.0060,
         }
         logger.warning(
-            "DJIDroneController instantiated in SIMULATION MODE — "
+            "DJIDroneController instantiated in SIMULATION MODE -- "
             "does not control real hardware"
         )
 
@@ -189,7 +189,16 @@ class DJIDroneController(BaseDrone):
             return False
 
     def update_position(self, latitude: float, longitude: float) -> None:
-        """Update the cached drone position (simulated)."""
+        """Update the cached drone position. Stub mode only.
+
+        Raises:
+            NotImplementedError: if ``simulation_mode`` flag was disabled
+                post-init. Defense in depth -- ``__init__`` already rejects
+                real mode, but a caller mutating the attribute afterwards
+                must still hit the guard. Mirrors the pattern used by
+                ``connect``, ``take_off``, ``move_to`` etc.
+        """
+        self._ensure_simulation()
         self.current_position["latitude"] = latitude
         self.current_position["longitude"] = longitude
         logger.info(

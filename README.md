@@ -132,6 +132,15 @@ python tests/services_test/run_services_tests.py mission_service
 | AnalysisService | 15 | 80% |
 | **Total** | **107** | **95.3%** |
 
+### Local development setup
+
+`pytest` requires dev dependencies (pytest-cov, pytest-xdist) to run with the configured coverage gate. Install before running tests:
+
+```bash
+pip install -r requirements-dev.txt
+pytest
+```
+
 ## License
 
 Copyright (c) 2025-2026 Adrian Infantes Romero. **All rights reserved.**

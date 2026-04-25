@@ -208,16 +208,6 @@ class DroneGeoApp:
             return render_template('dashboard.html',
                                    mapbox_token=os.environ.get('MAPBOX_TOKEN', ''))
 
-        @self.app.route('/drone_control.html')
-        def drone_control_legacy():
-            return render_template('dashboard.html',
-                                   mapbox_token=os.environ.get('MAPBOX_TOKEN', ''))
-
-        @self.app.route('/web_index.html')
-        def web_index_legacy():
-            return render_template('dashboard.html',
-                                   mapbox_token=os.environ.get('MAPBOX_TOKEN', ''))
-
         logger.info("Rutas registradas")
     
     def _register_blueprints(self):
@@ -251,8 +241,7 @@ def main():
     logger.info("Servidor iniciado en %s:%d", host, port)
     logger.info("Acceso interno: http://%s:%d", host, port)
     logger.info("Acceso externo: http://localhost:4001")
-    logger.info("Panel de Control: http://localhost:4001/drone_control.html")
-    logger.info("Analisis Rapido: http://localhost:4001/web_index.html")
+    logger.info("Dashboard: http://localhost:4001/")
     logger.info("Mapeo de puertos: localhost:4001 -> contenedor:5000")
     
     # Usar waitress para producción

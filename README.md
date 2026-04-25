@@ -134,11 +134,37 @@ python tests/services_test/run_services_tests.py mission_service
 
 ### Local development setup
 
-`pytest` requires dev dependencies (pytest-cov, pytest-xdist) to run with the configured coverage gate. Install before running tests:
+**Python version requirement:** 3.10–3.13 (torch 2.5.1 does not support Python 3.14+).
+
+If your system Python is outside this range, install a compatible version with `pyenv`:
 
 ```bash
+# Install pyenv if not present (Linux/macOS)
+curl https://pyenv.run | bash
+
+# Install Python 3.11 (recommended, matches CI):
+pyenv install 3.11
+pyenv local 3.11   # writes .python-version in this directory
+
+# Verify:
+python --version   # should show 3.11.x
+```
+
+Then create the venv and install:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
 pip install -r requirements-dev.txt
 pytest
+```
+
+**Why this matters:** `requirements.txt` pins `torch==2.5.1` which only ships wheels for Python 3.10–3.13. Newer Python versions will fail at `pip install` with "no matching distribution" errors.
+
+The Docker container uses Python 3.11-slim, matching CI exactly. If you cannot install Python 3.11 locally, run via Docker:
+
+```bash
+docker-compose up --build
 ```
 
 ## License

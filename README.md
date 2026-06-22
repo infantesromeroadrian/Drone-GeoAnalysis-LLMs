@@ -77,7 +77,7 @@ src/
   processors/           # Data processing (change detection, video)
   templates/            # Jinja2 HTML (SPA dashboard)
   static/               # CSS, JS, assets
-tests/                  # 107 tests, 95.3% success rate
+tests/                  # 44 test files, 391 pytest tests (+ 107-test services runner, 95.3%)
 cartography/            # GeoJSON area definitions
 missions/               # Saved mission files
 ```
@@ -115,7 +115,7 @@ python src/main.py
 ## Testing
 
 ```bash
-# Full test suite (107 tests)
+# Services smoke runner (107 tests). Full pytest suite = 391 tests / 44 files
 python tests/services_test/run_services_tests.py
 
 # Individual services

@@ -69,7 +69,16 @@ jobs:
             -e SECRET_KEY=test-ci-key \
             -p 5000:5000 \
             drone-geo-analysis
-          sleep 10
-          docker logs test-container
-          curl -f http://localhost:5000/ || (docker logs test-container && exit 1)
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:5000/ > /dev/null; then
+              echo "Server responded after $i attempt(s)"
+              ok=1
+              break
+            fi
+            sleep 2
+          done
+          if [ "${ok:-0}" != "1" ]; then
+            docker logs test-container
+            exit 1
+          fi
           docker stop test-container

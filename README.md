@@ -169,9 +169,9 @@ docker-compose up --build
 
 ## License
 
-Copyright (c) 2025-2026 Adrian Infantes Romero. **All rights reserved.**
+Copyright (C) 2025-2026 Adrián Infantes Romero. Licensed under the **GNU Affero General Public License v3.0** (see [LICENSE](LICENSE), SPDX `AGPL-3.0-only`).
 
-This software is proprietary. See [LICENSE](LICENSE) for full terms.
+Earlier revisions of this repository carried a proprietary notice; from this change onwards the code is AGPL-3.0. The licence is compatible with the pinned `ultralytics==8.3.0` (AGPL-3.0) and the bundled `yolo11n.pt` weights, which remain under their own AGPL terms. If you run a modified version as a network service you must offer its source to its users.
 
 ---
 

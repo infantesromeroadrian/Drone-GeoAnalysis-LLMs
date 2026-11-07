@@ -21,3 +21,4 @@ langchain-groq>=0.2.5
 
 # Parrot drone dependencies
 parrot-olympe==7.7.5
+pydantic>=2.5

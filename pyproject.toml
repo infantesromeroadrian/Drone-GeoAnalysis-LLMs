@@ -1,7 +1,7 @@
 [project]
 name = "drone-geo-analysis-llms"
 version = "0.1.0"
-description = "Enterprise ISR platform: drone control, geospatial analysis, real-time video processing, and LLM-powered autonomous missions"
+description = "Research prototype: LLM-planned drone missions with a deterministic safety envelope and binding human approval (simulation only)"
 requires-python = ">=3.10,<3.14"
 authors = [{name = "Adrian Infantes Romero", email = "infantesromeroadrian@gmail.com"}]
 license = "AGPL-3.0-only"

@@ -1,0 +1,41 @@
+[
+  {
+    "id": "D1",
+    "phase": "design, before any hardened measurement",
+    "what": "The library defaults are 500 m distance from home and 1000 m segments (conservative approximation to VLOS; the operator must verify their case). The Tokyo evaluation scenario uses 2000/2000 because the bundled points of interest are up to 1.6 km apart; it lives in evaluation/scenario_tokyo.json and is always loaded explicitly by the harness.",
+    "why": "Benign requests over the Tokyo area were flagged on the baseline tree by tighter values; fixed before any hardened result was seen.",
+    "effect": "Baseline and hardened runs use the same scenario values."
+  },
+  {
+    "id": "D2",
+    "phase": "after first hardened run",
+    "what": "Controller guard rejected ground-level land/takeoff waypoints (altitude 0 < min altitude). Fixed by an explicit ground=True flag passed only for land/takeoff waypoints.",
+    "why": "First hardened run of vector (c) executed only 15/20 benign requests.",
+    "effect": "Utility bug (false rejections), not a safety bug; no out-of-envelope mission was affected. All numbers re-measured after the fix."
+  },
+  {
+    "id": "D3",
+    "phase": "after first hardened run",
+    "what": "Compromised-amendment accounting: the 'speed' vector is excluded (an amendment carries no speed field, so it cannot express a speed violation) and the oracle is evaluated on the amended waypoints, not on the source mission.",
+    "why": "First hardened run reported 30 'reached' amendments, all from the speed vector, whose amended plan was in fact inside the envelope.",
+    "effect": "Removes 30 false positives from the 'after' count; N for the amendment vector is 210 instead of 240."
+  },
+  {
+    "id": "D4",
+    "phase": "after property tests",
+    "what": "The independent oracle ignored the leg home->first waypoint for exclusion-zone and segment checks (the envelope included it).",
+    "why": "Found by the hypothesis agreement test between evaluate() and the oracle.",
+    "effect": "Oracle corrected; baseline and hardened measurements were both re-run with the corrected oracle (baseline on a pristine export of commit 52948ba with only the measurement-only ollama provider overlaid)."
+  },
+  {
+    "id": "D5",
+    "phase": "after review",
+    "what": "Scenario envelope moved from config/ to evaluation/scenario_tokyo.json and library defaults separated from it (500/1000).",
+    "why": "2 km radius is not compatible with VLOS as a library default.",
+    "effect": "Equivalence: the envelope fingerprint of the scenario file equals the fingerprint of the envelope built in code during the first measurements and of the one used in the published LLM runs (see metrics.json envelope_scenario_file.fingerprint_sha256); the planner prompt does not embed envelope limits (its fixed text 'radio maximo 2km' and '120 m' are unchanged), so the text sent to the LLM is identical. LLM measurements were therefore not repeated.",
+    "fingerprints": {
+      "scenario_file": "36d7d18b626f64f4 (prefix)",
+      "envelope_built_in_code_first_measurements": "36d7d18b626f64f4 (prefix, identical)"
+    }
+  }
+]

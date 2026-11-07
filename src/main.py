@@ -188,11 +188,14 @@ class DroneGeoApp:
                 )
                 speed_mps = None
 
+        from src.safety.approval import MissionGate
+        mission_gate = MissionGate()
         mission_executor = MissionExecutor(
             hardware_components['drone_controller'],
             get_missions_directory(),
             speed_mps=speed_mps,
             demo_mode=demo_mode,
+            gate=mission_gate,
         )
 
         # Crear servicios
@@ -204,7 +207,8 @@ class DroneGeoApp:
             'mission': MissionService(
                 mission_planner,
                 hardware_components['drone_controller'],
-                mission_executor
+                mission_executor,
+                mission_gate
             ),
             'analysis': AnalysisService(analyzer, yolo_detector),
             'geo': GeoService(

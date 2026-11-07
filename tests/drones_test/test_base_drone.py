@@ -27,9 +27,9 @@ class TestBaseDrone:
     def test_abstract_methods_defined(self):
         """Prueba que todos los métodos abstractos están definidos"""
         expected_methods = {
-            "connect", "disconnect", "take_off", "land", "move_to",
-            "capture_image", "start_video_stream", "stop_video_stream", 
-            "get_telemetry", "execute_mission"
+            "connect", "disconnect", "land", "_do_take_off", "_do_move_to",
+            "capture_image", "start_video_stream", "stop_video_stream",
+            "get_telemetry", "_execute_approved"
         }
         actual_methods = set(BaseDrone.__abstractmethods__)
         assert expected_methods == actual_methods

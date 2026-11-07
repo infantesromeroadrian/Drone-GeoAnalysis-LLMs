@@ -120,7 +120,7 @@ class ParrotAnafiController(BaseDrone):
             logger.error(f"Error al desconectar del dron Parrot ANAFI: {str(e)}")
             return False
     
-    def take_off(self, altitude: float) -> bool:
+    def _do_take_off(self, altitude: float) -> bool:
         """
         Despega el dron hasta la altitud especificada.
         
@@ -183,7 +183,7 @@ class ParrotAnafiController(BaseDrone):
             logger.error(f"Error al aterrizar: {str(e)}")
             return False
     
-    def move_to(self, latitude: float, longitude: float, altitude: float) -> bool:
+    def _do_move_to(self, latitude: float, longitude: float, altitude: float) -> bool:
         """
         Mueve el dron a las coordenadas especificadas.
         
@@ -370,18 +370,14 @@ class ParrotAnafiController(BaseDrone):
             logger.error(f"Error obteniendo telemetría: {str(e)}")
             return {"error": str(e)}
     
-    def execute_mission(self, mission_data: Dict[str, Any]) -> bool:
+    def _execute_approved(self, waypoints: List[Dict[str, Any]]) -> bool:
         """
-        Ejecuta una misión definida por waypoints.
-        
-        Args:
-            mission_data: Datos de la misión con waypoints
+        Ejecuta waypoints ya aprobados (entrada: BaseDrone.execute_mission).
         """
         try:
             if not self.connected:
                 raise ConnectionError("Dron no conectado")
             
-            waypoints = mission_data.get("waypoints", [])
             logger.info(f"Ejecutando misión con {len(waypoints)} waypoints")
             
             for i, waypoint in enumerate(waypoints):
@@ -391,7 +387,8 @@ class ParrotAnafiController(BaseDrone):
                 success = self.move_to(
                     waypoint["latitude"],
                     waypoint["longitude"],
-                    waypoint["altitude"]
+                    waypoint["altitude"],
+                    ground=waypoint.get("action") in ("land", "takeoff"),
                 )
                 
                 if not success:

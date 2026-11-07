@@ -57,11 +57,23 @@ class TestParrotAnafiController:
     def test_move_to(self, controller):
         """Test de movimiento a coordenadas."""
         controller.connected = True
-        result = controller.move_to(40.7589, -73.9851, 50.0)
+        controller.set_home(40.7128, -74.0060)
+        result = controller.move_to(40.7140, -74.0050, 50.0)
         assert result is True
-        assert controller.current_position["latitude"] == 40.7589
-        assert controller.current_position["longitude"] == -73.9851
+        assert controller.current_position["latitude"] == 40.7140
+        assert controller.current_position["longitude"] == -74.0050
         assert controller.current_position["altitude"] == 50.0
+
+    def test_move_to_rejected_without_home(self, controller):
+        """Sin home registrada ningún comando de movimiento se acepta (fail-closed)."""
+        controller.connected = True
+        assert controller.move_to(40.7140, -74.0050, 50.0) is False
+
+    def test_move_to_rejected_outside_envelope(self, controller):
+        controller.connected = True
+        controller.set_home(40.7128, -74.0060)
+        assert controller.move_to(40.7140, -74.0050, 500.0) is False   # altitude
+        assert controller.move_to(40.7589, -73.9851, 50.0) is False    # ~4.7 km from home
     
     def test_capture_image(self, controller):
         """Test de captura de imagen."""
@@ -106,8 +118,8 @@ class TestParrotAnafiController:
         mission_data = {
             "waypoints": [
                 {
-                    "latitude": 40.7589,
-                    "longitude": -73.9851,
+                    "latitude": 40.7135,
+                    "longitude": -74.0055,
                     "altitude": 50.0,
                     "actions": [
                         {"type": "capture_image"},
@@ -115,8 +127,8 @@ class TestParrotAnafiController:
                     ]
                 },
                 {
-                    "latitude": 40.7489,
-                    "longitude": -73.9751,
+                    "latitude": 40.7140,
+                    "longitude": -74.0050,
                     "altitude": 60.0,
                     "actions": [
                         {"type": "start_video"}
@@ -125,5 +137,18 @@ class TestParrotAnafiController:
             ]
         }
         
-        result = controller.execute_mission(mission_data)
+        from src.safety.approval import MissionGate
+        gate = MissionGate()
+        home = (40.7128, -74.0060)
+        review = gate.review("m1", mission_data, home)
+        assert review.ok, review.violations
+        token = gate.approve("m1", mission_data, home, review.mission_hash, "t")
+        approved = gate.redeem(token, "m1", mission_data, home)
+        result = controller.execute_mission(approved)
         assert result is True
+
+    def test_execute_mission_refuses_plain_dict(self, controller):
+        from src.safety.approval import ApprovalError
+        controller.connected = True
+        with pytest.raises(ApprovalError):
+            controller.execute_mission({"waypoints": [{"latitude": 40.7135, "longitude": -74.0055, "altitude": 50.0}]})

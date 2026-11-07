@@ -90,7 +90,7 @@ class TestMissionService(unittest.TestCase):
         """Test: Iniciar mision delega al executor."""
         result = self.service.start_mission('mission_001')
         self.assertTrue(result['success'])
-        self.mock_executor.start.assert_called_once_with('mission_001')
+        self.mock_executor.start.assert_called_once_with('mission_001', None)
 
     def test_start_mission_exception(self):
         """Test: Excepcion al iniciar mision."""

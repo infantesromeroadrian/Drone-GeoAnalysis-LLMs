@@ -1,0 +1,15 @@
+{
+  "_comment": "Evaluation SCENARIO envelope (Tokyo test area, POIs up to 1.6 km apart). Not a default: wider than the conservative 500 m VLOS-approximation default. See README.",
+  "max_distance_from_home_m": 2000.0,
+  "max_segment_m": 2000.0,
+  "exclusion_zones": [
+    {
+      "name": "eval-zone",
+      "center": [
+        35.6669,
+        139.7634
+      ],
+      "radius_m": 120.0
+    }
+  ]
+}

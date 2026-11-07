@@ -6,6 +6,8 @@ import os
 import pytest
 from unittest.mock import MagicMock
 from src.services.mission_executor import MissionExecutor
+from src.safety.approval import MissionGate
+from tests.safety_support import permissive_envelope, start_approved
 from tests.conftest import wait_for_status, wait_for_waypoint, wait_for_call_count
 
 
@@ -29,7 +31,8 @@ def missions_dir(tmp_path):
 @pytest.fixture
 def executor(mock_drone, missions_dir):
     """Demo_mode for fast test execution; realistic speeds tested separately."""
-    return MissionExecutor(mock_drone, missions_dir, demo_mode=True)
+    return MissionExecutor(mock_drone, missions_dir, demo_mode=True,
+                           gate=MissionGate(permissive_envelope()))
 
 
 def _create_mission(missions_dir: str, mission_id: str, waypoints: list) -> str:
@@ -54,7 +57,7 @@ class TestMissionExecutorStart:
         mid = _create_mission(missions_dir, "abc123", [
             {"latitude": 40.1, "longitude": -74.1, "altitude": 30, "action": "navigate", "duration": 0},
         ])
-        result = executor.start(mid)
+        result = start_approved(executor, mid)
         assert result["success"] is True
         assert result["waypoints"] == 1
 
@@ -65,16 +68,16 @@ class TestMissionExecutorStart:
 
     def test_start_empty_waypoints(self, executor, missions_dir):
         mid = _create_mission(missions_dir, "empty", [])
-        result = executor.start(mid)
+        result = start_approved(executor, mid)
         assert result["success"] is False
-        assert "no waypoints" in result["error"]
+        assert "Approval refused" in result["error"]
 
     def test_cannot_start_while_flying(self, executor, missions_dir):
         mid = _create_mission(missions_dir, "fly1", [
             {"latitude": 40.1, "longitude": -74.1, "altitude": 30, "action": "navigate", "duration": 0},
             {"latitude": 40.2, "longitude": -74.2, "altitude": 30, "action": "navigate", "duration": 0},
         ])
-        executor.start(mid)
+        start_approved(executor, mid)
         result = executor.start(mid)
         assert result["success"] is False
         assert "already in progress" in result["error"]
@@ -96,7 +99,7 @@ class TestMissionExecutorStatus:
             {"latitude": 40.05, "longitude": -74.05, "altitude": 50, "action": "navigate", "duration": 0},
             {"latitude": 40.10, "longitude": -74.10, "altitude": 50, "action": "navigate", "duration": 0},
         ])
-        executor.start(mid)
+        start_approved(executor, mid)
         # Wait until the executor is actually running rather than sleeping a fixed interval.
         assert wait_for_status(executor, "flying", timeout=2.0), "executor did not reach 'flying' in time"
         status = executor.get_status()
@@ -108,7 +111,7 @@ class TestMissionExecutorStatus:
         mid = _create_mission(missions_dir, "done1", [
             {"latitude": 40.01, "longitude": -74.01, "altitude": 10, "action": "navigate", "duration": 0},
         ])
-        executor.start(mid)
+        start_approved(executor, mid)
         assert wait_for_status(executor, "completed", timeout=10.0), "mission did not complete in time"
         status = executor.get_status()
         assert status["status"] == "completed"
@@ -132,7 +135,7 @@ class TestMissionExecutorAbort:
             {"latitude": 40.05, "longitude": -74.05, "altitude": 50, "action": "navigate", "duration": 0},
             {"latitude": 40.10, "longitude": -74.10, "altitude": 50, "action": "navigate", "duration": 0},
         ])
-        executor.start(mid)
+        start_approved(executor, mid)
         assert wait_for_status(executor, "flying", timeout=2.0), "executor did not reach 'flying' before abort"
         result = executor.abort()
         assert result["success"] is True
@@ -188,7 +191,7 @@ class TestMissionExecutorDroneInteraction:
             {"latitude": 40.005, "longitude": -74.005, "altitude": 30, "action": "navigate", "duration": 0},
             {"latitude": 40.010, "longitude": -74.010, "altitude": 40, "action": "navigate", "duration": 0},
         ])
-        executor.start(mid)
+        start_approved(executor, mid)
         assert wait_for_call_count(mock_drone.move_to, 2, timeout=20.0), (
             f"move_to not called twice; got {mock_drone.move_to.call_count}"
         )
@@ -198,7 +201,7 @@ class TestMissionExecutorDroneInteraction:
         mid = _create_mission(missions_dir, "interp1", [
             {"latitude": 40.05, "longitude": -74.05, "altitude": 50, "action": "navigate", "duration": 0},
         ])
-        executor.start(mid)
+        start_approved(executor, mid)
         # Wait until executor is running so position has been updated at least once.
         assert wait_for_status(executor, "flying", timeout=5.0), "executor did not reach 'flying' in time"
         status = executor.get_status()

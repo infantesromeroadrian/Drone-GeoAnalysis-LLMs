@@ -7,6 +7,8 @@ import threading
 import time
 from typing import Any
 
+from src.safety.approval import ApprovalError, ApprovedMission, MissionGate
+
 from src.models.mission_utils import calculate_distance
 
 logger = logging.getLogger(__name__)
@@ -27,6 +29,7 @@ class MissionExecutor:
         missions_dir: str,
         speed_mps: float | None = None,
         demo_mode: bool = False,
+        gate: MissionGate | None = None,
     ) -> None:
         # Resolve effective speed. demo_mode wins over explicit speed_mps to avoid silent overrides.
         if demo_mode:
@@ -51,6 +54,8 @@ class MissionExecutor:
                 self._speed_mps = float(speed_mps)
 
         self._drone = drone_controller
+        self._gate = gate
+        self._demo_mode = demo_mode
         self._missions_dir = missions_dir
         self._thread: threading.Thread | None = None
         self._abort_flag = False
@@ -68,7 +73,15 @@ class MissionExecutor:
             demo_mode,
         )
 
-    def start(self, mission_id: str) -> dict[str, Any]:
+    def start(self, mission_id: str, approval_token: str | None = None) -> dict[str, Any]:
+        """Start a mission. Requires a valid one-time approval token bound to the mission's hash.
+
+        This is the only place where a mission becomes executable: the gate reloads nothing on
+        its own, so the mission is read from disk here, re-hashed and re-evaluated by the gate,
+        and only the resulting ``ApprovedMission`` reaches the controller.
+        """
+        if self._gate is None:
+            return {"success": False, "error": "Safety gate not configured; refusing to execute"}
         if self._status == "flying":
             return {"success": False, "error": "A mission is already in progress"}
 
@@ -76,26 +89,41 @@ class MissionExecutor:
         if not mission_data:
             return {"success": False, "error": f"Mission {mission_id} not found"}
 
-        waypoints = mission_data.get("waypoints", [])
-        if not waypoints:
-            return {"success": False, "error": "Mission has no waypoints"}
+        pos = self._drone.current_position
+        try:
+            approved = self._gate.redeem(approval_token, mission_id, mission_data,
+                                         (pos["latitude"], pos["longitude"]))
+        except ApprovalError as e:
+            logger.warning("Mission %s refused by safety gate: %s", mission_id, e.code)
+            return {"success": False, "error": f"Approval refused: {e.code}", "code": e.code}
 
+        waypoints = approved.waypoints
         self._abort_flag = False
         self._status = "flying"
         self._mission_id = mission_id
         self._current_waypoint = 0
         self._total_waypoints = len(waypoints)
         self._started_at = time.time()
-
-        pos = self._drone.current_position
         self._position = {"latitude": pos["latitude"], "longitude": pos["longitude"],
                           "altitude": pos.get("altitude", 0.0)}
 
-        self._thread = threading.Thread(target=self._execute, args=(mission_data,), daemon=True)
+        self._thread = threading.Thread(target=self._execute, args=(approved,), daemon=True)
         self._thread.start()
 
         logger.info("Mission execution started: %s (%d waypoints)", mission_id, len(waypoints))
         return {"success": True, "mission_id": mission_id, "waypoints": len(waypoints)}
+
+    def store_mission(self, mission: dict[str, Any]) -> None:
+        """Persist a mission JSON (mission ids are generated server-side as UUIDs)."""
+        mid = str(mission["id"])
+        if not mid or any(c in mid for c in "/\\.") :
+            raise ValueError("invalid mission id")
+        with open(os.path.join(self._missions_dir, f"mission_{mid}.json"), "w", encoding="utf-8") as f:
+            json.dump(mission, f, ensure_ascii=False)
+
+    def load_mission(self, mission_id: str) -> dict | None:
+        """Read-only access to a stored mission (used by the approval flow)."""
+        return self._load_mission(mission_id)
 
     def abort(self) -> dict[str, Any]:
         if self._status != "flying":
@@ -122,8 +150,13 @@ class MissionExecutor:
                 "elapsed_seconds": round(time.time() - self._started_at, 1) if self._started_at else 0,
             }
 
-    def _execute(self, mission_data: dict[str, Any]) -> None:
-        waypoints = mission_data.get("waypoints", [])
+    def _execute(self, approved: ApprovedMission) -> None:
+        approved = ApprovedMission.require(approved)
+        waypoints = approved.waypoints
+        # Effective speed never exceeds the approved one (the envelope already rejects faster plans).
+        speed = self._speed_mps if self._demo_mode else min(self._speed_mps, approved.speed_mps)
+        if hasattr(self._drone, "set_home"):
+            self._drone.set_home(*approved.home)
         try:
             for i, wp in enumerate(waypoints):
                 if self._abort_flag:
@@ -136,7 +169,7 @@ class MissionExecutor:
                 current = (self._position["latitude"], self._position["longitude"])
                 dist = calculate_distance(current, target)
                 # Real-world travel time gated by interpolation tick to keep minimum animation cadence.
-                travel_time = max(dist / self._speed_mps, INTERPOLATION_INTERVAL)
+                travel_time = max(dist / speed, INTERPOLATION_INTERVAL)
 
                 self._eta_seconds = self._calculate_remaining_eta(waypoints, i)
 
@@ -162,7 +195,12 @@ class MissionExecutor:
                     time.sleep(INTERPOLATION_INTERVAL)
 
                 # Arrived at waypoint
-                self._drone.move_to(wp["latitude"], wp["longitude"], wp["altitude"])
+                ground = {"ground": True} if wp.get("action") in ("land", "takeoff") else {}
+                if not self._drone.move_to(wp["latitude"], wp["longitude"], wp["altitude"], **ground):
+                    with self._lock:
+                        self._status = "error"
+                    logger.error("Controller refused waypoint %d/%d; mission stopped", i + 1, len(waypoints))
+                    return
                 with self._lock:
                     self._current_waypoint = i + 1
 

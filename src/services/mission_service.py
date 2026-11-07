@@ -12,6 +12,9 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime
 from werkzeug.utils import secure_filename
 
+from src.safety.approval import ApprovalError, MissionGate
+from src.safety.schemas import MissionAmendment
+
 logger = logging.getLogger(__name__)
 
 class MissionService:
@@ -20,10 +23,15 @@ class MissionService:
     Maneja planificación LLM, cartografía y validación de misiones.
     """
     
-    def __init__(self, mission_planner, drone_controller, mission_executor=None):
+    def __init__(self, mission_planner, drone_controller, mission_executor=None, gate: Optional[MissionGate] = None):
         self.mission_planner = mission_planner
         self.drone_controller = drone_controller
         self.executor = mission_executor
+        # One gate for the whole process: the executor redeems tokens issued by this same instance.
+        self.gate = gate or getattr(mission_executor, "_gate", None) or MissionGate()
+        if mission_executor is not None and getattr(mission_executor, "_gate", None) is None:
+            mission_executor._gate = self.gate
+        self._pending: Dict[str, Dict[str, Any]] = {}
         logger.info("Servicio de misiones inicializado")
     
     def get_missions(self) -> Dict[str, Any]:
@@ -38,40 +46,112 @@ class MissionService:
             logger.error(f"Error obteniendo misiones: {str(e)}")
             return {'success': False, 'error': str(e)}
     
-    def start_mission(self, mission_id: str) -> Dict[str, Any]:
-        """Inicia la ejecucion de una mision (delega al executor)."""
-        return self.execute_mission(mission_id)
+    def start_mission(self, mission_id: str, approval_token: Optional[str] = None) -> Dict[str, Any]:
+        """Inicia la ejecucion de una mision aprobada (delega al executor, que exige el token)."""
+        return self.execute_mission(mission_id, approval_token)
 
     def abort_mission(self) -> Dict[str, Any]:
         """Aborta la mision en curso."""
         return self.abort_execution()
-    
+
+    # -- safety envelope + approval ------------------------------------------------------------
+    def _drone_position(self):
+        pos = self.drone_controller.current_position
+        return (float(pos["latitude"]), float(pos["longitude"]))
+
     def create_llm_mission(self, natural_command: str, area_name: Optional[str] = None) -> Dict[str, Any]:
-        """Crea una misión usando comandos en lenguaje natural con LLM."""
+        """Crea una misión con el LLM. Success solo si pasa la envolvente determinista.
+
+        Una misión aceptada NO es ejecutable: requiere aprobación del operador (approve_mission).
+        """
         try:
-            # Crear misión usando LLM
-            mission = self.mission_planner.create_mission_from_command(
-                natural_command, area_name
-            )
-            
-            if mission:
-                # Validar seguridad (usando validación del módulo refactorizado)
-                from src.models.mission_validator import validate_mission_safety
-                warnings = validate_mission_safety(mission)
-                mission['safety_warnings'] = warnings
-                
-                return {
-                    'success': True, 
-                    'mission': mission,
-                    'safety_warnings': warnings
-                }
-            else:
+            mission = self.mission_planner.create_mission_from_command(natural_command, area_name)
+            if not mission:
                 return {'success': False, 'error': 'Error creando misión con LLM'}
-                
+
+            from src.models.mission_validator import validate_mission_safety
+            warnings = validate_mission_safety(mission)  # advisory only; the envelope is the control
+            mission['safety_warnings'] = warnings
+
+            mission_id = str(mission.get('id', ''))
+            review = self.gate.review(mission_id, mission, self._drone_position())
+            if not review.ok:
+                return {
+                    'success': False,
+                    'error': 'Mission rejected by safety envelope',
+                    'mission_id': mission_id,
+                    'violations': [v.model_dump() for v in review.violations],
+                    'safety_warnings': warnings,
+                }
+            return {
+                'success': True,
+                'mission': mission,
+                'safety_warnings': warnings,
+                'requires_approval': True,
+                'mission_hash': review.mission_hash,
+                'review': review.summary,
+            }
         except Exception as e:
             logger.error(f"Error creando misión LLM: {str(e)}")
             return {'success': False, 'error': str(e)}
-    
+
+    def review_mission(self, mission_id: str) -> Dict[str, Any]:
+        """Revisión completa de una misión almacenada (lo que ve el operador antes de aprobar)."""
+        mission = self.executor.load_mission(mission_id) if self.executor else None
+        if not mission:
+            return {'success': False, 'error': 'Mission not found'}
+        ctx = self._pending.get(mission_id)
+        home = ctx['home'] if ctx else self._drone_position()
+        start = self._drone_position() if ctx else None
+        r = self.gate.review(mission_id, mission, home, start)
+        return {'success': r.ok, **r.as_dict()}
+
+    def approve_mission(self, mission_id: str, mission_hash: str, approver: str) -> Dict[str, Any]:
+        """Aprobación del operador (el endpoint HTTP la autentica). Devuelve un token de un solo uso."""
+        mission = self.executor.load_mission(mission_id) if self.executor else None
+        if not mission:
+            return {'success': False, 'error': 'Mission not found'}
+        ctx = self._pending.get(mission_id)
+        home = ctx['home'] if ctx else self._drone_position()
+        start = self._drone_position() if ctx else None
+        try:
+            token = self.gate.approve(mission_id, mission, home, mission_hash, approver,
+                                      kind=ctx['kind'] if ctx else 'new', start=start)
+        except ApprovalError as e:
+            return {'success': False, 'error': f'Approval refused: {e.code}', 'code': e.code}
+        return {'success': True, 'approval_token': token, 'expires_in_s': self.gate.ttl_s}
+
+    def propose_amendment(self, mission_id: str, amendment: Dict[str, Any]) -> Dict[str, Any]:
+        """Aplica una enmienda propuesta por adaptive_control.
+
+        hold/abort/return_to_base reducen riesgo y se aplican; continue no hace nada. Cualquier
+        enmienda con coordenadas nuevas es una misión nueva: envolvente completa + nueva aprobación.
+        """
+        try:
+            am = MissionAmendment.model_validate(amendment)
+        except Exception as e:
+            return {'success': False, 'error': f'Invalid amendment: {e}'}
+        if am.action == 'continue':
+            return {'success': True, 'applied': 'none'}
+        if am.action in ('hold', 'abort', 'return_to_base'):
+            return {'success': True, 'applied': am.action, 'result': self.abort_execution()}
+        home = getattr(self.drone_controller, 'home_position', None)
+        parent = self.executor.load_mission(mission_id) if self.executor else None
+        if home is None or parent is None:
+            return {'success': False, 'error': 'No home or parent mission for amendment'}
+        import uuid
+        new = {k: v for k, v in parent.items() if k not in ('waypoints', 'id', 'safety_warnings')}
+        new.update(id=str(uuid.uuid4()), parent_mission_id=mission_id, status='amendment',
+                   waypoints=am.waypoints_as_dicts())
+        review = self.gate.review(new['id'], new, home, self._drone_position())
+        if not review.ok:
+            return {'success': False, 'error': 'Amendment rejected by safety envelope',
+                    'violations': [v.model_dump() for v in review.violations]}
+        self.executor.store_mission(new)
+        self._pending[new['id']] = {'kind': 'amendment', 'home': (float(home[0]), float(home[1]))}
+        return {'success': True, 'applied': 'pending_approval', 'mission_id': new['id'],
+                'mission_hash': review.mission_hash, 'review': review.summary}
+
     def adaptive_control(self, mission_id: str, current_position: tuple, 
                         situation_report: str) -> Dict[str, Any]:
         """Control adaptativo de misión usando LLM."""
@@ -248,12 +328,12 @@ class MissionService:
         file.save(temp_path)
         return temp_path
 
-    def execute_mission(self, mission_id: str) -> Dict[str, Any]:
-        """Ejecuta una mision en background."""
+    def execute_mission(self, mission_id: str, approval_token: Optional[str] = None) -> Dict[str, Any]:
+        """Ejecuta una mision en background; el executor exige un token de aprobación válido."""
         if not self.executor:
             return {'success': False, 'error': 'Mission executor not available'}
         try:
-            return self.executor.start(mission_id)
+            return self.executor.start(mission_id, approval_token)
         except Exception as e:
             logger.error("Error executing mission: %s", e)
             return {'success': False, 'error': str(e)}

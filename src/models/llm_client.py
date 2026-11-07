@@ -47,8 +47,14 @@ class LLMClient:
                 base_url=self.config["base_url"],
                 api_key=self.config["api_key"]
             )
+        elif self.provider == "ollama":
+            logger.info(f"Ollama Model: {self.config['model']}")
+            self.client = openai.OpenAI(
+                base_url=self.config["base_url"],
+                api_key=self.config["api_key"]
+            )
         else:
-            raise ValueError(f"LLM provider no soportado: {self.provider}. Use 'docker', 'openai' o 'groq'.")
+            raise ValueError(f"LLM provider no soportado: {self.provider}. Use 'docker', 'openai', 'groq' u 'ollama'.")
 
     def create_chat_completion(self, 
                              messages: List[ChatCompletionMessageParam],
@@ -73,6 +79,8 @@ class LLMClient:
                 response = self._create_openai_completion(messages, temp)
             elif self.provider == "groq":
                 response = self._create_groq_completion(messages, temp)
+            elif self.provider == "ollama":
+                response = self._create_ollama_completion(messages, temp)
             else:
                 raise ValueError(f"LLM provider no soportado: {self.provider}")
 
@@ -106,6 +114,23 @@ class LLMClient:
             max_tokens=self.config["max_tokens"]
         )
     
+    def _create_ollama_completion(self,
+                                  messages: List[ChatCompletionMessageParam],
+                                  temperature: float):
+        """Crea completion usando Ollama (endpoint compatible con OpenAI).
+
+        ``max_tokens`` (not ``max_completion_tokens``) is what Ollama honours.
+        """
+        return self.client.chat.completions.create(
+            model=self.config["model"],
+            messages=messages,
+            temperature=temperature,
+            max_tokens=self.config["max_tokens"],
+            seed=self.config["seed"],
+            extra_body={"reasoning_effort": self.config["reasoning_effort"]},
+            timeout=self.config.get("timeout", 180)
+        )
+
     def _create_groq_completion(self,
                                messages: List[ChatCompletionMessageParam],
                                temperature: float):

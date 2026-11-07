@@ -5,7 +5,9 @@ Controlador para rutas de misiones y planificación.
 Responsabilidad única: Manejar las APIs HTTP de misiones y LLM.
 """
 
+import hmac
 import logging
+import os
 from flask import Blueprint, request, jsonify
 from typing import Dict, Any
 
@@ -50,7 +52,7 @@ def start_mission():
         if not mission_id:
             return jsonify({'success': False, 'error': 'ID de misión no especificado'})
         
-        result = mission_service.start_mission(mission_id)
+        result = mission_service.start_mission(mission_id, data.get('approval_token'))
         return jsonify(result)
         
     except Exception as e:
@@ -178,7 +180,7 @@ def execute_mission():
         mission_id = data.get('mission_id')
         if not mission_id:
             return jsonify({'success': False, 'error': 'mission_id requerido'})
-        result = mission_service.execute_mission(mission_id)
+        result = mission_service.execute_mission(mission_id, data.get('approval_token'))
         return jsonify(result)
     except Exception as e:
         logger.error("Error executing mission: %s", e)
@@ -208,3 +210,45 @@ def execution_status():
     except Exception as e:
         logger.error("Error getting execution status: %s", e)
         return jsonify({'status': 'error', 'error': str(e)}) 
+
+
+def _operator_authorised() -> bool:
+    """Operator authentication for approvals: shared secret from the environment.
+
+    Prototype-grade: proves the caller holds OPERATOR_API_KEY (the LLM and its tools never do);
+    it is not a user identity and gives no non-repudiation. Unset key => approvals disabled.
+    """
+    expected = os.environ.get('OPERATOR_API_KEY', '')
+    provided = request.headers.get('X-Operator-Key', '')
+    return bool(expected) and hmac.compare_digest(provided.encode(), expected.encode())
+
+
+@mission_blueprint.route('/<mission_id>/review', methods=['GET'])
+def review_mission(mission_id):
+    """Full mission parameters and canonical hash, as shown to the operator before approval."""
+    if not mission_service:
+        return jsonify({'success': False, 'error': 'Servicio no inicializado'}), 503
+    return jsonify(mission_service.review_mission(mission_id))
+
+
+@mission_blueprint.route('/<mission_id>/approve', methods=['POST'])
+def approve_mission(mission_id):
+    """Binding approval: operator presents the exact mission hash and receives a one-time token."""
+    if not mission_service:
+        return jsonify({'success': False, 'error': 'Servicio no inicializado'}), 503
+    if not os.environ.get('OPERATOR_API_KEY'):
+        return jsonify({'success': False, 'error': 'Approvals disabled: OPERATOR_API_KEY not configured'}), 503
+    if not _operator_authorised():
+        return jsonify({'success': False, 'error': 'Unauthorised'}), 401
+    data = request.json or {}
+    result = mission_service.approve_mission(mission_id, str(data.get('mission_hash', '')),
+                                             approver=request.headers.get('X-Operator-Key', ''))
+    return jsonify(result), (200 if result.get('success') else 409)
+
+
+@mission_blueprint.route('/<mission_id>/amend', methods=['POST'])
+def amend_mission(mission_id):
+    """Apply an in-flight amendment proposal. New coordinates always require a new approval."""
+    if not mission_service:
+        return jsonify({'success': False, 'error': 'Servicio no inicializado'}), 503
+    return jsonify(mission_service.propose_amendment(mission_id, request.json or {}))

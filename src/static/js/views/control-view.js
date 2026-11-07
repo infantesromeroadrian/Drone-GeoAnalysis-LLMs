@@ -192,8 +192,10 @@ function setupLLMMission() {
             const r = await API.createLLMMission(cmd, area || undefined);
             if (r.success && r.mission) {
                 showMissionOnMap(r.mission);
-                showMissionModal(r.mission);
+                showMissionModal(r.mission, r.mission_hash);
                 loadMissions();
+            } else if (r.violations?.length) {
+                showToast(`Rejected by safety envelope: ${r.violations.map(v => v.message).join('; ')}`);
             } else {
                 showToast(`Error: ${r.error || 'Unknown error'}`);
             }
@@ -225,7 +227,7 @@ function showMissionOnMap(mission) {
     map.fitBounds(L.latLngBounds(coords).pad(0.2));
 }
 
-function showMissionModal(mission) {
+function showMissionModal(mission, missionHash) {
     const overlay = document.getElementById('modal-overlay');
     const body = document.getElementById('modal-body');
     if (!overlay || !body) return;
@@ -238,6 +240,7 @@ function showMissionModal(mission) {
         <div style="max-height:200px;overflow-y:auto">
             ${wps.map((w, i) => `<div class="telemetry-item"><span class="telemetry-label">${i + 1}. ${w.action || 'navigate'}</span><span class="telemetry-value">${w.latitude.toFixed(4)}, ${w.longitude.toFixed(4)} @ ${w.altitude}m</span></div>`).join('')}
         </div>
+        <div class="mb-12"><strong>Mission hash (SHA-256):</strong> <code>${missionHash || ''}</code></div>
         ${mission.safety_warnings?.length ? `<div style="margin-top:12px;color:var(--warning)"><i class="fas fa-exclamation-triangle"></i> ${mission.safety_warnings.join(', ')}</div>` : ''}
     `;
     overlay.classList.add('active');
@@ -251,7 +254,7 @@ function showMissionModal(mission) {
     }, { once: true });
     document.getElementById('btn-modal-execute')?.addEventListener('click', () => {
         overlay.classList.remove('active');
-        executeMission(mission.id);
+        executeMission(mission.id, missionHash);
     }, { once: true });
 }
 
@@ -483,8 +486,16 @@ function showToast(msg) {
 
 // ---- Mission Execution ----
 
-async function executeMission(missionId) {
-    const r = await API.executeMission(missionId);
+async function executeMission(missionId, missionHash) {
+    // Binding approval: the operator key is requested per action and never stored.
+    const operatorKey = window.prompt('Operator key (approves exactly the mission hash shown):');
+    if (!operatorKey) { showToast('Execution cancelled: no operator approval'); return; }
+    const approval = await API.approveMission(missionId, missionHash, operatorKey);
+    if (!approval.success) {
+        showToast(`Approval refused: ${approval.error}`);
+        return;
+    }
+    const r = await API.executeMission(missionId, approval.approval_token);
     if (!r.success) {
         showToast(`Error: ${r.error}`);
         return;

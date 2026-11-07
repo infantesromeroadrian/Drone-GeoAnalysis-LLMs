@@ -1,0 +1,58 @@
+{
+  "max_altitude_m": 120.0,
+  "min_altitude_m": 2.0,
+  "max_distance_from_home_m": 500.0,
+  "max_segment_m": 1000.0,
+  "max_speed_mps": 15.0,
+  "max_waypoints": 50,
+  "endurance_s": 1200.0,
+  "battery_reserve_fraction": 0.3,
+  "allowed_actions": [
+    "navigate",
+    "hover",
+    "scan",
+    "photograph",
+    "patrol",
+    "land",
+    "takeoff"
+  ],
+  "allowed_subaction_types": [
+    "capture_image",
+    "start_video",
+    "stop_video",
+    "hover"
+  ],
+  "geofence_polygon": null,
+  "exclusion_zones": [
+    {
+      "name": "example-circle",
+      "center": [
+        35.6669,
+        139.7634
+      ],
+      "radius_m": 120.0
+    },
+    {
+      "name": "example-polygon",
+      "vertices": [
+        [
+          35.66,
+          139.77
+        ],
+        [
+          35.66,
+          139.772
+        ],
+        [
+          35.662,
+          139.772
+        ],
+        [
+          35.662,
+          139.77
+        ]
+      ]
+    }
+  ],
+  "home_tolerance_m": 10.0
+}

@@ -97,7 +97,7 @@ class DJIDroneController(BaseDrone):
             logger.exception("Error disconnecting from DJI drone")
             return False
 
-    def take_off(self, altitude: float) -> bool:
+    def _do_take_off(self, altitude: float) -> bool:
         """Take off to the specified altitude (simulated)."""
         self._ensure_simulation()
         try:
@@ -121,7 +121,7 @@ class DJIDroneController(BaseDrone):
             logger.exception("Error during landing")
             return False
 
-    def move_to(self, latitude: float, longitude: float, altitude: float) -> bool:
+    def _do_move_to(self, latitude: float, longitude: float, altitude: float) -> bool:
         """Move the drone to the specified coordinates (simulated)."""
         self._ensure_simulation()
         try:
@@ -258,14 +258,13 @@ class DJIDroneController(BaseDrone):
             "yaw": 90.0,
         }
 
-    def execute_mission(self, mission_data: dict[str, Any]) -> bool:
-        """Execute a pre-programmed mission (simulated)."""
+    def _execute_approved(self, waypoints: list[dict[str, Any]]) -> bool:
+        """Execute already-approved waypoints (simulated). Entry point: BaseDrone.execute_mission."""
         self._ensure_simulation()
         try:
             if not self.connected:
                 raise ConnectionError("Drone not connected")
 
-            waypoints = mission_data.get("waypoints", [])
             if not waypoints:
                 logger.error("No waypoints defined in mission")
                 return False
@@ -281,11 +280,14 @@ class DJIDroneController(BaseDrone):
         for i, waypoint in enumerate(waypoints):
             logger.info("Navigating to waypoint %d/%d", i + 1, len(waypoints))
 
-            self.move_to(
+            if not self.move_to(
                 waypoint["latitude"],
                 waypoint["longitude"],
                 waypoint["altitude"],
-            )
+                ground=waypoint.get("action") in ("land", "takeoff"),
+            ):
+                logger.error("Waypoint %d rejected; aborting mission", i + 1)
+                return False
 
             self._execute_waypoint_actions(waypoint)
 

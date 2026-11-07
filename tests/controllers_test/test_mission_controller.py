@@ -109,7 +109,7 @@ class TestMissionController:
         assert json_data['mission_id'] == 'mission_001'
         
         # Verificar que se llamó al servicio
-        mock_service.start_mission.assert_called_once_with('mission_001')
+        mock_service.start_mission.assert_called_once_with('mission_001', None)
     
     def test_create_llm_mission_success(self, client, mock_service):
         """Prueba el endpoint /api/missions/llm/create con éxito"""

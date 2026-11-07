@@ -1,0 +1,5 @@
+# False positives: 18-character literal placeholder "test_a..." in unit-test fixtures (reviewed 2026-11-07).
+7887240be8be6baa435993212cd0ddd4bbab772f:tests/geo_test/test_geo_correlator.py:generic-api-key:23
+7887240be8be6baa435993212cd0ddd4bbab772f:tests/geo_test/test_geo_correlator_simple.py:generic-api-key:25
+tests/geo_test/test_geo_correlator.py:generic-api-key:27
+tests/geo_test/test_geo_correlator_simple.py:generic-api-key:25

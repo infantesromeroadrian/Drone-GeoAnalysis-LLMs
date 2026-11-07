@@ -46,3 +46,6 @@ Thumbs.db
 coverage.xml
 htmlcov/
 .pytest_cache/
+
+# Editor-specific agent rules (not part of the repository)
+.cursor/

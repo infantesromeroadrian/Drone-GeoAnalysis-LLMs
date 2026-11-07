@@ -70,6 +70,24 @@ def get_groq_config():
         "timeout": 60,
     }
 
+def get_ollama_config():
+    """Configuration for an Ollama server (local or cloud-backed model).
+
+    Ollama's OpenAI-compatible endpoint honours ``max_tokens`` (verified
+    empirically: finish_reason == "length" at the cap), so the token limit
+    is enforced. ``seed`` and ``temperature`` are fixed for reproducibility.
+    """
+    return {
+        "base_url": os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434/v1"),
+        "api_key": os.environ.get("OLLAMA_API_KEY", "ollama"),
+        "model": os.environ.get("OLLAMA_MODEL", "gpt-oss:120b-cloud"),
+        "temperature": float(os.environ.get("OLLAMA_TEMPERATURE", "0.3")),
+        "seed": int(os.environ.get("OLLAMA_SEED", "7")),
+        "reasoning_effort": os.environ.get("OLLAMA_REASONING_EFFORT", "low"),
+        "max_tokens": int(os.environ.get("OLLAMA_MAX_TOKENS", "4000")),
+        "timeout": 180,
+    }
+
 def get_llm_config():
     """
     Obtiene la configuración del LLM según la variable de entorno LLM_PROVIDER.
@@ -91,6 +109,11 @@ def get_llm_config():
         return {
             "provider": "groq",
             "config": get_groq_config()
+        }
+    elif provider == "ollama":
+        return {
+            "provider": "ollama",
+            "config": get_ollama_config()
         }
     else:
         return {

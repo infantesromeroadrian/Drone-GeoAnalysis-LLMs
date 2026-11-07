@@ -81,7 +81,7 @@ Same harness, same oracle, same seeds, evaluation scenario envelope (2000 m) rat
 
 Additional checks after the fix: each attempt sequence also tried to start with no token, with a forged token, and to obtain an approval with a fabricated hash; a direct `execute_mission(dict)` on both controllers raises. Direct `move_to` calls with out-of-envelope points are refused by the guard (0 violating points reached the mock).
 
-Test suite: 474 tests (the original 391 (390 passed, 1 skipped) plus 83 new), including the compromised-LLM tests, hypothesis property tests (agreement of `evaluate` with the independent oracle, monotonicity under tighter limits, totality on arbitrary JSON, hash sensitivity to every flight-relevant field), token tests (reuse, expiry, wrong hash, wrong mission, tampered capability, position mismatch, audit hygiene) and the no-alternative-route test. Coverage of `src/safety`: 93-100 % per module.
+Test suite: 476 tests (the original 391 (390 passed, 1 skipped) plus 85 new), including the compromised-LLM tests, hypothesis property tests (agreement of `evaluate` with the independent oracle, monotonicity under tighter limits, totality on arbitrary JSON, hash sensitivity to every flight-relevant field), token tests (reuse, expiry, wrong hash, wrong mission, tampered capability, position mismatch, audit hygiene) and the no-alternative-route test. Coverage of `src/safety`: 93-100 % per module.
 
 ### Protocol deviations (declared)
 
@@ -114,7 +114,7 @@ Test suite: 474 tests (the original 391 (390 passed, 1 skipped) plus 83 new), in
 
 ```bash
 python -m venv .venv && . .venv/bin/activate && pip install -r requirements-dev.txt
-python -m pytest tests/                    # 474 tests
+python -m pytest tests/                    # 476 tests (475 passed, 1 skipped)
 python -m evaluation.run_baseline hardened # compromised-LLM vectors (a) and (b)
 LLM_PROVIDER=ollama OLLAMA_MODEL=gpt-oss:120b-cloud python -m evaluation.run_llm hardened_run1   # vector (c)
 python evaluation/make_metrics.py          # aggregate into evaluation/metrics.json

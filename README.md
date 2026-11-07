@@ -144,7 +144,7 @@ python src/main.py
 ## Testing
 
 ```bash
-# Services smoke runner (107 tests). Full pytest suite = 474 tests (incl. hypothesis property tests)
+# Services smoke runner (107 tests). Full pytest suite = 476 tests (475 passed, 1 skipped; incl. hypothesis property tests)
 python tests/services_test/run_services_tests.py
 
 # Individual services
